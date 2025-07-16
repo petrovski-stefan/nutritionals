@@ -1,0 +1,14 @@
+# TODO: The image contains 1 high vulnerability
+FROM python:3.13-slim  
+
+ENV DJANGO_SETTINGS_MODULE=core.settings.development
+
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
+
+WORKDIR /app
+
+COPY pyproject.toml /app/
+
+RUN uv sync
+
+COPY src/ /app/

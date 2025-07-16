@@ -1,0 +1,6 @@
+{
+  "mypy-type-checker.cwd": "backend/",
+  "mypy-type-checker.args": ["--config-file=setup.cfg"],
+  "flake8.cwd": "backend/",
+  "flake8.args": ["--config=setup.cfg"]
+}
