@@ -11,4 +11,4 @@ COPY pyproject.toml /app/
 
 RUN uv sync
 
-COPY src/ /app/
+COPY src/ /app/src/
