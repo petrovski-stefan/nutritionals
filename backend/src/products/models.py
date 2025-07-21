@@ -5,6 +5,7 @@ class Product(models.Model):
     class PharmacyChoices(models.TextChoices):
         APTEKA24 = "apteka24"
 
+    external_id = models.CharField(max_length=10, unique=True)
     title = models.CharField(max_length=300)
     brand = models.CharField(max_length=200, blank=True)
     price = models.CharField(max_length=100, blank=True)  # TODO: Convert to decimal
