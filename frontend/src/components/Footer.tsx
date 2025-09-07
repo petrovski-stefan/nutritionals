@@ -1,3 +1,7 @@
 export default function Footer() {
-  return <div>Footer</div>;
+  return (
+    <div className="bg-dark text-neutral hover:decoration-secondary h-[20vh] hover:underline">
+      Footer
+    </div>
+  );
 }
