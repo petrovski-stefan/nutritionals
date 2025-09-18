@@ -6,7 +6,13 @@ type Props = {
   imageUrl: string;
 };
 
-export default function ({ name, oldPrice, newPrice, pharmacyName, imageUrl }: Props) {
+export default function BestDealsProductCard({
+  name,
+  oldPrice,
+  newPrice,
+  pharmacyName,
+  imageUrl,
+}: Props) {
   return (
     <div className="border-dark/50 w-[15%] rounded-4xl border-2 bg-white px-5 py-8">
       <img

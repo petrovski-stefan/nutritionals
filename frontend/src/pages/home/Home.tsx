@@ -1,43 +1,9 @@
 import { useState, type FormEvent, type KeyboardEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import HomePageProduct from '../../components/products/BestDealProduct';
-import imageUrl from '../../assets/omega3.png';
+import HomePageProduct from './BestDealProduct';
 import Section from './Section';
-
-const simulatedBestDealsData = [
-  {
-    id: 1,
-    name: 'Omega 3 Pharmavital',
-    oldPrice: 500,
-    newPrice: 399,
-    pharmacyName: 'Apteka 24',
-    imageUrl: imageUrl,
-  },
-  {
-    id: 2,
-    name: 'Omega 3 Pharmavital',
-    oldPrice: 500,
-    newPrice: 399,
-    pharmacyName: 'Apteka 24',
-    imageUrl: imageUrl,
-  },
-  {
-    id: 3,
-    name: 'Omega 3 Pharmavital',
-    oldPrice: 500,
-    newPrice: 399,
-    pharmacyName: 'Apteka 24',
-    imageUrl: imageUrl,
-  },
-  {
-    id: 4,
-    name: 'Omega 3 Pharmavital',
-    oldPrice: 500,
-    newPrice: 399,
-    pharmacyName: 'Apteka 24',
-    imageUrl: imageUrl,
-  },
-];
+import PharmacyCard from './SupportedPharmacyCard';
+import { simulatedBestDealsData, supportedPharmacies } from './constants';
 
 export default function Home() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -72,6 +38,13 @@ export default function Home() {
     />
   ));
 
+  const supportedPharmaciesElements = supportedPharmacies.map((pharmacy) => (
+    <PharmacyCard
+      key={pharmacy.name}
+      {...pharmacy}
+    />
+  ));
+
   return (
     <div className="bg-neutral min-h-[70vh]">
       <Section>
@@ -92,23 +65,26 @@ export default function Home() {
             className="w-[70%] rounded-2xl p-4 outline-none"
             type="text"
             name="query"
-            placeholder="Vitamin C..."
+            placeholder="Ex. vitamin c ..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             onKeyDown={(e) => handleKeyDownEnter(e)}
           />
           <button
-            className="border-accent w-[20%] cursor-pointer rounded-3xl border-2 p-3"
+            className="border-accent bg-accent w-[20%] cursor-pointer rounded-3xl border-2 p-3 font-bold text-white"
             type="submit"
           >
             Search
           </button>
         </form>
-        <Link to="/smart-search">
-          <p className="hover:decoration-accent text-dark/70 mt-[2vh] text-sm italic hover:underline">
+        <div className="mt-[3vh]">
+          <Link
+            to="/smart-search"
+            className="hover:decoration-accent text-dark/70 text-sm italic hover:underline"
+          >
             Try AI-assisted search.
-          </p>
-        </Link>
+          </Link>
+        </div>
       </Section>
 
       <Section>
@@ -116,7 +92,10 @@ export default function Home() {
         <div className="mt-[5vh] flex justify-around">{productsElements}</div>
       </Section>
 
-      {/*<div>map?</div> */}
+      <Section>
+        <p className="flex justify-center p-4 text-2xl font-bold">Supported pharmacies currently</p>
+        <div className="mt-[5vh] flex justify-around">{supportedPharmaciesElements}</div>
+      </Section>
     </div>
   );
 }

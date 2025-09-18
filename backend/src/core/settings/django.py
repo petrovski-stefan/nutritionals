@@ -116,7 +116,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = "en-us"
 
-TIME_ZONE = "CET"
+TIME_ZONE = "Europe/Berlin"
 
 USE_I18N = True
 
@@ -127,14 +127,6 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
-
-
-# Celery
-
-CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers:DatabaseScheduler"
-
-CELERY_BROKER_URL = env("CELERY_BROKER_URL")
-# CELERY_RESULT_BACKEND = env("CELERY_RESULT_BACKEND")
 
 
 # DRF
@@ -149,3 +141,6 @@ REST_FRAMEWORK = {
         "rest_framework_simplejwt.authentication.JWTAuthentication",
     ),
 }
+
+from .celery import *  # noqa
+from .scrapers import *  # noqa

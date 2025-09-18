@@ -1,6 +1,6 @@
 from datetime import timedelta
 
-from .shared import *
+from .django import *
 
 DEBUG = True
 

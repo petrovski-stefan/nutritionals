@@ -1,12 +1,14 @@
 from bs4 import BeautifulSoup, ResultSet, Tag
+from django.utils import timezone
 
 from .selectors import (
     PAGE_NUMBERS_SELECTOR,
-    PRODUCT_BRAND_SELECTOR,
+    PRODUCT_BRAND_IN_PRODUCT_CARD_SELECTOR,
     PRODUCT_CARD_SELECTOR,
-    PRODUCT_LINK_SELECTOR,
-    PRODUCT_PRICE_SELECTOR,
-    PRODUCT_TITLE_SELECTOR,
+    PRODUCT_IMAGE_IN_PRODUCT_CARD_SELECTOR,
+    PRODUCT_LINK_IN_PRODUCT_CARD_SELECTOR,
+    PRODUCT_PRICE_IN_PRODUCT_CARD_SELECTOR,
+    PRODUCT_TITLE_IN_PRODUCT_CARD_SELECTOR,
 )
 
 
@@ -36,7 +38,7 @@ def extract_products_from_page(soup: BeautifulSoup) -> ResultSet[Tag]:
     return product_cards
 
 
-def extract_external_product_id(product_card: Tag) -> str | None:
+def _extract_product_external_id(product_card: Tag) -> str | None:
     product_classes = product_card.get_attribute_list("class")
 
     for product_class in product_classes:
@@ -46,40 +48,55 @@ def extract_external_product_id(product_card: Tag) -> str | None:
     return None
 
 
-def extract_product_data(product_card: Tag) -> dict:
-    external_id = extract_external_product_id(product_card)
+FIELD_TO_SELECTOR_MAP = {
+    "title": PRODUCT_TITLE_IN_PRODUCT_CARD_SELECTOR,
+    "brand": PRODUCT_BRAND_IN_PRODUCT_CARD_SELECTOR,
+    "link": PRODUCT_LINK_IN_PRODUCT_CARD_SELECTOR,
+    "price": PRODUCT_PRICE_IN_PRODUCT_CARD_SELECTOR,
+    "image_link": PRODUCT_IMAGE_IN_PRODUCT_CARD_SELECTOR,
+}
+
+
+def _extract_product_field(product_card: Tag, field: str) -> str:
+    selector = FIELD_TO_SELECTOR_MAP.get(field)
+    if selector is None:
+        raise ValueError
+
+    element = product_card.select_one(selector)
+
+    try:
+        if field == "link":
+            return element.get("href").strip()
+
+        if field == "image_link":
+            return element.get("src").strip()
+
+        return element.get_text(strip=True)
+
+    except Exception:
+        return ""
+
+
+def extract_product_data(product_card: Tag, url: str) -> dict:
+    external_id = _extract_product_external_id(product_card)
     if not external_id:
-        raise ValueError("External id not found")
+        raise ValueError("External ID not found")
 
-    title_element = product_card.select_one(PRODUCT_TITLE_SELECTOR)
-    if not title_element:
-        raise ValueError("Title not found")
+    title = _extract_product_field(product_card, "title")
+    brand = _extract_product_field(product_card, "brand")
+    price = _extract_product_field(product_card, "price")
+    link = _extract_product_field(product_card, "link")
+    image_link = _extract_product_field(product_card, "image_link")
 
-    title = title_element.get_text(strip=True)
-
-    brand_element = product_card.select_one(PRODUCT_BRAND_SELECTOR)
-    if not brand_element:
-        brand = ""
-    else:
-        brand = brand_element.get_text(strip=True)
-
-    price_element = product_card.select_one(PRODUCT_PRICE_SELECTOR)
-    if not price_element:
-        price = ""
-    else:
-        price = price_element.get_text(strip=True)
-
-    link_element = product_card.select_one(PRODUCT_LINK_SELECTOR)
-
-    if not link_element:
-        link = ""
-    else:
-        link = link_element.get("href")  # type: ignore
-
-    return {
+    scraped_data = {
         "external_id": external_id,
         "title": title,
         "brand": brand,
         "price": price,
         "link": link,
+        "image_link": image_link,
+        "url": url,
+        "created_at": timezone.now(),
     }
+
+    return scraped_data

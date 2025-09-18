@@ -1,4 +1,4 @@
-from .shared import *
+from .django import *  # noqa
 
 DEBUG = False
 
