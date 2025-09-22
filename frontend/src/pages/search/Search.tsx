@@ -2,12 +2,12 @@ import { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 
 import * as ProductAPI from '../../api/products';
-import type { Product } from '../../types/product';
+import type { BackendProduct } from '../../types/product';
 import ProductCard from './ProductCard';
 import Filters from './Filters';
 
 export default function Search() {
-  const [products, setProducts] = useState<Array<Product>>([]);
+  const [products, setProducts] = useState<Array<BackendProduct>>([]);
   const [error, setError] = useState<string | null>(null);
 
   const location = useLocation();
@@ -16,7 +16,7 @@ export default function Search() {
   const search = queryParams.get('query');
 
   useEffect(() => {
-    const getData = async () => {
+    const fetchProducts = async () => {
       const response = await ProductAPI.getProducts();
 
       if (response.status) {
@@ -27,7 +27,7 @@ export default function Search() {
       }
     };
 
-    getData();
+    fetchProducts();
   }, []);
 
   const productsElements = products.map((product) => (
@@ -43,7 +43,6 @@ export default function Search() {
       <div>Search {search}</div>
       <div className="flex justify-around">
         <Filters />
-        {error}
         {error ?? (
           <div className="flex w-[75%] flex-wrap justify-around gap-2">{productsElements}</div>
         )}

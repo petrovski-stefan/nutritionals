@@ -1,5 +1,5 @@
-export type Product = {
-  id: string | number;
+export type BackendProduct = {
+  id: number;
   title: string;
   brand: string;
   price: string;
