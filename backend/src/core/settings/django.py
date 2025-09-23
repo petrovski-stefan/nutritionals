@@ -36,6 +36,7 @@ INSTALLED_APPS = [
     "rest_framework",
     "drf_standardized_errors",
     "django_celery_beat",
+    "django_filters",
 ]
 
 

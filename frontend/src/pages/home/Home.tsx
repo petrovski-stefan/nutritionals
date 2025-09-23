@@ -1,13 +1,44 @@
-import { useState, type FormEvent, type KeyboardEvent } from 'react';
+import { useEffect, useState, type FormEvent, type KeyboardEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import HomePageProduct from './BestDealProduct';
 import Section from './Section';
 import PharmacyCard from './SupportedPharmacyCard';
 import { simulatedBestDealsData, supportedPharmacies } from './constants';
+import type { BackendProduct } from '../../types/product';
+import SearchDropdown from './SearchDropdown';
+import * as ProductAPI from '../../api/products';
 
 export default function Home() {
   const [searchQuery, setSearchQuery] = useState('');
+  const [isSearchDropdownOpen, setIsSearchDropdownOpen] = useState<boolean>(false);
+  const [products, setProducts] = useState<Array<BackendProduct>>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (searchQuery.length < 2) {
+      if (isSearchDropdownOpen) {
+        setIsSearchDropdownOpen(false);
+      }
+      return;
+    }
+
+    const search = async (query: string) => {
+      setIsLoading(true);
+      const response = await ProductAPI.searchProducts(query);
+
+      if (response.status) {
+        setProducts(response.data);
+      } else {
+        setProducts([]);
+      }
+      setIsLoading(false);
+    };
+
+    search(searchQuery);
+    setIsSearchDropdownOpen(true);
+  }, [searchQuery]);
 
   const handleFormSubmit = (e: FormEvent) => {
     e.preventDefault();
@@ -31,7 +62,7 @@ export default function Home() {
     setSearchQuery('');
   };
 
-  const productsElements = simulatedBestDealsData.map((product) => (
+  const bestDealsProductsElements = simulatedBestDealsData.map((product) => (
     <HomePageProduct
       key={product.id}
       {...product}
@@ -58,11 +89,11 @@ export default function Home() {
 
       <Section>
         <form
-          className="mx-auto flex max-w-2xl justify-around rounded-2xl bg-white px-6 py-2"
+          className="relative mx-auto flex max-w-2xl justify-around rounded-2xl bg-white px-6 py-2"
           onSubmit={(e) => handleFormSubmit(e)}
         >
           <input
-            className="w-[70%] rounded-2xl p-4 outline-none"
+            className="w-[70%] rounded-2xl bg-neutral-200 p-4 outline-none"
             type="text"
             name="query"
             placeholder="Ex. vitamin c ..."
@@ -76,6 +107,12 @@ export default function Home() {
           >
             Search
           </button>
+          {isSearchDropdownOpen && (
+            <SearchDropdown
+              products={products}
+              loading={isLoading}
+            />
+          )}
         </form>
         <div className="mt-[3vh]">
           <Link
@@ -89,7 +126,7 @@ export default function Home() {
 
       <Section>
         <p className="flex justify-center p-4 text-2xl font-bold">Best deals this week</p>
-        <div className="mt-[5vh] flex justify-around">{productsElements}</div>
+        <div className="mt-[5vh] flex justify-around">{bestDealsProductsElements}</div>
       </Section>
 
       <Section>

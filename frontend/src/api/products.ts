@@ -7,3 +7,11 @@ export const getProducts = async () => {
 
   return response.data as APIResponse<Array<BackendProduct>>;
 };
+
+export const searchProducts = async (searchQuery: string) => {
+  const response = await axiosInstance.get(
+    `api/v1/products/?title__icontains=${encodeURIComponent(searchQuery)}`
+  );
+
+  return response.data as APIResponse<Array<BackendProduct>>;
+};

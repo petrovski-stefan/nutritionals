@@ -3,7 +3,11 @@ const PHARMACY_MAP = {
   Annifarm: 'annifarm',
 };
 
-export default function Filters() {
+type Props = {
+  search: string | null;
+};
+
+export default function Filters({ search }: Props) {
   const pharmacyFiltersElements = Object.entries(PHARMACY_MAP).map(([key, value]) => (
     <div key={key}>
       <input
@@ -23,6 +27,7 @@ export default function Filters() {
           type="text"
           name="query"
           placeholder="Ex. vitamin c ..."
+          value={search ?? ''}
         />
       </div>
       <div>

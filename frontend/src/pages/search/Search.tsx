@@ -17,7 +17,12 @@ export default function Search() {
 
   useEffect(() => {
     const fetchProducts = async () => {
-      const response = await ProductAPI.getProducts();
+      let response;
+      if (search) {
+        response = await ProductAPI.searchProducts(search);
+      } else {
+        response = await ProductAPI.getProducts();
+      }
 
       if (response.status) {
         setProducts(response.data);
@@ -40,9 +45,8 @@ export default function Search() {
 
   return (
     <div className="mx-auto w-full">
-      <div>Search {search}</div>
       <div className="flex justify-around">
-        <Filters />
+        <Filters search={search} />
         {error ?? (
           <div className="flex w-[75%] flex-wrap justify-around gap-2">{productsElements}</div>
         )}
