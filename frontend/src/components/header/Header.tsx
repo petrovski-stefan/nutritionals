@@ -3,7 +3,7 @@ import routes from '../../routes/routes';
 import MenuItem from './MenuItem';
 
 export default function Header() {
-  const menuItemsElements = routes
+  const menuItemsLinks = routes
     .filter(({ showInMenu }) => showInMenu)
     .map((route) => (
       <MenuItem
@@ -17,7 +17,7 @@ export default function Header() {
       <div className="text-accent flex w-[25%] items-center text-3xl font-bold italic">
         <Link to="/">Nutritionals</Link>
       </div>
-      <div className="flex w-[60%] justify-around">{menuItemsElements}</div>
+      <div className="flex w-[60%] justify-around">{menuItemsLinks}</div>
     </div>
   );
 }
