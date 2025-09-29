@@ -1,10 +1,10 @@
-from django.db.models import BooleanField, Case, Count, Q, Value, When
 from django_filters import rest_framework as filters
 from rest_framework.generics import ListAPIView
 
 from .filters import ProductFilterSet
 from .models import Product
 from .serializers import ProductBrandReadListSerializer, ProductReadListSerializer
+from .services import get_brands_with_product_count
 
 
 class ProductListAPIView(ListAPIView):
@@ -20,18 +20,4 @@ class ProductBrandListAPIView(ListAPIView):
     def get_queryset(self):
         title_q = self.request.query_params.get("title") or ""
 
-        return (
-            Product.objects.exclude(brand="")
-            .annotate(
-                included=Case(
-                    When(title__icontains=title_q, then=Value(True)),
-                    default=Value(False),
-                    output_field=BooleanField(),
-                )
-            )
-            .values("brand")
-            .annotate(
-                products_by_brand_count=Count("included", filter=Q(included=True))
-            )
-            .order_by("brand")
-        )
+        return get_brands_with_product_count(title_q=title_q)
