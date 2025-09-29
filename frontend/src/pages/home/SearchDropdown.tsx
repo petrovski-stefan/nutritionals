@@ -7,7 +7,7 @@ type Props = {
 };
 
 export default function SearchDropdown({ products, loading }: Props) {
-  const searchProductsElements = products.map((product) => (
+  const searchProductsDropdownCards = products.map((product) => (
     <DropdownProductCard
       key={product.id}
       {...product}
@@ -16,11 +16,11 @@ export default function SearchDropdown({ products, loading }: Props) {
   ));
 
   return (
-    <div className="absolute top-20 left-9 w-[65%] rounded-2xl bg-neutral-200 p-2">
+    <div className="absolute top-20 w-[65%] rounded-2xl bg-neutral-200 p-2">
       {loading
         ? 'Loading ...'
-        : searchProductsElements.length > 0
-          ? searchProductsElements
+        : searchProductsDropdownCards.length > 0
+          ? searchProductsDropdownCards
           : 'No products found. Try again.'}
     </div>
   );

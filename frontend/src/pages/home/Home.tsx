@@ -7,6 +7,7 @@ import { simulatedBestDealsData, supportedPharmacies } from './constants';
 import type { BackendProduct } from '../../types/product';
 import SearchDropdown from './SearchDropdown';
 import * as ProductAPI from '../../api/products';
+import { SearchIcon } from 'lucide-react';
 
 export default function Home() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -62,14 +63,14 @@ export default function Home() {
     setSearchQuery('');
   };
 
-  const bestDealsProductsElements = simulatedBestDealsData.map((product) => (
+  const bestDealsProductsCards = simulatedBestDealsData.map((product) => (
     <HomePageProduct
       key={product.id}
       {...product}
     />
   ));
 
-  const supportedPharmaciesElements = supportedPharmacies.map((pharmacy) => (
+  const supportedPharmaciesCards = supportedPharmacies.map((pharmacy) => (
     <PharmacyCard
       key={pharmacy.name}
       {...pharmacy}
@@ -89,7 +90,7 @@ export default function Home() {
 
       <Section>
         <form
-          className="relative mx-auto flex max-w-2xl justify-around rounded-2xl bg-white px-6 py-2"
+          className="relative mx-auto flex max-w-3xl justify-around rounded-2xl px-6 py-2"
           onSubmit={(e) => handleFormSubmit(e)}
         >
           <input
@@ -102,10 +103,10 @@ export default function Home() {
             onKeyDown={(e) => handleKeyDownEnter(e)}
           />
           <button
-            className="border-accent bg-accent w-[20%] cursor-pointer rounded-3xl border-2 p-3 font-bold text-white"
+            className="border-accent bg-accent absolute top-1/5 right-36 h-[60%] w-[10%] cursor-pointer rounded-3xl border-2 p-2 font-bold text-white"
             type="submit"
           >
-            Search
+            <SearchIcon />
           </button>
           {isSearchDropdownOpen && (
             <SearchDropdown
@@ -126,12 +127,12 @@ export default function Home() {
 
       <Section>
         <p className="flex justify-center p-4 text-2xl font-bold">Best deals this week</p>
-        <div className="mt-[5vh] flex justify-around">{bestDealsProductsElements}</div>
+        <div className="mt-[5vh] flex justify-around">{bestDealsProductsCards}</div>
       </Section>
 
       <Section>
         <p className="flex justify-center p-4 text-2xl font-bold">Supported pharmacies currently</p>
-        <div className="mt-[5vh] flex justify-around">{supportedPharmaciesElements}</div>
+        <div className="mt-[5vh] flex justify-around">{supportedPharmaciesCards}</div>
       </Section>
     </div>
   );
