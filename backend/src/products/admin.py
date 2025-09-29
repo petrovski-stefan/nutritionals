@@ -5,7 +5,7 @@ from .models import Product
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ["external_id", "title", "pharmacy"]
+    list_display = ["external_id", "title", "pharmacy", "brand"]
     readonly_fields = [
         "external_id",
         "title",
