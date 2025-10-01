@@ -13,7 +13,7 @@ export default function Header() {
     ));
 
   return (
-    <div className="bg-primary flex h-[10vh] w-screen justify-center">
+    <div className="bg-primary sticky top-0 z-10 flex h-16 justify-center">
       <div className="text-accent flex w-[25%] items-center text-3xl font-bold italic">
         <Link to="/">Nutritionals</Link>
       </div>
