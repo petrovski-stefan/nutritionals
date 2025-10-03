@@ -1,6 +1,6 @@
 import Home from '../pages/home/Home';
 import Search from '../pages/search/Search';
-import SmartSearch from '../pages/SmartSearch';
+import SmartSearch from '../pages/smart-search/SmartSearch';
 import About from '../pages/About';
 
 const routes = [

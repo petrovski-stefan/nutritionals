@@ -1,7 +1,7 @@
 import { useEffect, useState, type FormEvent, type KeyboardEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import HomePageProduct from './BestDealProduct';
-import Section from './Section';
+import Section from '../../components/Section';
 import PharmacyCard from './SupportedPharmacyCard';
 import { simulatedBestDealsData, supportedPharmacies } from './constants';
 import type { BackendProduct } from '../../types/product';
