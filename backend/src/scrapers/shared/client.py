@@ -5,7 +5,7 @@ import requests
 from fake_useragent import UserAgent
 
 
-def delay(base_delay_amount: int) -> None:
+def delay(base_delay_amount: int | float) -> None:
     delay_amount = base_delay_amount + random.randint(-5, 5)
     time.sleep(delay_amount)
 
