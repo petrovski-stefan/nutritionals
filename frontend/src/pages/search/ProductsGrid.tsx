@@ -6,14 +6,13 @@ type Props = {
 };
 
 export default function ProductsGrid({ products }: Props) {
-  const productsElements = products.map((product) => (
+  const productCards = products.map((product) => (
     <ProductCard
       key={product.id}
-      imageLink={product.image_link}
       {...product}
     />
   ));
   return (
-    <div className="ml-10 flex w-[75%] flex-wrap justify-start gap-10 p-4">{productsElements}</div>
+    <div className="ml-10 flex w-[75%] flex-wrap justify-start gap-10 p-4">{productCards}</div>
   );
 }

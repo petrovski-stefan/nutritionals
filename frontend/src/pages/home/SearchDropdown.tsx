@@ -11,7 +11,6 @@ export default function SearchDropdown({ products, loading }: Props) {
     <DropdownProductCard
       key={product.id}
       {...product}
-      imageLink={product.image_link}
     ></DropdownProductCard>
   ));
 

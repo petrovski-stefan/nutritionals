@@ -1,5 +1,4 @@
-import imageUrl from '../../assets/omega3.png';
-import apteka24Logo from '../../assets/pharmacies-logos/apteka24-logo.png';
+import imageUrl from '../assets/omega3.png';
 
 export const simulatedBestDealsData = [
   {
@@ -33,23 +32,5 @@ export const simulatedBestDealsData = [
     newPrice: 399,
     pharmacyName: 'Apteka 24',
     imageUrl: imageUrl,
-  },
-];
-
-export const supportedPharmacies = [
-  {
-    name: 'Apteka 24',
-    imageUrl: apteka24Logo,
-    websiteUrl: 'https://24apteka.mk/',
-  },
-  {
-    name: 'Apteka 24',
-    imageUrl: apteka24Logo,
-    websiteUrl: 'https://24apteka.mk/',
-  },
-  {
-    name: 'Apteka 24',
-    imageUrl: apteka24Logo,
-    websiteUrl: 'https://24apteka.mk/',
   },
 ];

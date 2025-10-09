@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from 'react';
-import { PHARMACY_MAP } from './constants';
+import { PHARMACY_MAP } from '../../constants/pharmacies';
 import { ChevronDownCircleIcon, ChevronUpCircleIcon, SearchIcon, XIcon } from 'lucide-react';
 import type { BackendProductBrand, ProductFilters } from '../../types/product';
 
