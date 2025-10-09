@@ -27,3 +27,24 @@ class Product(models.Model):
                 fields=["external_id", "pharmacy"], name="unique_eid_pharmacy"
             )
         ]
+
+
+class Pharmacy(models.Model):
+    name = models.CharField(max_length=100, unique=True)
+    catalog_base_url = models.URLField(unique=True)
+    catalog_max_pages = models.PositiveSmallIntegerField()
+    catalog_scraping_delay_in_seconds = models.FloatField()
+
+    def __str__(self) -> str:
+        return self.name
+
+
+class ProductDiscover(models.Model):
+    url = models.URLField(max_length=500, unique=True, blank=True)
+    last_seen_at = models.DateTimeField()
+    is_active = models.BooleanField()
+    pharmacy = models.ForeignKey(Pharmacy, null=True, on_delete=models.CASCADE)
+
+    def __str__(self) -> str:
+        is_active_str = "Active" if self.is_active else "Not Active"
+        return f"({is_active_str}) - {self.last_seen_at} - {self.url}"

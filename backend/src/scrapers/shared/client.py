@@ -1,3 +1,4 @@
+import logging
 import random
 import time
 
@@ -19,10 +20,18 @@ def get_random_useragent() -> str:
     return ua.random
 
 
-def make_request(url: str, headers: dict | None = None) -> str:
-    response = requests.get(url=url, headers=headers)
-
-    if response.status_code != 200:
-        raise requests.exceptions.HTTPError
-
-    return response.text
+def make_request(
+    *, url: str, headers: dict | None = None, logger: logging.Logger
+) -> str:
+    try:
+        response = requests.get(url=url, headers=headers)
+        response.raise_for_status()
+        logger.info(
+            f"Succesfully requested {url} with status code {response.status_code} ..."
+        )
+        return response.text
+    except requests.exceptions.HTTPError as e:
+        logger.warning(
+            f"Failed to request {url} with status code {e.response.status_code}"
+        )
+        raise e

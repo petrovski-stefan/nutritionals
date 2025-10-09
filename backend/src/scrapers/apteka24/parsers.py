@@ -100,3 +100,7 @@ def extract_product_data(product_card: Tag, url: str) -> dict:
     }
 
     return scraped_data
+
+
+def extract_product_url_for_discover(product_card: Tag) -> str:
+    return _extract_product_field(product_card, "link")

@@ -165,8 +165,12 @@ LOGGING = {
             "level": "INFO",
             "propagate": False,
         },
+        "24APTEKA-DISCOVER": {
+            "handlers": ["console"],
+            "level": "INFO",
+            "propagate": False,
+        },
     },
 }
 
 from .celery import *  # noqa
-from .scrapers import *  # noqa
