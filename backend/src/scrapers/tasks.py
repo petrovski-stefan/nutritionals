@@ -4,7 +4,7 @@ import logging
 from celery import shared_task
 from django.conf import settings
 from django.utils import timezone
-from products.models import Pharmacy, Product
+from products.models import Pharmacy, ProductDeprecated
 from products.services import (
     update_all_product_discovers_status_by_run_started_at,
     update_or_create_many_product_discovers,
@@ -27,7 +27,9 @@ def scrape_apteka24() -> None:
     )
 
     if settings.DEBUG:
-        Product.objects.filter(pharmacy=Product.PharmacyChoices.APTEKA24).delete()
+        ProductDeprecated.objects.filter(
+            pharmacy=ProductDeprecated.PharmacyChoices.APTEKA24
+        ).delete()
 
     max_page_num = None
 
@@ -48,7 +50,9 @@ def scrape_apteka24() -> None:
         # TODO: create or update
         for product in products:
             create_scrape_event(product, ScrapeEvent.ScrapeTypeChoices.PRODUCT_LIST)
-            product_obj = Product(pharmacy=Product.PharmacyChoices.APTEKA24, **product)
+            product_obj = ProductDeprecated(
+                pharmacy=ProductDeprecated.PharmacyChoices.APTEKA24, **product
+            )
             product_obj.full_clean()
             product_obj.save()
 

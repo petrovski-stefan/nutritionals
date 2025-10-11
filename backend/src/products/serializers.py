@@ -1,15 +1,15 @@
 from rest_framework import serializers
 
-from .models import Product
+from .models import ProductDeprecated
 
 
-class ProductReadListSerializer(serializers.ModelSerializer):
+class ProductDeprecatedReadListSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Product
+        model = ProductDeprecated
         fields = ["id", "title", "brand", "price", "image_link", "pharmacy"]
         read_only_fields = fields
 
 
-class ProductBrandReadListSerializer(serializers.Serializer):
+class ProductDeprecatedBrandReadListSerializer(serializers.Serializer):
     brand = serializers.CharField(read_only=True)
     products_by_brand_count = serializers.IntegerField(read_only=True)

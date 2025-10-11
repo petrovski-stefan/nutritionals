@@ -1,21 +1,24 @@
 from django_filters import rest_framework as filters
 from rest_framework.generics import ListAPIView
 
-from .filters import ProductFilterSet
-from .models import Product
-from .serializers import ProductBrandReadListSerializer, ProductReadListSerializer
+from .filters import ProductDeprecatedFilterSet
+from .models import ProductDeprecated
+from .serializers import (
+    ProductDeprecatedBrandReadListSerializer,
+    ProductDeprecatedReadListSerializer,
+)
 from .services import get_brands_with_product_count
 
 
-class ProductListAPIView(ListAPIView):
-    serializer_class = ProductReadListSerializer
-    queryset = Product.objects.all()
+class ProductDeprecatedListAPIView(ListAPIView):
+    serializer_class = ProductDeprecatedReadListSerializer
+    queryset = ProductDeprecated.objects.all()
     filter_backends = (filters.DjangoFilterBackend,)
-    filterset_class = ProductFilterSet
+    filterset_class = ProductDeprecatedFilterSet
 
 
-class ProductBrandListAPIView(ListAPIView):
-    serializer_class = ProductBrandReadListSerializer
+class ProductDeprecatedBrandListAPIView(ListAPIView):
+    serializer_class = ProductDeprecatedBrandReadListSerializer
 
     def get_queryset(self):
         title_q = self.request.query_params.get("title") or ""

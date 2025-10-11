@@ -1,7 +1,7 @@
 from django.db import models
 
 
-class Product(models.Model):
+class ProductDeprecated(models.Model):
     class PharmacyChoices(models.TextChoices):
         APTEKA24 = "apteka24"
         ANNIFARM = "annifarm"

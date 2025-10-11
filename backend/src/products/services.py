@@ -3,12 +3,12 @@ from datetime import datetime
 
 from django.db.models import BooleanField, Case, Count, Q, Value, When
 
-from .models import Pharmacy, Product, ProductDiscover
+from .models import Pharmacy, ProductDeprecated, ProductDiscover
 
 
 def get_brands_with_product_count(*, title_q: str):
     return (
-        Product.objects.exclude(brand="")
+        ProductDeprecated.objects.exclude(brand="")
         .annotate(
             included=Case(
                 When(title__icontains=title_q, then=Value(True)),
