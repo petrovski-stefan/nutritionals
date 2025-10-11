@@ -11,9 +11,14 @@ export type BackendProductBrand = {
   products_by_brand_count: number;
 };
 
-export type ProductFilters = {
+export type ProductFiltersValues = {
   pharmacies: Array<string>;
   brands: Array<string>;
+};
+
+export type ProductFiltersDisplay = {
+  pharmacies: boolean;
+  brands: boolean;
 };
 
 export type GetProductsInput = {

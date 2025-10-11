@@ -1,28 +1,37 @@
 import { useState, type FormEvent } from 'react';
 import { PHARMACY_MAP } from '../../constants/pharmacies';
-import { ChevronDownCircleIcon, ChevronUpCircleIcon, SearchIcon, XIcon } from 'lucide-react';
-import type { BackendProductBrand, ProductFilters } from '../../types/product';
+import { SearchIcon, XIcon } from 'lucide-react';
+import type {
+  BackendProductBrand,
+  ProductFiltersDisplay,
+  ProductFiltersValues,
+} from '../../types/product';
+import Filter from './Filter';
 
 type Props = {
   inputSearchQuery: string;
   setInputSearchQuery: (value: string) => void;
   handleSearchFormSubmit: (e: FormEvent) => void;
   brands: Array<BackendProductBrand>;
-  handleFilterChange: (key: keyof ProductFilters, value: string, isChecked: boolean) => void;
+  handleFilterValueChange: (
+    key: keyof ProductFiltersValues,
+    value: string,
+    isChecked: boolean
+  ) => void;
   handleClearInputSearchQuery: () => void;
 };
 
 const filterDisplayedInitialValue = {
-  brands: true,
   pharmacies: true,
+  brands: false,
 };
 
-export default function Filters({
+export default function FiltersSidebar({
   inputSearchQuery,
   setInputSearchQuery,
   handleSearchFormSubmit,
   brands,
-  handleFilterChange,
+  handleFilterValueChange,
   handleClearInputSearchQuery,
 }: Props) {
   const [isFilterDisplayed, setIsFilterDisplayed] = useState(filterDisplayedInitialValue);
@@ -32,7 +41,7 @@ export default function Filters({
       <input
         type="checkbox"
         value={value}
-        onChange={(e) => handleFilterChange('pharmacies', value, e.target.checked)}
+        onChange={(e) => handleFilterValueChange('pharmacies', value, e.target.checked)}
       />
       {key}
     </div>
@@ -43,7 +52,7 @@ export default function Filters({
       <input
         type="checkbox"
         value={brand}
-        onChange={(e) => handleFilterChange('brands', brand, e.target.checked)}
+        onChange={(e) => handleFilterValueChange('brands', brand, e.target.checked)}
       />
 
       <span
@@ -52,13 +61,16 @@ export default function Filters({
     </div>
   ));
 
-  const handleFilterDisplayToggle = (key: keyof typeof filterDisplayedInitialValue) => {
+  const handleFilterDisplayToggle = (key: keyof ProductFiltersDisplay) => {
     setIsFilterDisplayed((oldValue) => ({ ...oldValue, [key]: !oldValue[key] }));
   };
 
   return (
     <div className="sticky top-2 flex w-[20%] flex-col p-4">
-      <form onSubmit={handleSearchFormSubmit}>
+      <form
+        onSubmit={handleSearchFormSubmit}
+        className="mb-7"
+      >
         <input
           className="relative w-full rounded-2xl border-2 px-4 py-2 outline-none"
           type="text"
@@ -83,36 +95,21 @@ export default function Filters({
         </p>
       </form>
 
-      <div className="px-2">
-        <span>Filter by pharmacies</span>
-        <button
-          onClick={(_) => handleFilterDisplayToggle('pharmacies')}
-          className="cursor-pointer"
-        >
-          {isFilterDisplayed['pharmacies'] === true ? (
-            <ChevronUpCircleIcon />
-          ) : (
-            <ChevronDownCircleIcon />
-          )}
-        </button>
-
-        {isFilterDisplayed['pharmacies'] && pharmacyNameFilterCheckboxes}
-      </div>
-
-      <div className="px-2">
-        <span>Filter by brand</span>
-        <button
-          onClick={(_) => handleFilterDisplayToggle('brands')}
-          className="cursor-pointer"
-        >
-          {isFilterDisplayed['brands'] === true ? (
-            <ChevronUpCircleIcon />
-          ) : (
-            <ChevronDownCircleIcon />
-          )}
-        </button>
-
-        {isFilterDisplayed['brands'] && brandFilterCheckboxes}
+      <div className="flex flex-col justify-around gap-5">
+        <Filter
+          filterTitle="Filter by pharmacies "
+          filterType="pharmacies"
+          checkboxes={pharmacyNameFilterCheckboxes}
+          handleFilterDisplayToggle={handleFilterDisplayToggle}
+          isFilterDisplayed={isFilterDisplayed}
+        />
+        <Filter
+          filterTitle="Filter by brand "
+          filterType="brands"
+          checkboxes={brandFilterCheckboxes}
+          handleFilterDisplayToggle={handleFilterDisplayToggle}
+          isFilterDisplayed={isFilterDisplayed}
+        />
       </div>
     </div>
   );

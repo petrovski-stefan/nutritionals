@@ -2,8 +2,12 @@ import { useEffect, useState, type FormEvent } from 'react';
 import { useSearchParams } from 'react-router-dom';
 
 import * as ProductAPI from '../../api/products';
-import type { BackendProduct, BackendProductBrand, ProductFilters } from '../../types/product';
-import Filters from './Filters';
+import type {
+  BackendProduct,
+  BackendProductBrand,
+  ProductFiltersValues,
+} from '../../types/product';
+import FiltersSidebar from './FiltersSidebar';
 import ProductsGrid from './ProductsGrid';
 
 const filtersDefault = {
@@ -18,7 +22,7 @@ export default function Search() {
   const [products, setProducts] = useState<Array<BackendProduct>>([]);
   const [error, setError] = useState<string | null>(null);
   const [brands, setBrands] = useState<Array<BackendProductBrand>>([]);
-  const [filters, setFilters] = useState<ProductFilters>(filtersDefault);
+  const [filters, setFilters] = useState<ProductFiltersValues>(filtersDefault);
 
   const initialQuery = searchParams.get('query');
 
@@ -64,7 +68,11 @@ export default function Search() {
     fetchData();
   }, [JSON.stringify(filters)]);
 
-  const handleFilterChange = (key: keyof ProductFilters, value: string, isChecked: boolean) => {
+  const handleFilterChange = (
+    key: keyof ProductFiltersValues,
+    value: string,
+    isChecked: boolean
+  ) => {
     if (isChecked) {
       setFilters((oldValue) => ({ ...oldValue, [key]: [...oldValue[key], value] }));
     } else {
@@ -93,12 +101,12 @@ export default function Search() {
 
   return (
     <div className="flex min-h-[90vh] w-full justify-around">
-      <Filters
+      <FiltersSidebar
         handleSearchFormSubmit={handleSearchFormSubmit}
         inputSearchQuery={inputSearchQuery}
         setInputSearchQuery={setInputSearchQuery}
         brands={brands}
-        handleFilterChange={handleFilterChange}
+        handleFilterValueChange={handleFilterChange}
         handleClearInputSearchQuery={handleClearInputSearchQuery}
       />
       {error ?? <ProductsGrid products={products} />}
