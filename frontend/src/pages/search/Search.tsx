@@ -108,6 +108,8 @@ export default function Search() {
         brands={brands}
         handleFilterValueChange={handleFilterChange}
         handleClearInputSearchQuery={handleClearInputSearchQuery}
+        filters={filters}
+        setFilters={setFilters}
       />
       {error ?? <ProductsGrid products={products} />}
     </div>

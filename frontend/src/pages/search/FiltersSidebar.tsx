@@ -19,6 +19,8 @@ type Props = {
     isChecked: boolean
   ) => void;
   handleClearInputSearchQuery: () => void;
+  filters: ProductFiltersValues;
+  setFilters: (value: ProductFiltersValues) => void;
 };
 
 const filterDisplayedInitialValue = {
@@ -33,6 +35,8 @@ export default function FiltersSidebar({
   brands,
   handleFilterValueChange,
   handleClearInputSearchQuery,
+  filters,
+  setFilters,
 }: Props) {
   const [isFilterDisplayed, setIsFilterDisplayed] = useState(filterDisplayedInitialValue);
 
@@ -42,6 +46,7 @@ export default function FiltersSidebar({
         type="checkbox"
         value={value}
         onChange={(e) => handleFilterValueChange('pharmacies', value, e.target.checked)}
+        checked={filters['pharmacies'].includes(value)}
       />
       {key}
     </div>
@@ -53,6 +58,7 @@ export default function FiltersSidebar({
         type="checkbox"
         value={brand}
         onChange={(e) => handleFilterValueChange('brands', brand, e.target.checked)}
+        checked={filters['brands'].includes(brand)}
       />
 
       <span
@@ -63,6 +69,13 @@ export default function FiltersSidebar({
 
   const handleFilterDisplayToggle = (key: keyof ProductFiltersDisplay) => {
     setIsFilterDisplayed((oldValue) => ({ ...oldValue, [key]: !oldValue[key] }));
+  };
+
+  const handleClearFilters = () => {
+    if (filters['brands'].length === 0 && filters['pharmacies'].length === 0) {
+      return;
+    }
+    setFilters({ brands: [], pharmacies: [] });
   };
 
   return (
@@ -94,7 +107,12 @@ export default function FiltersSidebar({
           </button>
         </p>
       </form>
-
+      <div
+        onClick={handleClearFilters}
+        className="cursor-pointer text-center"
+      >
+        [Clear filters]
+      </div>
       <div className="flex flex-col justify-around gap-5">
         <Filter
           filterTitle="Filter by pharmacies "
