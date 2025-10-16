@@ -1,3 +1,13 @@
 from django.db import models
 
-# Create your models here.
+
+class BaseModel(models.Model):
+    """
+    Abstract model which provides created_at and updated_at timestamps
+    """
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        abstract = True
