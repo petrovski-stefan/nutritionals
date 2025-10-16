@@ -1,14 +1,13 @@
 from bs4 import BeautifulSoup, ResultSet, Tag
-from django.utils import timezone
 
 from .selectors import (
     PAGE_NUMBERS_SELECTOR,
-    PRODUCT_BRAND_IN_PRODUCT_CARD_SELECTOR,
+    PRODUCT_BRAND_SELECTOR,
     PRODUCT_CARD_SELECTOR,
-    PRODUCT_IMAGE_IN_PRODUCT_CARD_SELECTOR,
-    PRODUCT_LINK_IN_PRODUCT_CARD_SELECTOR,
-    PRODUCT_PRICE_IN_PRODUCT_CARD_SELECTOR,
-    PRODUCT_TITLE_IN_PRODUCT_CARD_SELECTOR,
+    PRODUCT_DESCRIPTION_SELECTOR,
+    PRODUCT_NAME_SELECTOR,
+    PRODUCT_OUT_OF_STOCK_SELECTOR,
+    PRODUCT_PRICE_SELECTOR,
 )
 
 
@@ -38,69 +37,41 @@ def extract_products_from_page(soup: BeautifulSoup) -> ResultSet[Tag]:
     return product_cards
 
 
-def _extract_product_external_id(product_card: Tag) -> str | None:
-    product_classes = product_card.get_attribute_list("class")
-
-    for product_class in product_classes:
-        if product_class.startswith("post-"):
-            return product_class
-
-    return None
-
-
-FIELD_TO_SELECTOR_MAP = {
-    "title": PRODUCT_TITLE_IN_PRODUCT_CARD_SELECTOR,
-    "brand": PRODUCT_BRAND_IN_PRODUCT_CARD_SELECTOR,
-    "link": PRODUCT_LINK_IN_PRODUCT_CARD_SELECTOR,
-    "price": PRODUCT_PRICE_IN_PRODUCT_CARD_SELECTOR,
-    "image_link": PRODUCT_IMAGE_IN_PRODUCT_CARD_SELECTOR,
+PRODUCT_FIELD_TO_SELECTOR_MAP = {
+    "name": PRODUCT_NAME_SELECTOR,
+    "brand": PRODUCT_BRAND_SELECTOR,
+    "price": PRODUCT_PRICE_SELECTOR,
+    "description": PRODUCT_DESCRIPTION_SELECTOR,
+    "is_out_of_stock": PRODUCT_OUT_OF_STOCK_SELECTOR,
 }
 
 
-def _extract_product_field(product_card: Tag, field: str) -> str:
-    selector = FIELD_TO_SELECTOR_MAP.get(field)
-    if selector is None:
-        raise ValueError
+def _extract_product_field(product_detail_html: Tag, field: str) -> str | None:
+    selector = PRODUCT_FIELD_TO_SELECTOR_MAP.get(field)
 
-    element = product_card.select_one(selector)
+    element = product_detail_html.select_one(selector)
 
     try:
-        if field == "link":
-            return element.get("href").strip()
-
-        if field == "image_link":
-            return element.get("src").strip()
-
         return element.get_text(strip=True)
-
     except Exception:
-        return ""
-
-
-def extract_product_data(product_card: Tag, url: str) -> dict:
-    external_id = _extract_product_external_id(product_card)
-    if not external_id:
-        raise ValueError("External ID not found")
-
-    title = _extract_product_field(product_card, "title")
-    brand = _extract_product_field(product_card, "brand")
-    price = _extract_product_field(product_card, "price")
-    link = _extract_product_field(product_card, "link")
-    image_link = _extract_product_field(product_card, "image_link")
-
-    scraped_data = {
-        "external_id": external_id,
-        "title": title,
-        "brand": brand,
-        "price": price,
-        "link": link,
-        "image_link": image_link,
-        "url": url,
-        "created_at": timezone.now(),
-    }
-
-    return scraped_data
+        return None
 
 
 def extract_product_url_for_discover(product_card: Tag) -> str:
-    return _extract_product_field(product_card, "link")
+    return product_card.get("href").strip()
+
+
+def extract_product_detail_data(product_detail_html: Tag) -> dict:
+    name = _extract_product_field(product_detail_html, "name")
+    brand = _extract_product_field(product_detail_html, "brand")
+    price = _extract_product_field(product_detail_html, "price")
+    description = _extract_product_field(product_detail_html, "description")
+    is_in_stock = _extract_product_field(product_detail_html, "is_out_of_stock") is None
+
+    return {
+        "name": name,
+        "brand": brand,
+        "price": price,
+        "description": description,
+        "is_in_stock": is_in_stock,
+    }

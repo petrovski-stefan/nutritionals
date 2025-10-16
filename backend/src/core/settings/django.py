@@ -170,6 +170,16 @@ LOGGING = {
             "level": "INFO",
             "propagate": False,
         },
+        "SCRAPE-SCHEDULER": {
+            "handlers": ["console"],
+            "level": "INFO",
+            "propagate": False,
+        },
+        "PRODUCT-DETAIL-SCRAPE": {
+            "handlers": ["console"],
+            "level": "INFO",
+            "propagate": False,
+        },
     },
 }
 
