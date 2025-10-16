@@ -8,6 +8,8 @@ from fake_useragent import UserAgent
 
 def delay(base_delay_amount: int | float) -> None:
     delay_amount = base_delay_amount + random.randint(-5, 5)
+    delay_amount = max(0, delay_amount)  # prevent negative sleep
+
     time.sleep(delay_amount)
 
 
@@ -24,7 +26,7 @@ def make_request(
     *, url: str, headers: dict | None = None, logger: logging.Logger
 ) -> str:
     try:
-        response = requests.get(url=url, headers=headers)
+        response = requests.get(url=url, headers=headers, timeout=15)
         response.raise_for_status()
         logger.info(
             f"Succesfully requested {url} with status code {response.status_code} ..."
