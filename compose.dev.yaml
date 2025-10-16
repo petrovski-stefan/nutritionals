@@ -4,7 +4,7 @@ services:
       context: backend/
       dockerfile: Dockerfile.dev
     ports:
-      - '8000:8000'
+      - "8000:8000"
     env_file:
       - backend/.env
     working_dir: /app/src/
@@ -40,7 +40,7 @@ services:
     env_file:
       - backend/.env
     working_dir: /app/src/
-    command: uv run celery -A core worker -l INFO
+    command: uv run celery -A core worker -l INFO --pool=solo
     depends_on:
       - web
       - redis
