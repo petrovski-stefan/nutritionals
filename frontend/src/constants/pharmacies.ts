@@ -1,17 +1,7 @@
 import apteka24Logo from '../assets/pharmacies-logos/apteka24-logo.png';
 
 export const PHARMACY_TO_LOGO_MAP = {
-  apteka24: apteka24Logo,
-};
-
-export const PHARMACY_MAP = {
-  '24 Apteka': 'apteka24',
-  Annifarm: 'annifarm',
-};
-
-export const INVERTED_PHARMACY_MAP = {
-  apteka24: '24 Apteka',
-  annifarm: 'Annifarm',
+  Apteka24: apteka24Logo,
 };
 
 export const supportedPharmacies = [

@@ -1,19 +1,27 @@
 export type BackendProduct = {
   id: number;
-  title: string;
+  name: string;
   brand: string;
   price: string;
   pharmacy: string;
+  url: string;
+  updated_at: string;
 };
 
-export type BackendProductBrand = {
-  brand: string;
+export type BackendBrand = {
+  id: number;
+  name: string;
   products_by_brand_count: number;
 };
 
+export type BackendPharmacy = {
+  id: number;
+  name: string;
+};
+
 export type ProductFiltersValues = {
-  pharmacies: Array<string>;
-  brands: Array<string>;
+  pharmacyIds: Array<number>;
+  brandIds: Array<number>;
 };
 
 export type ProductFiltersDisplay = {
@@ -21,8 +29,8 @@ export type ProductFiltersDisplay = {
   brands: boolean;
 };
 
-export type GetProductsInput = {
-  brands?: Array<string>;
-  pharmacies?: Array<string>;
+export type ProductListQueryParams = {
+  brandIds?: Array<number>;
+  pharmacyIds?: Array<number>;
   searchQueryParam?: string;
 };

@@ -1,13 +1,13 @@
 from django_filters import rest_framework as filters
 
-from .models import ProductDeprecated
+from .models import Product
 
 
-class ProductDeprecatedFilterSet(filters.FilterSet):
+class ProductFilterSet(filters.FilterSet):
     class Meta:
-        model = ProductDeprecated
+        model = Product
         fields = {
-            "title": ["icontains"],
+            "name": ["icontains"],
             "brand": ["in"],
-            "pharmacy": ["in"],
+            "productdiscover__pharmacy": ["in"],
         }

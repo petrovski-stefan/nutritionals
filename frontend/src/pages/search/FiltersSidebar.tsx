@@ -1,8 +1,8 @@
 import { useState, type FormEvent } from 'react';
-import { PHARMACY_MAP } from '../../constants/pharmacies';
 import { SearchIcon, XIcon } from 'lucide-react';
 import type {
-  BackendProductBrand,
+  BackendBrand,
+  BackendPharmacy,
   ProductFiltersDisplay,
   ProductFiltersValues,
 } from '../../types/product';
@@ -12,10 +12,11 @@ type Props = {
   inputSearchQuery: string;
   setInputSearchQuery: (value: string) => void;
   handleSearchFormSubmit: (e: FormEvent) => void;
-  brands: Array<BackendProductBrand>;
+  brands: Array<BackendBrand>;
+  pharmacies: Array<BackendPharmacy>;
   handleFilterValueChange: (
     key: keyof ProductFiltersValues,
-    value: string,
+    value: number,
     isChecked: boolean
   ) => void;
   handleClearInputSearchQuery: () => void;
@@ -33,6 +34,7 @@ export default function FiltersSidebar({
   setInputSearchQuery,
   handleSearchFormSubmit,
   brands,
+  pharmacies,
   handleFilterValueChange,
   handleClearInputSearchQuery,
   filters,
@@ -40,30 +42,30 @@ export default function FiltersSidebar({
 }: Props) {
   const [isFilterDisplayed, setIsFilterDisplayed] = useState(filterDisplayedInitialValue);
 
-  const pharmacyNameFilterCheckboxes = Object.entries(PHARMACY_MAP).map(([key, value]) => (
-    <div key={key}>
+  const pharmacyNameFilterCheckboxes = pharmacies.map(({ id, name }) => (
+    <div key={id}>
       <input
         type="checkbox"
-        value={value}
-        onChange={(e) => handleFilterValueChange('pharmacies', value, e.target.checked)}
-        checked={filters['pharmacies'].includes(value)}
+        value={id}
+        onChange={(e) => handleFilterValueChange('pharmacyIds', id, e.target.checked)}
+        checked={filters['pharmacyIds'].includes(id)}
       />
-      {key}
+      {name}
     </div>
   ));
 
-  const brandFilterCheckboxes = brands.map(({ brand, products_by_brand_count }) => (
-    <div key={brand}>
+  const brandFilterCheckboxes = brands.map(({ id, name, products_by_brand_count }) => (
+    <div key={name}>
       <input
         type="checkbox"
-        value={brand}
-        onChange={(e) => handleFilterValueChange('brands', brand, e.target.checked)}
-        checked={filters['brands'].includes(brand)}
+        value={name}
+        onChange={(e) => handleFilterValueChange('brandIds', id, e.target.checked)}
+        checked={filters['brandIds'].includes(id)}
       />
 
       <span
         className={products_by_brand_count === 0 ? 'text-dark/50' : ''}
-      >{`${brand} (${products_by_brand_count})`}</span>
+      >{`${name} (${products_by_brand_count})`}</span>
     </div>
   ));
 
@@ -72,10 +74,10 @@ export default function FiltersSidebar({
   };
 
   const handleClearFilters = () => {
-    if (filters['brands'].length === 0 && filters['pharmacies'].length === 0) {
+    if (filters['brandIds'].length === 0 && filters['pharmacyIds'].length === 0) {
       return;
     }
-    setFilters({ brands: [], pharmacies: [] });
+    setFilters({ brandIds: [], pharmacyIds: [] });
   };
 
   return (

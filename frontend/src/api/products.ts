@@ -1,8 +1,13 @@
-import type { BackendProduct, BackendProductBrand, GetProductsInput } from '../types/product';
+import type {
+  BackendProduct,
+  BackendBrand,
+  ProductListQueryParams,
+  BackendPharmacy,
+} from '../types/product';
 import axiosInstance from './axios';
 import type { APIResponse } from '../types/api';
 
-export const getProducts = async (queryParams: GetProductsInput) => {
+export const getProducts = async (queryParams: ProductListQueryParams) => {
   const params = new URLSearchParams();
 
   for (const [key, value] of Object.entries(queryParams)) {
@@ -11,11 +16,11 @@ export const getProducts = async (queryParams: GetProductsInput) => {
     }
 
     if (key === 'searchQueryParam') {
-      params.append(`title__icontains`, value as string);
-    } else if (key === 'pharmacies') {
-      params.append(`pharmacy__in`, (value as Array<string>).join(','));
-    } else {
-      params.append(`brand__in`, (value as Array<string>).join(','));
+      params.append(`name__icontains`, value as string);
+    } else if (key === 'pharmacyIds') {
+      params.append(`productdiscover__pharmacy__in`, (value as Array<number>).join(','));
+    } else if (key === 'brandIds') {
+      params.append(`brand__in`, (value as Array<number>).join(','));
     }
   }
   const response = await axiosInstance.get(`api/v1/products/`, {
@@ -27,16 +32,22 @@ export const getProducts = async (queryParams: GetProductsInput) => {
 
 export const searchProducts = async (searchQuery: string) => {
   const response = await axiosInstance.get(
-    `api/v1/products/?title__icontains=${encodeURIComponent(searchQuery)}`
+    `api/v1/products/?name__icontains=${encodeURIComponent(searchQuery)}`
   );
 
   return response.data as APIResponse<Array<BackendProduct>>;
 };
 
-export const getProductsBrands = async (title: string) => {
+export const getProductsBrands = async (name: string) => {
   const response = await axiosInstance.get(
-    `api/v1/products/brands/?title=${encodeURIComponent(title)}`
+    `api/v1/products/brands/?name=${encodeURIComponent(name)}`
   );
 
-  return response.data as APIResponse<Array<BackendProductBrand>>;
+  return response.data as APIResponse<Array<BackendBrand>>;
+};
+
+export const getPharmacies = async () => {
+  const response = await axiosInstance.get('api/v1/products/pharmacies/');
+
+  return response.data as APIResponse<Array<BackendPharmacy>>;
 };

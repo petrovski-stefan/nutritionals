@@ -4,15 +4,16 @@ import { useSearchParams } from 'react-router-dom';
 import * as ProductAPI from '../../api/products';
 import type {
   BackendProduct,
-  BackendProductBrand,
+  BackendBrand,
   ProductFiltersValues,
+  BackendPharmacy,
 } from '../../types/product';
 import FiltersSidebar from './FiltersSidebar';
 import ProductsGrid from './ProductsGrid';
 
 const filtersDefault = {
-  pharmacies: [],
-  brands: [],
+  pharmacyIds: [],
+  brandIds: [],
 };
 
 export default function Search() {
@@ -21,7 +22,8 @@ export default function Search() {
 
   const [products, setProducts] = useState<Array<BackendProduct>>([]);
   const [error, setError] = useState<string | null>(null);
-  const [brands, setBrands] = useState<Array<BackendProductBrand>>([]);
+  const [brands, setBrands] = useState<Array<BackendBrand>>([]);
+  const [pharmacies, setPharmacies] = useState<Array<BackendPharmacy>>([]);
   const [filters, setFilters] = useState<ProductFiltersValues>(filtersDefault);
 
   const initialQuery = searchParams.get('query');
@@ -55,6 +57,20 @@ export default function Search() {
     }
   };
 
+  useEffect(() => {
+    const fetchPharmacies = async () => {
+      const response = await ProductAPI.getPharmacies();
+
+      if (response.status) {
+        setPharmacies(response.data);
+      } else {
+        setPharmacies([]);
+        setError(response.errors_type);
+      }
+    };
+    fetchPharmacies();
+  }, []);
+
   const fetchData = async (blank: boolean = false) => {
     await Promise.all([fetchProducts(blank), fetchProductsBrands(blank)]);
   };
@@ -70,7 +86,7 @@ export default function Search() {
 
   const handleFilterChange = (
     key: keyof ProductFiltersValues,
-    value: string,
+    value: number,
     isChecked: boolean
   ) => {
     if (isChecked) {
@@ -106,6 +122,7 @@ export default function Search() {
         inputSearchQuery={inputSearchQuery}
         setInputSearchQuery={setInputSearchQuery}
         brands={brands}
+        pharmacies={pharmacies}
         handleFilterValueChange={handleFilterChange}
         handleClearInputSearchQuery={handleClearInputSearchQuery}
         filters={filters}

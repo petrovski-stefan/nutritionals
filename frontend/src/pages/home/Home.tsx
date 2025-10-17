@@ -4,8 +4,7 @@ import HomePageProduct from './BestDealProduct';
 import Section from '../../components/Section';
 import PharmacyCard from './SupportedPharmacyCard';
 import { simulatedBestDealsData } from '../../constants/deals';
-import { supportedPharmacies } from '../../constants/pharmacies';
-import type { BackendProduct } from '../../types/product';
+import type { BackendPharmacy, BackendProduct } from '../../types/product';
 import SearchDropdown from './SearchDropdown';
 import * as ProductAPI from '../../api/products';
 import { SearchIcon } from 'lucide-react';
@@ -14,9 +13,20 @@ export default function Home() {
   const [searchQuery, setSearchQuery] = useState('');
   const [isSearchDropdownOpen, setIsSearchDropdownOpen] = useState<boolean>(false);
   const [products, setProducts] = useState<Array<BackendProduct>>([]);
+  const [pharmacies, setPharmacies] = useState<Array<BackendPharmacy>>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchPharmacies = async () => {
+      const response = await ProductAPI.getPharmacies();
+      if (response.status) {
+        setPharmacies(response.data);
+      }
+    };
+    fetchPharmacies();
+  }, []);
 
   useEffect(() => {
     if (searchQuery.length < 2) {
@@ -71,9 +81,9 @@ export default function Home() {
     />
   ));
 
-  const supportedPharmaciesCards = supportedPharmacies.map((pharmacy) => (
+  const supportedPharmaciesCards = pharmacies.map((pharmacy) => (
     <PharmacyCard
-      key={pharmacy.name}
+      key={pharmacy.id}
       {...pharmacy}
     />
   ));
