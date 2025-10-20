@@ -1,23 +1,6 @@
 from django.contrib import admin
 
-from .models import Brand, Pharmacy, Product, ProductDeprecated, ProductDiscover
-
-
-@admin.register(ProductDeprecated)
-class ProductDeprecatedAdmin(admin.ModelAdmin):
-    list_display = ["external_id", "title", "pharmacy", "brand"]
-    readonly_fields = [
-        "external_id",
-        "title",
-        "brand",
-        "pharmacy",
-        "price",
-        "link",
-        "image_link",
-        "description",
-        "created_at",
-        "updated_at",
-    ]
+from .models import Brand, Pharmacy, Product, ProductDiscover
 
 
 @admin.register(ProductDiscover)
