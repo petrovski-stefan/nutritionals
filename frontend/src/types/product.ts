@@ -4,6 +4,7 @@ export type BackendProduct = {
   brand: string;
   price: string;
   pharmacy: string;
+  pharmacy_logo: string;
   url: string;
   updated_at: string;
 };
@@ -17,6 +18,8 @@ export type BackendBrand = {
 export type BackendPharmacy = {
   id: number;
   name: string;
+  homepage: string;
+  logo: string;
 };
 
 export type ProductFiltersValues = {

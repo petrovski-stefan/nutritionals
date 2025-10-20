@@ -11,6 +11,10 @@ services:
     command: sh -c "uv run manage.py migrate && uv run manage.py collectstatic --no-input && uv run manage.py runserver 0.0.0.0:8000"
     volumes:
       - ./backend/src:/app/src
+      - ./backend/uv.lock:/app/uv.lock
+      - ./backend/pyproject.toml:/app/pyproject.toml
+      - ./backend/mediafiles:/mediafiles
+      - uv_venv_cache:/app/.venv
 
   redis:
     image: redis:7-alpine
@@ -32,6 +36,10 @@ services:
       - celery_worker
     volumes:
       - ./backend/src:/app/src
+      - ./backend/uv.lock:/app/uv.lock
+      - ./backend/pyproject.toml:/app/pyproject.toml
+      - ./backend/mediafiles:/mediafiles
+      - uv_venv_cache:/app/.venv
 
   celery_worker:
     build:
@@ -46,6 +54,10 @@ services:
       - redis
     volumes:
       - ./backend/src:/app/src
+      - ./backend/uv.lock:/app/uv.lock
+      - ./backend/pyproject.toml:/app/pyproject.toml
+      - ./backend/mediafiles:/mediafiles
+      - uv_venv_cache:/app/.venv
 
   database:
     image: postgres:17
@@ -56,3 +68,4 @@ services:
 
 volumes:
   nutritionals_db_dev:
+  uv_venv_cache:

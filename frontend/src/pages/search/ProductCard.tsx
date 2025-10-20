@@ -1,18 +1,24 @@
 import { Star } from 'lucide-react';
-import { PHARMACY_TO_LOGO_MAP } from '../../constants/pharmacies';
 
 type Props = {
   name: string;
   price: string;
   brand: string;
   pharmacy: string;
+  pharmacyLogo: string;
   url: string;
   updated_at: string;
 };
 
-export default function ProductCard({ name, price, brand, pharmacy, url, updated_at }: Props) {
-  const pharmacyLogo = PHARMACY_TO_LOGO_MAP[pharmacy as keyof typeof PHARMACY_TO_LOGO_MAP];
-
+export default function ProductCard({
+  name,
+  price,
+  brand,
+  pharmacy,
+  pharmacyLogo,
+  url,
+  updated_at,
+}: Props) {
   return (
     <div className="border-dark/50 flex h-[20rem] w-[20%] flex-col justify-around gap-2 rounded-4xl border-2 bg-white px-5 py-9">
       <div className="mx-auto flex max-h-[50%] w-[80%] justify-between">

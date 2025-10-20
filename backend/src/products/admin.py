@@ -44,9 +44,6 @@ class ProductDiscoverAdmin(admin.ModelAdmin):
 class PharmacyAdmin(admin.ModelAdmin):
     list_display = [
         "name",
-        "catalog_base_url",
-        "catalog_max_pages",
-        "catalog_scraping_delay_in_seconds",
         "created_at",
         "updated_at",
     ]

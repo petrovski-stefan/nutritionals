@@ -22,6 +22,7 @@ class ProductListAPIView(ListAPIView):
         "updated_at",
         "brand__name",
         "productdiscover__pharmacy__name",
+        "productdiscover__pharmacy__logo",
         "productdiscover__url",
     )
     filter_backends = (filters.DjangoFilterBackend,)
@@ -39,4 +40,4 @@ class BrandListAPIView(ListAPIView):
 
 class PharmacyListAPIView(ListAPIView):
     serializer_class = PharmacyReadListSerializer
-    queryset = Pharmacy.objects.only("name")
+    queryset = Pharmacy.objects.only("name", "homepage", "logo")

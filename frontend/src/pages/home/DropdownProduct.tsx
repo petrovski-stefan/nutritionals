@@ -1,13 +1,10 @@
-import { PHARMACY_TO_LOGO_MAP } from '../../constants/pharmacies';
-
 type Props = {
   name: string;
   price: string;
-  pharmacy: string;
+  pharmacyLogo: string;
 };
 
-export default function DropdownProductCard({ name, price, pharmacy }: Props) {
-  const pharmacyLogo = PHARMACY_TO_LOGO_MAP[pharmacy as keyof typeof PHARMACY_TO_LOGO_MAP];
+export default function DropdownProductCard({ name, price, pharmacyLogo }: Props) {
   // TODO: handle discounts if applicable
 
   return (

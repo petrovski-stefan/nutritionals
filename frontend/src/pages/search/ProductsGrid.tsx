@@ -9,6 +9,7 @@ export default function ProductsGrid({ products }: Props) {
   const productCards = products.map((product) => (
     <ProductCard
       key={product.id}
+      pharmacyLogo={product.pharmacy_logo}
       {...product}
     />
   ));

@@ -10,6 +10,7 @@ export default function SearchDropdown({ products, loading }: Props) {
   const searchProductsDropdownCards = products.map((product) => (
     <DropdownProductCard
       key={product.id}
+      pharmacyLogo={product.pharmacy_logo}
       {...product}
     ></DropdownProductCard>
   ));
