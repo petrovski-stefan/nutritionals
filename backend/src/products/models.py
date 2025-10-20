@@ -35,8 +35,8 @@ class Pharmacy(BaseModel):
     catalog_base_url = models.URLField(unique=True)
     catalog_max_pages = models.PositiveSmallIntegerField()
     catalog_scraping_delay_in_seconds = models.FloatField()
-    logo = models.ImageField(blank=True, null=True, upload_to="pharmacy-logos")
-    homepage = models.URLField(blank=True)
+    logo = models.ImageField(upload_to="pharmacy-logos")
+    homepage = models.URLField()
     # delay between single product scrapes
 
     def __str__(self) -> str:
