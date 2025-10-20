@@ -14,12 +14,18 @@ class Pharmacy(BaseModel):
     def __str__(self) -> str:
         return self.name
 
+    class Meta:
+        verbose_name_plural = "Pharmacies"
+
 
 class Brand(BaseModel):
     name = models.CharField(max_length=100, unique=True)
 
     def __str__(self) -> str:
         return self.name
+
+    class Meta:
+        verbose_name_plural = "Brands"
 
 
 class ProductDiscover(BaseModel):
@@ -36,6 +42,9 @@ class ProductDiscover(BaseModel):
         is_active_str = "Active" if self.is_active else "Not Active"
         return f"({is_active_str}) - {self.last_seen_at} - {self.url}"
 
+    class Meta:
+        verbose_name_plural = "Product discoveries"
+
 
 class Product(BaseModel):
     name = models.CharField(max_length=400)
@@ -47,3 +56,6 @@ class Product(BaseModel):
 
     def __str__(self) -> str:
         return self.name
+
+    class Meta:
+        verbose_name_plural = "Products"
