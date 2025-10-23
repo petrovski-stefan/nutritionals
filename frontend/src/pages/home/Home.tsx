@@ -3,7 +3,6 @@ import { Link, useNavigate } from 'react-router-dom';
 import HomePageProduct from './BestDealProduct';
 import Section from '../../components/Section';
 import PharmacyCard from './SupportedPharmacyCard';
-import { simulatedBestDealsData } from '../../constants/deals';
 import type { BackendPharmacy, BackendProduct } from '../../types/product';
 import SearchDropdown from './SearchDropdown';
 import * as ProductAPI from '../../api/products';
@@ -13,6 +12,7 @@ export default function Home() {
   const [searchQuery, setSearchQuery] = useState('');
   const [isSearchDropdownOpen, setIsSearchDropdownOpen] = useState<boolean>(false);
   const [products, setProducts] = useState<Array<BackendProduct>>([]);
+  const [productsOnDiscount, setProductsOnDiscount] = useState<Array<BackendProduct>>([]);
   const [pharmacies, setPharmacies] = useState<Array<BackendPharmacy>>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
@@ -25,7 +25,15 @@ export default function Home() {
         setPharmacies(response.data);
       }
     };
+    const fetchProductsOnDiscount = async () => {
+      const response = await ProductAPI.getProductsOnDiscount();
+      if (response.status) {
+        setProductsOnDiscount(response.data);
+      }
+    };
+
     fetchPharmacies();
+    fetchProductsOnDiscount();
   }, []);
 
   useEffect(() => {
@@ -74,9 +82,11 @@ export default function Home() {
     setSearchQuery('');
   };
 
-  const bestDealsProductsCards = simulatedBestDealsData.map((product) => (
+  const productOnDiscountCards = productsOnDiscount.map((product) => (
     <HomePageProduct
       key={product.id}
+      discountPrice={product.discount_price}
+      pharmacyName={product.pharmacy}
       {...product}
     />
   ));
@@ -137,8 +147,8 @@ export default function Home() {
       </Section>
 
       <Section>
-        <p className="flex justify-center p-4 text-2xl font-bold">Best deals this week</p>
-        <div className="mt-[5vh] flex justify-around">{bestDealsProductsCards}</div>
+        <p className="flex justify-center p-4 text-2xl font-bold">Products on discount</p>
+        <div className="mt-[5vh] flex justify-around">{productOnDiscountCards}</div>
       </Section>
 
       <Section>

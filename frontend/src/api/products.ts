@@ -38,6 +38,12 @@ export const searchProducts = async (searchQuery: string) => {
   return response.data as APIResponse<Array<BackendProduct>>;
 };
 
+export const getProductsOnDiscount = async () => {
+  const response = await axiosInstance.get(`api/v1/products/?has_discount=true`);
+
+  return response.data as APIResponse<Array<BackendProduct>>;
+};
+
 export const getProductsBrands = async (name: string) => {
   const response = await axiosInstance.get(
     `api/v1/products/brands/?name=${encodeURIComponent(name)}`
