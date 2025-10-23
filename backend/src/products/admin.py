@@ -54,6 +54,7 @@ class ProductAdmin(admin.ModelAdmin):
     list_display = [
         "name",
         "price",
+        "discount_price",
         "brand__name",
         "is_in_stock",
         "created_at",

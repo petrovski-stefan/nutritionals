@@ -10,6 +10,7 @@ export default function ProductsGrid({ products }: Props) {
     <ProductCard
       key={product.id}
       pharmacyLogo={product.pharmacy_logo}
+      discountPrice={product.discount_price}
       {...product}
     />
   ));

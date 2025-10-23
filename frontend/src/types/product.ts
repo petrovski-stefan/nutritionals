@@ -3,6 +3,7 @@ export type BackendProduct = {
   name: string;
   brand: string;
   price: string;
+  discount_price: string;
   pharmacy: string;
   pharmacy_logo: string;
   url: string;

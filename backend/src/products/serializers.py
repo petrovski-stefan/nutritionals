@@ -17,6 +17,7 @@ class ProductReadListSerializer(serializers.ModelSerializer):
             "id",
             "name",
             "price",
+            "discount_price",
             "is_in_stock",
             "url",
             "brand",

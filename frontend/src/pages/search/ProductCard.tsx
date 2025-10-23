@@ -4,6 +4,7 @@ type Props = {
   name: string;
   price: string;
   brand: string;
+  discountPrice: string;
   pharmacy: string;
   pharmacyLogo: string;
   url: string;
@@ -13,15 +14,28 @@ type Props = {
 export default function ProductCard({
   name,
   price,
+  discountPrice,
   brand,
   pharmacy,
   pharmacyLogo,
   url,
   updated_at,
 }: Props) {
+  const hasDiscountPrice = discountPrice !== '';
+  const priceStyles = hasDiscountPrice
+    ? 'line-through text-accent'
+    : 'text-2xl font-bold text-primary';
+  const discountPriceStyles = hasDiscountPrice ? 'text-2xl font-bold text-primary' : 'hidden';
+
   return (
-    <div className="border-dark/50 flex h-[20rem] w-[20%] flex-col justify-around gap-2 rounded-4xl border-2 bg-white px-5 py-9">
-      <div className="mx-auto flex max-h-[50%] w-[80%] justify-between">
+    <div className="border-dark/50 relative flex h-[20rem] w-[20%] flex-col justify-around gap-2 rounded-4xl border-2 bg-white px-5 py-9">
+      {hasDiscountPrice && (
+        <p className="text-accent absolute top-1 left-1/2 -translate-x-1/2 rounded-full bg-red-100 px-3 py-1 text-sm font-semibold shadow-sm">
+          Sale
+        </p>
+      )}
+
+      <div className="mx-auto flex max-h-[40%] w-[80%] justify-between">
         <div className="mb-5 w-[60%]">
           <img
             src={pharmacyLogo}
@@ -39,9 +53,12 @@ export default function ProductCard({
       </div>
 
       <p className="text-dark m-0 flex h-16 items-center text-left text-lg">{name}</p>
-      <p className="text-primary flex h-[20%] items-center text-2xl font-bold">
-        {price.slice(0, 10)}
-      </p>
+      <div className="flex">
+        <p className={`flex h-[20%] items-center ${priceStyles}`}>{price.slice(0, 10)}</p>
+        <p className={`flex h-[20%] items-center ${discountPriceStyles}`}>
+          {discountPrice.slice(0, 10)}
+        </p>
+      </div>
       <p className="text-dark/70 text-sm">
         {brand || <span className="opacity-0">Placeholder</span>}
       </p>

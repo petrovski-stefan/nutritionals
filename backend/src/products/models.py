@@ -48,7 +48,8 @@ class ProductDiscover(BaseModel):
 
 class Product(BaseModel):
     name = models.CharField(max_length=400)
-    price = models.CharField(max_length=100, blank=True)
+    price = models.CharField(max_length=100)
+    discount_price = models.CharField(max_length=100, blank=True)
     brand = models.ForeignKey(Brand, null=True, blank=True, on_delete=models.SET_NULL)
     is_in_stock = models.BooleanField()
 

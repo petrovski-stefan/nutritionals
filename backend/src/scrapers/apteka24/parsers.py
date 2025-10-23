@@ -5,6 +5,7 @@ from .selectors import (
     PRODUCT_BRAND_SELECTOR,
     PRODUCT_CARD_SELECTOR,
     PRODUCT_DESCRIPTION_SELECTOR,
+    PRODUCT_DISCOUNT_PRICE_SELECTOR,
     PRODUCT_NAME_SELECTOR,
     PRODUCT_OUT_OF_STOCK_SELECTOR,
     PRODUCT_PRICE_SELECTOR,
@@ -41,6 +42,7 @@ PRODUCT_FIELD_TO_SELECTOR_MAP = {
     "name": PRODUCT_NAME_SELECTOR,
     "brand": PRODUCT_BRAND_SELECTOR,
     "price": PRODUCT_PRICE_SELECTOR,
+    "discount_price": PRODUCT_DISCOUNT_PRICE_SELECTOR,
     "description": PRODUCT_DESCRIPTION_SELECTOR,
     "is_out_of_stock": PRODUCT_OUT_OF_STOCK_SELECTOR,
 }
@@ -65,6 +67,7 @@ def extract_product_detail_data(product_detail_html: Tag) -> dict:
     name = _extract_product_field(product_detail_html, "name")
     brand = _extract_product_field(product_detail_html, "brand")
     price = _extract_product_field(product_detail_html, "price")
+    discount_price = _extract_product_field(product_detail_html, "discount_price")
     description = _extract_product_field(product_detail_html, "description")
     is_in_stock = _extract_product_field(product_detail_html, "is_out_of_stock") is None
 
@@ -72,6 +75,7 @@ def extract_product_detail_data(product_detail_html: Tag) -> dict:
         "name": name,
         "brand": brand,
         "price": price,
+        "discount_price": discount_price,
         "description": description,
         "is_in_stock": is_in_stock,
     }

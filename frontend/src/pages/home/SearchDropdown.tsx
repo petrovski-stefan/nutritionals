@@ -11,6 +11,7 @@ export default function SearchDropdown({ products, loading }: Props) {
     <DropdownProductCard
       key={product.id}
       pharmacyLogo={product.pharmacy_logo}
+      discountPrice={product.discount_price}
       {...product}
     ></DropdownProductCard>
   ));

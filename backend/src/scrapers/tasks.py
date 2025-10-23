@@ -1,17 +1,174 @@
 import logging
 from datetime import timedelta
 
+from bs4 import BeautifulSoup
 from celery import shared_task
 from django.db.models import Q
 from django.utils import timezone
 from products.models import Brand, Pharmacy, Product, ProductDiscover
-from products.services import (
-    update_all_product_discovers_status_by_run_started_at,
-    update_or_create_many_product_discovers,
-)
+from pydantic import ValidationError as PydanticValidationError
 
 from .shared.client import delay, get_random_useragent, make_request
 from .shared.soup import get_soup
+from .validators import Product as PydanticProduct
+
+# -------------------------------
+# Local helper functions
+# -------------------------------
+
+
+def validate_product_scraped_data(*, data: dict, logger: logging.Logger) -> dict | None:
+    try:
+        return PydanticProduct(**data).model_dump()
+
+    except PydanticValidationError as e:
+        logger.warning(f"Validation failed: {e.errors()}")
+
+    except Exception as e:
+        logger.warning(f"Exception while validating: {e}")
+
+    return None
+
+
+def get_or_create_brand_by_name(
+    *, name: str | None, logger: logging.Logger
+) -> Brand | None:
+    if not name:
+        return None
+
+    brand, is_created = Brand.objects.get_or_create(name=name)
+    log_action = "created" if is_created else "loaded"
+    logger.info(f"Succesfully {log_action} brand ({brand.pk}) {brand.name} ...")
+
+    return brand
+
+
+def _create_scraped_product(
+    *,
+    product_discover: ProductDiscover,
+    brand: Brand | None,
+    validated_data: dict,
+    product_last_scraped_at: timezone.datetime,
+) -> Product:
+    product = Product.objects.create(brand=brand, **validated_data)
+
+    product_discover.product = product
+    product_discover.product_last_scraped_at = product_last_scraped_at
+    product_discover.save(update_fields=["product", "product_last_scraped_at"])
+
+    return product
+
+
+def _update_scraped_product(
+    *,
+    product: Product,
+    product_discover: ProductDiscover,
+    validated_data: dict,
+    product_last_scraped_at: timezone.datetime,
+) -> Product:
+    product.price = validated_data.get("price")
+    product.discount_price = validated_data.get("discount_price")
+    product.is_in_stock = validated_data.get("is_in_stock")
+    product.save(update_fields=["price", "discount_price", "is_in_stock", "updated_at"])
+
+    product_discover.product_last_scraped_at = product_last_scraped_at
+    product_discover.save(update_fields=["product_last_scraped_at"])
+
+    return product
+
+
+def create_or_update_scraped_product(
+    *,
+    product: Product | None,
+    product_discover: ProductDiscover,
+    brand: Brand | None,
+    validated_data: dict,
+    logger: logging.Logger,
+) -> None:
+    product_last_scraped_at = timezone.now()
+
+    if product is None:
+        product = _create_scraped_product(
+            product_discover=product_discover,
+            brand=brand,
+            validated_data=validated_data,
+            product_last_scraped_at=product_last_scraped_at,
+        )
+
+        logger.info(
+            f"Successfully added a new product ({product.pk}) {product.name} ..."
+        )
+    else:
+        product = _update_scraped_product(
+            product=product,
+            product_discover=product_discover,
+            validated_data=validated_data,
+            product_last_scraped_at=product_last_scraped_at,
+        )
+        logger.info(f"Successfully updated product ({product.pk}) {product.name} ...")
+
+
+def update_or_create_many_product_discovers(
+    *,
+    pharmacy: Pharmacy,
+    run_started_at: timezone.datetime,
+    product_urls: list[str],
+    logger: logging.Logger | None = None,
+) -> None:
+    if len(product_urls) == 0:
+        return
+
+    for url in product_urls:
+        ProductDiscover.objects.update_or_create(
+            url=url,
+            pharmacy=pharmacy,
+            defaults={
+                "is_active": True,
+                "last_seen_at": run_started_at,
+            },
+            create_defaults={
+                "is_active": True,
+                "last_seen_at": run_started_at,
+            },
+        )
+
+
+def update_all_product_discovers_status_by_run_started_at(
+    *,
+    pharmacy: Pharmacy,
+    run_started_at: timezone.datetime,
+    logger: logging.Logger | None = None,
+):
+    ProductDiscover.objects.filter(
+        pharmacy=pharmacy, last_seen_at__lt=run_started_at
+    ).update(is_active=False)
+
+
+def extract_data_from_product_by_pharmacy(
+    *, pharmacy_name: str, url: str, soup: BeautifulSoup, logger: logging.Logger
+) -> dict | None:
+    data = None
+
+    if pharmacy_name == "Apteka24":
+        from .apteka24.parsers import extract_product_detail_data
+
+        data = extract_product_detail_data(soup)
+    # elif ...
+
+    if data is not None:
+        logger.info(f"From {url} extracted following raw data {data} ...")
+
+        return data
+    else:
+        logger.warning(
+            f"A parser for {pharmacy_name} not present and task is ending ..."
+        )
+        return None
+
+
+# -------------------------------
+# Celery Tasks
+# -------------------------------
 
 
 @shared_task  # TODO: Retry handling
@@ -99,7 +256,8 @@ def schedule_product_detail_scrape(limit: int = 15) -> None:
         Q(product_last_scraped_at__lte=cutoff) | Q(product_last_scraped_at__isnull=True)
     )[:limit]
 
-    if num_scheduled := next_for_scraping.count() > 0:
+    num_scheduled = next_for_scraping.count()
+    if num_scheduled > 0:
         logger.info(f"Scheduled {num_scheduled} products for scraping ...")
     else:
         logger.info("No more products to be scheduled from scraping ...")
@@ -126,49 +284,28 @@ def scrape_product_detail(url: str, headers: dict[str, str]) -> None:
         return  # TODO: trigger task retry
 
     soup = get_soup(html)
-
-    if pharmacy_name == "Apteka24":
-        from .apteka24.parsers import extract_product_detail_data
-
-        data = extract_product_detail_data(soup)
-
-    # validate
+    data = extract_data_from_product_by_pharmacy(
+        pharmacy_name=pharmacy_name, url=url, soup=soup, logger=logger
+    )
+    validated_data = validate_product_scraped_data(data=data, logger=logger)
     # create product scrape event
+    if validated_data is None:
+        return
 
-    description = data.pop("description")  # noqa
+    description = validated_data.pop("description")  # noqa
 
-    logger.info(f"From {url} extracted following data {data} ...")
+    brand_name = validated_data.pop("brand", None)
+    brand = get_or_create_brand_by_name(name=brand_name, logger=logger)
 
-    brand_name = data.pop("brand", None)
-    if brand_name:
-        brand, is_created = Brand.objects.get_or_create(name=brand_name)
-        log_action = "created" if is_created else "loaded"
-        logger.info(f"Succesfully {log_action} brand ({brand.pk}) {brand.name} ...")
-    else:
-        brand = None
+    create_or_update_scraped_product(
+        product=product,
+        product_discover=product_discover,
+        brand=brand,
+        validated_data=validated_data,
+        logger=logger,
+    )
 
-    product_last_scraped_at = timezone.now()
 
-    if product is None:
-        product_obj = Product.objects.create(brand=brand, **data)
-        product_discover.product = product_obj
-        product_discover.product_last_scraped_at = product_last_scraped_at
-        product_discover.save(update_fields=["product", "product_last_scraped_at"])
-
-        logger.info(
-            f"Successfully added a new product ({product_obj.pk}) {product_obj.name} ..."
-        )
-
-    else:
-        product.price = data.get("price")
-        product.is_in_stock = data.get("is_in_stock")
-        product.save(update_fields=["price", "is_in_stock", "updated_at"])
-
-        product_discover.product_last_scraped_at = product_last_scraped_at
-        product_discover.save(update_fields=["product_last_scraped_at"])
-
-        logger.info(f"Successfully updated product ({product.pk}) {product.name} ...")
-
-    # Call openai for summarization of description if none
-    # and create product description with description + tags
-    # Or even submit a new child task
+# Call openai for summarization of description if none
+# and create product description with description + tags
+# Or even submit a new child task
