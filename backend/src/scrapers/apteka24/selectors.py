@@ -1,11 +1,11 @@
-# Discover
-PRODUCT_CARD_SELECTOR = "li.product"
-PRODUCT_LINK_IN_PRODUCT_CARD_SELECTOR = (
-    ".woocommerce-LoopProduct-link.woocommerce-loop-product__link"
+PRODUCT_CARD_IN_CATALOG_SELECTOR = "main > div > ul > li.product"
+PRODUCT_LINK_IN_CATALOG_PRODUCT_CARD_SELECTOR = "div.product-content > a"
+PRODUCT_PRICES_STRING_IN_CATALOG_PRODUCT_CARD_SELECTOR = (
+    "div.product-content > a > span.price"
 )
-PAGE_NUMBERS_SELECTOR = "ul li"
+CATALOG_PAGE_NUMBERS_SELECTOR = "nav.woocommerce-pagination > ul > li"
 
-# Detail
+
 PRODUCT_NAME_SELECTOR = "div.summary.entry-summary > h1"
 PRODUCT_PRICE_SELECTOR = "div.summary.entry-summary > p.price > span:nth-of-type(1)"
 PRODUCT_DISCOUNT_PRICE_SELECTOR = (

@@ -1,14 +1,16 @@
 from bs4 import BeautifulSoup, ResultSet, Tag
 
 from .selectors import (
-    PAGE_NUMBERS_SELECTOR,
+    CATALOG_PAGE_NUMBERS_SELECTOR,
     PRODUCT_BRAND_SELECTOR,
-    PRODUCT_CARD_SELECTOR,
+    PRODUCT_CARD_IN_CATALOG_SELECTOR,
     PRODUCT_DESCRIPTION_SELECTOR,
     PRODUCT_DISCOUNT_PRICE_SELECTOR,
+    PRODUCT_LINK_IN_CATALOG_PRODUCT_CARD_SELECTOR,
     PRODUCT_NAME_SELECTOR,
     PRODUCT_OUT_OF_STOCK_SELECTOR,
     PRODUCT_PRICE_SELECTOR,
+    PRODUCT_PRICES_STRING_IN_CATALOG_PRODUCT_CARD_SELECTOR,
 )
 
 
@@ -20,7 +22,7 @@ def _extract_page_num(page_num_el: Tag) -> int | None:
 
 
 def extract_max_page_num(soup: BeautifulSoup) -> int:
-    page_nums_elements = soup.select(PAGE_NUMBERS_SELECTOR)
+    page_nums_elements = soup.select(CATALOG_PAGE_NUMBERS_SELECTOR)
     if len(page_nums_elements) == 0:
         raise ValueError(len(page_nums_elements))
 
@@ -30,12 +32,16 @@ def extract_max_page_num(soup: BeautifulSoup) -> int:
 
 
 def extract_products_from_page(soup: BeautifulSoup) -> ResultSet[Tag]:
-    product_cards = soup.select(PRODUCT_CARD_SELECTOR)
+    product_cards = soup.select(PRODUCT_CARD_IN_CATALOG_SELECTOR)
 
     if len(product_cards) == 0:
         raise ValueError  # TODO: Improve error handling
 
-    return product_cards
+    return [
+        card
+        for card in product_cards
+        if _extract_and_validate_product_prices_from_catalog_product_card(card)
+    ]
 
 
 PRODUCT_FIELD_TO_SELECTOR_MAP = {
@@ -59,8 +65,30 @@ def _extract_product_field(product_detail_html: Tag, field: str) -> str | None:
         return None
 
 
-def extract_product_url_for_discover(product_card: Tag) -> str:
-    return product_card.get("href").strip()
+def _extract_and_validate_product_prices_from_catalog_product_card(
+    product_card: Tag,
+) -> bool:
+    prices = product_card.select_one(
+        PRODUCT_PRICES_STRING_IN_CATALOG_PRODUCT_CARD_SELECTOR
+    )
+
+    try:
+        prices_text = prices.get_text(strip=True)
+        not_allowed_strings_in_price = ["-", "through", "range"]
+
+        return all(string not in prices_text for string in not_allowed_strings_in_price)
+
+    except Exception:
+        return False
+
+
+def extract_product_url_from_card(product_card: Tag) -> str:
+    a_tag = product_card.select_one(PRODUCT_LINK_IN_CATALOG_PRODUCT_CARD_SELECTOR)
+
+    try:
+        return a_tag.get("href").strip()
+    except TypeError:
+        raise
 
 
 def extract_product_detail_data(product_detail_html: Tag) -> dict:

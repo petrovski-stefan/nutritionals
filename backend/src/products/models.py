@@ -1,14 +1,38 @@
+from urllib.parse import parse_qs
+
 from common.models import BaseModel
+from django.core.exceptions import ValidationError
 from django.db import models
+
+
+def validate_catalog_queryparams_string(value: str) -> None:
+    if not value:
+        return
+
+    if not value.startswith("?"):
+        raise ValidationError("Query params string should start with a '?' ")
+
+    try:
+        parse_qs(value[1:])
+    except Exception as e:
+        raise ValidationError(e)
 
 
 class Pharmacy(BaseModel):
     name = models.CharField(max_length=100, unique=True)
-    catalog_base_url = models.URLField(unique=True)
-    catalog_max_pages = models.PositiveSmallIntegerField()
-    catalog_scraping_delay_in_seconds = models.FloatField()
     logo = models.ImageField(upload_to="pharmacy-logos")
     homepage = models.URLField()
+
+    catalog_base_url = models.URLField(unique=True)
+    catalog_url_queryparams_string = models.CharField(
+        max_length=100,
+        blank=True,
+        validators=[validate_catalog_queryparams_string],
+        help_text="Enter query params starting with '?', e.g., '?key1=value1&key2=value2'",
+    )
+    catalog_max_pages = models.PositiveSmallIntegerField()
+    catalog_scraping_delay_in_seconds = models.FloatField()
+
     # delay between single product scrapes
 
     def __str__(self) -> str:

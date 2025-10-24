@@ -9,6 +9,7 @@ from products.models import Brand, Pharmacy, Product, ProductDiscover
 from pydantic import ValidationError as PydanticValidationError
 
 from .shared.client import delay, get_random_useragent, make_request
+from .shared.imports import load_pharmacy_functions
 from .shared.soup import get_soup
 from .validators import Product as PydanticProduct
 
@@ -113,7 +114,6 @@ def update_or_create_many_product_discovers(
     pharmacy: Pharmacy,
     run_started_at: timezone.datetime,
     product_urls: list[str],
-    logger: logging.Logger | None = None,
 ) -> None:
     if len(product_urls) == 0:
         return
@@ -137,7 +137,6 @@ def update_all_product_discovers_status_by_run_started_at(
     *,
     pharmacy: Pharmacy,
     run_started_at: timezone.datetime,
-    logger: logging.Logger | None = None,
 ):
     ProductDiscover.objects.filter(
         pharmacy=pharmacy, last_seen_at__lt=run_started_at
@@ -171,67 +170,97 @@ def extract_data_from_product_by_pharmacy(
 # -------------------------------
 
 
-@shared_task  # TODO: Retry handling
-def discover_apteka24() -> None:
-    from .apteka24.parsers import (
-        extract_max_page_num,
-        extract_product_url_for_discover,
-        extract_products_from_page,
+@shared_task
+def schedule_pharmacy_catalogs_scrape() -> None:
+    pharmacies = Pharmacy.objects.all()
+    logger = logging.getLogger("PHARMACY-CATALOG-SCRAPE-SCHEDULER")
+
+    if pharmacies.count() == 0:
+        logger.warning("No pharmacies to schedule catalog scrape for found ...")
+        return
+
+    pharmacy_names_str = ",".join(pharmacies.values_list("name", flat=True))
+    logger.info(
+        f"Scheduling catalog scrape for following pharmacies: {pharmacy_names_str} ..."
     )
+    headers = {"User-Agent": get_random_useragent()}
 
-    logger = logging.getLogger("24APTEKA-DISCOVER")
+    for pharmacy in pharmacies:
+        scrape_pharmacy_catalog.delay(pharmacy.name, headers)
 
-    pharmacy = Pharmacy.objects.get(name="Apteka24")
+
+@shared_task  # TODO: Retry handling
+def scrape_pharmacy_catalog(pharmacy_name: str, headers: dict) -> None:
+    pharmacy = Pharmacy.objects.get(name=pharmacy_name)
+    logger = logging.getLogger("PHARMACY-CATALOG-SCRAPE")
 
     run_started_at = timezone.now()
     pagination_max_page_num = None
-    total_urls = 0
-    total_pages = 0
-    failed_pages = []
+    failed_pages_count = 0
 
-    logger.info(f"Started discovering at {run_started_at} ...")
+    logger.info(f"Started pharmacy catalog scraping for {pharmacy_name} ...")
+
+    try:
+        (
+            extract_max_page_num,
+            extract_product_url_for_discover,
+            extract_products_from_page,
+        ) = load_pharmacy_functions(pharmacy_name=pharmacy_name)
+
+    except Exception as e:
+        logger.warning(e)
+
+        return
 
     for page_num in range(1, pharmacy.catalog_max_pages + 1):
+        url = f"{pharmacy.catalog_base_url}{page_num}/{pharmacy.catalog_url_queryparams_string}"
         try:
-            url = f"{pharmacy.catalog_base_url}{page_num}/"
-            headers = {"User-Agent": get_random_useragent()}
-
             html = make_request(url=url, headers=headers, logger=logger)
-            soup = get_soup(html)
-
-            if pagination_max_page_num is None:
-                pagination_max_page_num = extract_max_page_num(soup)
-                logger.info(
-                    f"Discovered total {pagination_max_page_num} pages in catalog."
-                )
-
-            product_cards = extract_products_from_page(soup)
-            product_urls = [extract_product_url_for_discover(p) for p in product_cards]
-
-            product_urls_len = len(product_urls)
-            total_urls += product_urls_len
-            total_pages += 1
-
-            update_or_create_many_product_discovers(
-                pharmacy=pharmacy,
-                run_started_at=run_started_at,
-                product_urls=product_urls,
+        except Exception as e:
+            logger.warning(
+                f"({pharmacy_name}) Failed to process page {page_num}: {e} ..."
             )
-
-            logger.info(
-                f"Processed page {page_num}/{pagination_max_page_num}: {product_urls_len} URLs found."  # noqa
-            )
-
-            if page_num == pagination_max_page_num:
-                break
-
-            delay(pharmacy.catalog_scraping_delay_in_seconds)
-
-        except Exception as e:  # TODO: list possible exceptions instead of base class
-            logger.warning(f"Failed to process page {page_num}: {e}")
-            failed_pages.append(page_num)
+            failed_pages_count += 1
 
             continue
+
+        soup = get_soup(html)
+
+        if pagination_max_page_num is None:
+            try:
+                pagination_max_page_num = extract_max_page_num(soup)
+                logger.info(
+                    f"({pharmacy_name}) Discovered total {pagination_max_page_num} pages in catalog ..."  # noqa
+                )
+            except Exception as e:
+                logger.warning(f"Extracting max page num failed: {e} ...")
+                failed_pages_count += 1
+                continue
+
+        try:
+            product_cards = extract_products_from_page(soup)
+            product_urls = [extract_product_url_for_discover(p) for p in product_cards]
+        except Exception as e:
+            logger.warning(
+                f"Extracting product cards failed: {e} ..."  # noqa
+            )
+            failed_pages_count += 1
+            continue
+
+        update_or_create_many_product_discovers(
+            pharmacy=pharmacy,
+            run_started_at=run_started_at,
+            product_urls=product_urls,
+        )
+
+        logger.info(
+            f"({pharmacy_name}) Processed page {page_num}/{pagination_max_page_num} and found {len(product_urls)} URLs ..."  # noqa
+        )
+
+        if page_num == pagination_max_page_num:
+            break
+
+        delay(pharmacy.catalog_scraping_delay_in_seconds)
 
     # Finalize
     update_all_product_discovers_status_by_run_started_at(
@@ -239,17 +268,16 @@ def discover_apteka24() -> None:
     )
 
     logger.info(
-        f"[{run_started_at}] Discovery complete. "
-        f"Pages processed: {total_pages}, URLs discovered: {total_urls}, "
-        f"Failed pages: {failed_pages or 'none'}."
+        f"({pharmacy_name}) Catalog scrape finished with {failed_pages_count} failed pages ... "
     )
+
+    if failed_pages_count > 0:
+        pass  # TODO: handle task retry
 
 
 @shared_task
 def schedule_product_detail_scrape(limit: int = 15) -> None:
-    from .shared.client import get_random_useragent
-
-    logger = logging.getLogger("SCRAPE-SCHEDULER")
+    logger = logging.getLogger("PRODUCT-SCRAPE-SCHEDULER")
 
     cutoff = timezone.now() - timedelta(hours=24)
     next_for_scraping = ProductDiscover.objects.filter(

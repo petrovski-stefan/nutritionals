@@ -170,7 +170,17 @@ LOGGING = {
             "level": "INFO",
             "propagate": False,
         },
-        "SCRAPE-SCHEDULER": {
+        "PHARMACY-CATALOG-SCRAPE-SCHEDULER": {
+            "handlers": ["console"],
+            "level": "INFO",
+            "propagate": False,
+        },
+        "PHARMACY-CATALOG-SCRAPE": {
+            "handlers": ["console"],
+            "level": "INFO",
+            "propagate": False,
+        },
+        "PRODUCT-SCRAPE-SCHEDULER": {
             "handlers": ["console"],
             "level": "INFO",
             "propagate": False,
