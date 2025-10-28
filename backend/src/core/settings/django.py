@@ -44,6 +44,7 @@ INSTALLED_APPS += [
     "common",
     "scrapers",
     "products",
+    "users",
 ]
 
 MIDDLEWARE = [

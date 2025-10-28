@@ -1,3 +1,4 @@
+from common.mixins import NoAuthMixin
 from django_filters import rest_framework as filters
 from rest_framework.generics import ListAPIView
 
@@ -11,7 +12,7 @@ from .serializers import (
 from .services import get_brands_with_product_count
 
 
-class ProductListAPIView(ListAPIView):
+class ProductListAPIView(NoAuthMixin, ListAPIView):
     serializer_class = ProductReadListSerializer
     queryset = Product.objects.select_related(
         "brand", "productdiscover", "productdiscover__pharmacy"
@@ -29,7 +30,7 @@ class ProductListAPIView(ListAPIView):
     filterset_class = ProductFilterSet
 
 
-class BrandListAPIView(ListAPIView):
+class BrandListAPIView(NoAuthMixin, ListAPIView):
     serializer_class = BrandReadListSerializer
 
     def get_queryset(self):
@@ -38,6 +39,6 @@ class BrandListAPIView(ListAPIView):
         return get_brands_with_product_count(name)
 
 
-class PharmacyListAPIView(ListAPIView):
+class PharmacyListAPIView(NoAuthMixin, ListAPIView):
     serializer_class = PharmacyReadListSerializer
     queryset = Pharmacy.objects.only("name", "homepage", "logo")
