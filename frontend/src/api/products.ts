@@ -30,9 +30,9 @@ export const getProducts = async (queryParams: ProductListQueryParams) => {
   return response.data as APIResponse<Array<BackendProduct>>;
 };
 
-export const searchProducts = async (searchQuery: string) => {
+export const searchProducts = async (searchQuery: string, limit: number) => {
   const response = await axiosInstance.get(
-    `api/v1/products/?name__icontains=${encodeURIComponent(searchQuery)}`
+    `api/v1/products/?name__icontains=${encodeURIComponent(searchQuery)}&limit=${limit}`
   );
 
   return response.data as APIResponse<Array<BackendProduct>>;

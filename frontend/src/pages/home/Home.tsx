@@ -46,7 +46,7 @@ export default function Home() {
 
     const search = async (query: string) => {
       setIsLoading(true);
-      const response = await ProductAPI.searchProducts(query);
+      const response = await ProductAPI.searchProducts(query, 10);
 
       if (response.status) {
         setProducts(response.data);
