@@ -1,9 +1,9 @@
-from django.db.models import BooleanField, Case, Count, Q, Value, When
+from django.db.models import BooleanField, Case, Count, Q, QuerySet, Value, When
 
 from .models import Brand
 
 
-def get_brands_with_product_count(name: str):
+def get_brands_with_product_count(name: str) -> QuerySet:
     return (
         Brand.objects.annotate(
             included=Case(
