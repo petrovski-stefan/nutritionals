@@ -6,12 +6,13 @@ import Login from '../pages/login/Login';
 import Register from '../pages/register/Register';
 import type { ReactElement } from 'react';
 import AuthGuard from '../components/AuthGuard';
+import MyLists from '../pages/MyLists';
 
 type Route = {
   linkText: string;
   path: string;
   element: ReactElement;
-  showInHeader: boolean;
+  showInHeaderMode: 'show' | 'hide' | 'showIfAuthOnly' | 'showIfNotAuthOnly';
 };
 
 const routes: Array<Route> = [
@@ -19,25 +20,25 @@ const routes: Array<Route> = [
     linkText: 'Home',
     path: '/',
     element: <Home />,
-    showInHeader: true,
+    showInHeaderMode: 'show',
   },
   {
     linkText: 'Search',
     path: '/search',
     element: <Search />,
-    showInHeader: true,
+    showInHeaderMode: 'show',
   },
   {
     linkText: 'Smart Search',
     path: '/smart-search',
     element: <SmartSearch />,
-    showInHeader: true,
+    showInHeaderMode: 'show',
   },
   {
     linkText: 'About',
     path: '/about',
     element: <About />,
-    showInHeader: true,
+    showInHeaderMode: 'show',
   },
   {
     linkText: 'Login',
@@ -50,7 +51,7 @@ const routes: Array<Route> = [
         <Login />
       </AuthGuard>
     ),
-    showInHeader: false,
+    showInHeaderMode: 'hide',
   },
   {
     linkText: 'Join us',
@@ -63,7 +64,20 @@ const routes: Array<Route> = [
         <Register />
       </AuthGuard>
     ),
-    showInHeader: true,
+    showInHeaderMode: 'showIfNotAuthOnly',
+  },
+  {
+    linkText: 'My lists',
+    path: '/my-lists',
+    element: (
+      <AuthGuard
+        mode="private"
+        redirectTo="/register"
+      >
+        <MyLists />
+      </AuthGuard>
+    ),
+    showInHeaderMode: 'showIfAuthOnly',
   },
 ];
 

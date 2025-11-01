@@ -7,8 +7,19 @@ import UserCard from './UserCard';
 export default function Header() {
   const { username, isLoggedIn, logout } = useAuthContext();
 
+  const showMenuLinkCondition = (
+    isLoggedIn: boolean,
+    showInHeaderMode: 'show' | 'hide' | 'showIfAuthOnly' | 'showIfNotAuthOnly'
+  ) => {
+    if (isLoggedIn) {
+      return showInHeaderMode === 'show' || showInHeaderMode === 'showIfAuthOnly';
+    }
+
+    return showInHeaderMode === 'show' || showInHeaderMode === 'showIfNotAuthOnly';
+  };
+
   const menuItemsLinks = routes
-    .filter(({ showInHeader }) => showInHeader)
+    .filter(({ showInHeaderMode }) => showMenuLinkCondition(isLoggedIn, showInHeaderMode))
     .map((route) => (
       <MenuItem
         key={route.path}
