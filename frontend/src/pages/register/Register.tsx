@@ -42,53 +42,61 @@ export default function Register() {
 
   return (
     <div className="mt-5 flex h-1/2 items-center justify-center">
-      <div>
-        <h1 className="text-accent text-center">Register / Join us</h1>
-        {errors && <p>{errors}</p>}
-        {isLoading && <p>Loading ...</p>}
-        <form onSubmit={handleRegisterFormSubmit}>
-          <div>
-            <label>Username: </label>
+      <div className="w-1/4 px-2 py-4">
+        {errors && (
+          <div className="mb-4 rounded-lg bg-red-100 px-4 py-2 text-center text-red-700">
+            {errors}
+          </div>
+        )}
+
+        <form
+          onSubmit={handleRegisterFormSubmit}
+          className="space-y-5"
+        >
+          <div className="flex flex-col">
+            <label className="text-dark mb-2 font-medium">Username</label>
             <input
               type="text"
+              value={registerCredentials.username}
               onChange={(e) => handleRegisterCredentialsOnChange('username', e.target.value)}
-              value={registerCredentials['username']}
-              className="w-full rounded-2xl bg-neutral-200 p-2"
+              className="border-dark/30 focus:ring-accent focus:border-accent rounded-2xl border px-4 py-3 transition focus:ring-2 focus:outline-none"
+              placeholder="Enter your username"
             />
           </div>
-          <div>
-            <label>Password: </label>
+          <div className="flex flex-col">
+            <label className="text-dark mb-2 font-medium">Password</label>
             <input
               type="password"
+              value={registerCredentials.password}
               onChange={(e) => handleRegisterCredentialsOnChange('password', e.target.value)}
-              value={registerCredentials['password']}
-              className="w-full rounded-2xl bg-neutral-200 p-2"
+              className="border-dark/30 focus:ring-accent focus:border-accent rounded-2xl border px-4 py-3 transition focus:ring-2 focus:outline-none"
+              placeholder="Enter your password"
             />
           </div>
-          <div>
-            <label>Confirm password: </label>
+          <div className="flex flex-col">
+            <label className="text-dark mb-2 font-medium">Confirm password</label>
             <input
               type="password"
+              value={registerCredentials.confirmPassword}
               onChange={(e) => handleRegisterCredentialsOnChange('confirmPassword', e.target.value)}
-              value={registerCredentials['confirmPassword']}
-              className="w-full rounded-2xl bg-neutral-200 p-2"
+              className="border-dark/30 focus:ring-accent focus:border-accent rounded-2xl border px-4 py-3 transition focus:ring-2 focus:outline-none"
+              placeholder="Enter your password"
             />
           </div>
 
-          <div className="bg-accent mx-auto my-5 w-fit cursor-pointer rounded-2xl px-4 py-2">
-            <button
-              type="submit"
-              className="text-primary cursor-pointer text-center font-bold"
-            >
-              Register
-            </button>
-          </div>
+          <button
+            type="submit"
+            disabled={isLoading}
+            className="bg-accent hover:bg-accent/90 w-full rounded-2xl py-3 font-bold text-white transition disabled:opacity-70"
+          >
+            {isLoading ? 'Registering ...' : 'Register'}
+          </button>
         </form>
-        <p className="text-center">
+        <p className="text-dark/70 mt-6 text-center text-sm">
           <span>Already have an account? </span>
           <Link
             to="/login"
-            className="text-accent"
+            className="text-accent font-medium hover:underline"
           >
             Login!
           </Link>

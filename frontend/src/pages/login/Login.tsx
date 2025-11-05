@@ -45,44 +45,53 @@ export default function Login() {
   return (
     <div className="mt-5 flex h-1/2 items-center justify-center">
       <div className="w-1/4 px-2 py-4">
-        {errors && <p>{errors}</p>}
-        {isLoading && <p>Loading ...</p>}
-        <form onSubmit={handleLoginFormSubmit}>
-          <div>
-            <label>Username: </label>
+        {errors && (
+          <div className="mb-4 rounded-lg bg-red-100 px-4 py-2 text-center text-red-700">
+            {errors}
+          </div>
+        )}
+
+        <form
+          onSubmit={handleLoginFormSubmit}
+          className="space-y-5"
+        >
+          <div className="flex flex-col">
+            <label className="text-dark mb-2 font-medium">Username</label>
             <input
               type="text"
+              value={loginCredentials.username}
               onChange={(e) => handleLoginCredentialsOnChange('username', e.target.value)}
-              value={loginCredentials['username']}
-              className="w-full rounded-2xl bg-neutral-200 p-2"
-            />
-          </div>
-          <div>
-            <label>Password: </label>
-            <input
-              type="password"
-              onChange={(e) => handleLoginCredentialsOnChange('password', e.target.value)}
-              value={loginCredentials['password']}
-              className="w-full rounded-2xl bg-neutral-200 p-2"
+              className="border-dark/30 focus:ring-accent focus:border-accent rounded-2xl border px-4 py-3 transition focus:ring-2 focus:outline-none"
+              placeholder="Enter your username"
             />
           </div>
 
-          <div className="bg-accent mx-auto my-5 w-fit cursor-pointer rounded-2xl px-4 py-2">
-            <button
-              type="submit"
-              className="text-primary cursor-pointer text-center font-bold"
-            >
-              Login
-            </button>
+          <div className="flex flex-col">
+            <label className="text-dark mb-2 font-medium">Password</label>
+            <input
+              type="password"
+              value={loginCredentials.password}
+              onChange={(e) => handleLoginCredentialsOnChange('password', e.target.value)}
+              className="border-dark/30 focus:ring-accent focus:border-accent rounded-2xl border px-4 py-3 transition focus:ring-2 focus:outline-none"
+              placeholder="Enter your password"
+            />
           </div>
+
+          <button
+            type="submit"
+            disabled={isLoading}
+            className="bg-accent hover:bg-accent/90 w-full rounded-2xl py-3 font-bold text-white transition disabled:opacity-70"
+          >
+            {isLoading ? 'Logging in...' : 'Login'}
+          </button>
         </form>
-        <p className="text-center">
-          <span>Don't have an account? </span>
+        <p className="text-dark/70 mt-6 text-center text-sm">
+          Don't have an account?{' '}
           <Link
             to="/register"
-            className="text-accent"
+            className="text-accent font-medium hover:underline"
           >
-            Register!
+            Register
           </Link>
         </p>
       </div>
