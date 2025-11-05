@@ -1,19 +1,26 @@
-const EMAIL_CONTACT = 'stefanpetrovski345@gmail.com';
+const EMAIL_CONTACT = 'nutritionals@gmail.com';
 
 export default function Footer() {
   return (
-    <div className="bg-dark text-neutral flex h-[8vh] items-center">
+    <footer className="bg-dark text-neutral flex h-[8vh] items-center">
       <p className="w-full text-center text-sm">
-        This site is a bachelor's thesis project and not a commercial service. Products are not sold
-        here; data and images are shown for educational purposes only — contact me at{' '}
+        This site is a bachelor's thesis project for educational purposes. No products are sold
+        here. For legal inquiries or data removal requests, contact{' '}
         <a
           href={`mailto:${EMAIL_CONTACT}`}
-          className="text-secondary hover:text-secondary/90 underline"
+          className="text-accent hover:text-accent/90 underline"
         >
           {EMAIL_CONTACT}
+        </a>
+        . See our{' '}
+        <a
+          href="/about"
+          className="text-accent hover:text-accent/90 underline"
+        >
+          About & Legal
         </a>{' '}
-        for data removal.
+        page for full disclaimer.
       </p>
-    </div>
+    </footer>
   );
 }
