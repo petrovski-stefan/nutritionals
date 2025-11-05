@@ -1,7 +1,7 @@
 import Home from '../pages/home/Home';
 import Search from '../pages/search/Search';
 import SmartSearch from '../pages/smart-search/SmartSearch';
-import About from '../pages/About';
+import About from '../pages/about/About';
 import Login from '../pages/login/Login';
 import Register from '../pages/register/Register';
 import type { ReactElement } from 'react';
