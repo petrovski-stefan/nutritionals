@@ -1,4 +1,4 @@
-const EMAIL_CONTACT = 'nutritionals@gmail.com';
+const EMAIL_CONTACT = import.meta.env.VITE_NUTRITIONALS_EMAIL as string;
 
 export default function Footer() {
   return (
