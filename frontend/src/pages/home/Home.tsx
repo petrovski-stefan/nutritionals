@@ -1,58 +1,47 @@
 import { useEffect, useState, type FormEvent, type KeyboardEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import HomePageProduct from './BestDealProduct';
+import BestDealsProductCard from './BestDealProductCard';
 import Section from '../../components/Section';
-import PharmacyCard from './SupportedPharmacyCard';
+import SupportedPharmacyCard from './SupportedPharmacyCard';
 import type { BackendPharmacy, BackendProduct } from '../../types/product';
 import SearchDropdown from './SearchDropdown';
 import * as ProductAPI from '../../api/products';
-import { SearchIcon } from 'lucide-react';
+import { SearchIcon, X } from 'lucide-react';
 
 export default function Home() {
   const [searchQuery, setSearchQuery] = useState('');
-  const [isSearchDropdownOpen, setIsSearchDropdownOpen] = useState<boolean>(false);
-  const [products, setProducts] = useState<Array<BackendProduct>>([]);
-  const [productsOnDiscount, setProductsOnDiscount] = useState<Array<BackendProduct>>([]);
-  const [pharmacies, setPharmacies] = useState<Array<BackendPharmacy>>([]);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isSearchDropdownOpen, setIsSearchDropdownOpen] = useState(false);
+  const [products, setProducts] = useState<BackendProduct[]>([]);
+  const [productsOnDiscount, setProductsOnDiscount] = useState<BackendProduct[]>([]);
+  const [pharmacies, setPharmacies] = useState<BackendPharmacy[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   const navigate = useNavigate();
 
   useEffect(() => {
     const fetchPharmacies = async () => {
       const response = await ProductAPI.getPharmacies();
-      if (response.status) {
-        setPharmacies(response.data);
-      }
+      if (response.status) setPharmacies(response.data);
     };
     const fetchProductsOnDiscount = async () => {
       const response = await ProductAPI.getProductsOnDiscount();
-      if (response.status) {
-        setProductsOnDiscount(response.data);
-      }
+      if (response.status) setProductsOnDiscount(response.data);
     };
-
     fetchPharmacies();
     fetchProductsOnDiscount();
   }, []);
 
   useEffect(() => {
     if (searchQuery.length < 2) {
-      if (isSearchDropdownOpen) {
-        setIsSearchDropdownOpen(false);
-      }
+      setIsSearchDropdownOpen(false);
       return;
     }
 
     const search = async (query: string) => {
       setIsLoading(true);
-      const response = await ProductAPI.searchProducts(query, 10);
-
-      if (response.status) {
-        setProducts(response.data);
-      } else {
-        setProducts([]);
-      }
+      const response = await ProductAPI.searchProducts(query, 20);
+      if (response.status) setProducts(response.data);
+      else setProducts([]);
       setIsLoading(false);
     };
 
@@ -62,73 +51,60 @@ export default function Home() {
 
   const handleFormSubmit = (e: FormEvent) => {
     e.preventDefault();
-    if (searchQuery === '') {
-      return;
-    }
-
+    if (!searchQuery) return;
     navigate(`/search?query=${encodeURIComponent(searchQuery)}`);
     setSearchQuery('');
   };
 
   const handleKeyDownEnter = (e: KeyboardEvent<HTMLInputElement>) => {
-    if (e.key !== 'ENTER') {
-      return;
-    }
-    if (searchQuery === '') {
-      return;
-    }
-
+    if (e.key !== 'Enter') return;
+    if (!searchQuery) return;
     navigate(`/search?query=${encodeURIComponent(searchQuery)}`);
     setSearchQuery('');
   };
 
-  const productOnDiscountCards = productsOnDiscount.map((product) => (
-    <HomePageProduct
-      key={product.id}
-      discountPrice={product.discount_price}
-      pharmacyName={product.pharmacy}
-      {...product}
-    />
-  ));
-
-  const supportedPharmaciesCards = pharmacies.map((pharmacy) => (
-    <PharmacyCard
-      key={pharmacy.id}
-      {...pharmacy}
-    />
-  ));
-
   return (
-    <div className="bg-neutral min-h-[70vh]">
-      <Section>
-        <h1 className="text-dark text-3xl font-bold">
+    <div className="bg-neutral min-h-screen">
+      {/* Hero Section */}
+      <Section center={true}>
+        <h1 className="text-dark text-center text-3xl font-bold">
           Find the best prices on supplements in your local pharmacies.
         </h1>
-        <p className="text-dark/70 mt-[5vh] text-lg">
+        <p className="text-dark/70 mt-5 text-center text-lg">
           Compare deals instantly and save on what matters to you.
         </p>
       </Section>
 
-      <Section>
+      {/* Search Section */}
+      <Section center={true}>
         <form
-          className="relative mx-auto flex max-w-3xl justify-around rounded-2xl px-6 py-2"
-          onSubmit={(e) => handleFormSubmit(e)}
+          className="relative flex w-full max-w-3xl items-center rounded-2xl bg-white px-6 py-2 shadow-md"
+          onSubmit={handleFormSubmit}
         >
           <input
-            className="w-[70%] rounded-2xl bg-neutral-200 p-4 outline-none"
+            className="flex-1 rounded-2xl bg-neutral-200 p-4 outline-none"
             type="text"
-            name="query"
-            placeholder="Ex. vitamin c ..."
+            placeholder="Ex. vitamin C ..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            onKeyDown={(e) => handleKeyDownEnter(e)}
+            onKeyDown={handleKeyDownEnter}
           />
+          {searchQuery && (
+            <button
+              type="button"
+              onClick={() => setSearchQuery('')}
+              className="text-dark/50 hover:text-dark absolute top-1/2 right-20 -translate-y-1/2 cursor-pointer"
+            >
+              <X />
+            </button>
+          )}
           <button
-            className="border-accent bg-accent absolute top-1/5 right-36 h-[60%] w-[10%] cursor-pointer rounded-3xl border-2 p-2 font-bold text-white"
             type="submit"
+            className="bg-accent hover:bg-accent/90 ml-4 flex h-10 w-10 items-center justify-center rounded-full text-white transition"
           >
-            <SearchIcon />
+            <SearchIcon className="h-5 w-5" />
           </button>
+
           {isSearchDropdownOpen && (
             <SearchDropdown
               products={products}
@@ -136,7 +112,7 @@ export default function Home() {
             />
           )}
         </form>
-        <div className="mt-[3vh]">
+        <div className="mt-3 text-center">
           <Link
             to="/smart-search"
             className="hover:decoration-accent text-dark/70 text-sm italic hover:underline"
@@ -146,14 +122,32 @@ export default function Home() {
         </div>
       </Section>
 
-      <Section>
+      {/* Products on Discount */}
+      <Section center={false}>
         <p className="flex justify-center p-4 text-2xl font-bold">Products on discount</p>
-        <div className="mt-[5vh] flex justify-around">{productOnDiscountCards}</div>
+        <div className="mt-5 flex flex-wrap justify-center gap-5">
+          {productsOnDiscount.map((product) => (
+            <BestDealsProductCard
+              key={product.id}
+              discountPrice={product.discount_price}
+              pharmacyName={product.pharmacy}
+              {...product}
+            />
+          ))}
+        </div>
       </Section>
 
-      <Section>
+      {/* Supported Pharmacies */}
+      <Section center={false}>
         <p className="flex justify-center p-4 text-2xl font-bold">Supported pharmacies currently</p>
-        <div className="mt-[5vh] flex justify-around">{supportedPharmaciesCards}</div>
+        <div className="mt-5 flex flex-wrap justify-center gap-5">
+          {pharmacies.map((pharmacy) => (
+            <SupportedPharmacyCard
+              key={pharmacy.id}
+              {...pharmacy}
+            />
+          ))}
+        </div>
       </Section>
     </div>
   );

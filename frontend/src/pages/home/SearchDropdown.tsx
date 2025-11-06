@@ -13,16 +13,18 @@ export default function SearchDropdown({ products, loading }: Props) {
       pharmacyLogo={product.pharmacy_logo}
       discountPrice={product.discount_price}
       {...product}
-    ></DropdownProductCard>
+    />
   ));
 
+  const hasProducts = searchProductsDropdownCards.length > 0;
+
   return (
-    <div className="absolute top-20 w-[65%] rounded-2xl bg-neutral-200 p-2">
-      {loading
-        ? 'Loading ...'
-        : searchProductsDropdownCards.length > 0
-          ? searchProductsDropdownCards
-          : 'No products found. Try again.'}
+    <div className="bg-neutral absolute top-20 z-50 max-h-96 w-full max-w-2xl overflow-y-auto rounded-2xl p-2 shadow-lg">
+      {loading && <p className="text-dark/50 py-4 text-center">Loading ...</p>}
+      {!loading && hasProducts && searchProductsDropdownCards}
+      {!loading && !hasProducts && (
+        <p className="text-dark/50 py-4 text-center">No products found. Try again.</p>
+      )}
     </div>
   );
 }

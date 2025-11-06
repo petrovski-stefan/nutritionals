@@ -7,23 +7,28 @@ type Props = {
 
 export default function DropdownProductCard({ name, price, discountPrice, pharmacyLogo }: Props) {
   const hasDiscountPrice = discountPrice !== '';
-  const priceStyles = hasDiscountPrice ? 'line-through' : '';
-  const discountPriceStyles = hasDiscountPrice ? 'text-primary font-bold' : 'hidden';
+  const priceStyles = hasDiscountPrice ? 'line-through text-dark/50' : 'text-dark';
+  const discountPriceStyles = hasDiscountPrice ? 'text-primary font-semibold ml-2' : '';
 
   return (
-    <div className="flex justify-between border-b-2 px-2 py-2">
-      <div className="w-[10%]">
+    <div className="flex items-center justify-between gap-4 rounded-lg px-4 py-2 transition-colors hover:bg-gray-500/20">
+      {/* Pharmacy Logo */}
+      <div className="h-10 w-10 flex-shrink-0">
         <img
           src={pharmacyLogo}
           alt={name}
+          className="h-full w-full object-contain"
         />
       </div>
-      <p className="text-md w-[50%]">{name}</p>
-      <p>
-        <span className={`text-center ${priceStyles}`}>{price}</span>
-        <span> </span>
-        <span className={`text-center ${discountPriceStyles}`}>{discountPrice}</span>
-      </p>
+
+      {/* Product Name */}
+      <p className="text-dark flex-1 truncate">{name}</p>
+
+      {/* Prices */}
+      <div className="flex items-center gap-1">
+        <span className={priceStyles}>{price}</span>
+        {hasDiscountPrice && <span className={discountPriceStyles}>{discountPrice}</span>}
+      </div>
     </div>
   );
 }
