@@ -28,17 +28,27 @@ export default function Header() {
     ));
 
   return (
-    <div className="bg-primary sticky top-0 z-10 flex h-16 justify-center">
-      <div className="text-accent flex w-[25%] items-center text-3xl font-bold italic">
-        <Link to="/">Nutritionals</Link>
+    <header className="bg-primary sticky top-0 z-50 shadow-md">
+      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6 sm:px-8">
+        {/* Logo */}
+        <Link
+          to="/"
+          className="text-accent hover:text-accent/80 text-2xl font-bold italic transition-colors sm:text-3xl"
+        >
+          Nutritionals
+        </Link>
+
+        {/* Menu */}
+        <nav className="hidden space-x-6 md:flex">{menuItemsLinks}</nav>
+
+        {/* User */}
+        {isLoggedIn && (
+          <UserCard
+            username={username}
+            handleLogout={logout}
+          />
+        )}
       </div>
-      <div className="flex w-[50%] justify-around">{menuItemsLinks}</div>
-      {isLoggedIn && (
-        <UserCard
-          handleLogout={() => logout()}
-          username={username}
-        />
-      )}
-    </div>
+    </header>
   );
 }
