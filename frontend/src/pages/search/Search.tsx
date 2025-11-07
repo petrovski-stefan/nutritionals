@@ -116,7 +116,7 @@ export default function Search() {
   };
 
   return (
-    <div className="flex min-h-[90vh] w-full justify-around">
+    <div className="relative flex min-h-[90vh] w-full justify-around">
       <FiltersSidebar
         handleSearchFormSubmit={handleSearchFormSubmit}
         inputSearchQuery={inputSearchQuery}

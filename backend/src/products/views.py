@@ -1,15 +1,22 @@
-from common.mixins import NoAuthMixin
+from common.mixins import JWTAuthMixin, NoAuthMixin
 from django_filters import rest_framework as filters
-from rest_framework.generics import ListAPIView
+from rest_framework.generics import (
+    ListAPIView,
+    ListCreateAPIView,
+    RetrieveUpdateDestroyAPIView,
+)
 
 from .filters import ProductFilterSet
-from .models import Pharmacy, Product
+from .models import Pharmacy, Product, ProductCollection
 from .serializers import (
     BrandReadListSerializer,
     PharmacyReadListSerializer,
+    ProductCollectionCreateSerializer,
+    ProductCollectionListSerializer,
+    ProductCollectionRetrieveUpdateDestroySerializer,
     ProductReadListSerializer,
 )
-from .services import get_brands_with_product_count
+from .services import CollectionService, get_brands_with_product_count
 
 
 class ProductListAPIView(NoAuthMixin, ListAPIView):
@@ -42,3 +49,43 @@ class BrandListAPIView(NoAuthMixin, ListAPIView):
 class PharmacyListAPIView(NoAuthMixin, ListAPIView):
     serializer_class = PharmacyReadListSerializer
     queryset = Pharmacy.objects.only("name", "homepage", "logo")
+
+
+class ProductCollectionListCreateAPIView(JWTAuthMixin, ListCreateAPIView):
+    def get_serializer_class(self):  # noqa
+        if self.request.method == "POST":
+            return ProductCollectionCreateSerializer
+
+        return ProductCollectionListSerializer
+
+    def get_queryset(self):  # noqa
+        return self.request.user.productcollection_set.all()
+
+    def perform_create(self, serializer) -> None:
+        product_collection = ProductCollection.objects.create(
+            **serializer.validated_data, user=self.request.user
+        )
+        serializer.instance = product_collection
+
+
+class ProductCollectionRetrieveUpdateDestroyAPIView(
+    JWTAuthMixin, RetrieveUpdateDestroyAPIView
+):
+    serializer_class = ProductCollectionRetrieveUpdateDestroySerializer
+
+    def get_queryset(self):  # noqa
+        return self.request.user.productcollection_set.all()
+
+    def perform_update(self, serializer) -> None:
+        product_id = self.request.query_params.get("product_id", None)
+
+        CollectionService.add_product_to_collection(
+            product_id=product_id, collection=serializer.instance
+        )
+
+    def perform_destroy(self, instance) -> None:
+        product_id = self.request.query_params.get("product_id", None)
+
+        CollectionService.remove_product_from_collection(
+            product_id=product_id, collection=instance
+        )

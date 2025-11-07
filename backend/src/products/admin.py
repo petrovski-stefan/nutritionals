@@ -1,6 +1,13 @@
 from django.contrib import admin
 
-from .models import Brand, Pharmacy, Product, ProductDiscover
+from .models import (
+    Brand,
+    Pharmacy,
+    Product,
+    ProductCollection,
+    ProductDiscover,
+    ProductInCollection,
+)
 
 
 @admin.register(ProductDiscover)
@@ -74,3 +81,13 @@ class ProductAdmin(admin.ModelAdmin):
         "created_at",
         "updated_at",
     ]
+
+
+@admin.register(ProductCollection)
+class ProductCollectionAdmin(admin.ModelAdmin):
+    pass
+
+
+@admin.register(ProductInCollection)
+class ProductInCollectionAdmin(admin.ModelAdmin):
+    pass

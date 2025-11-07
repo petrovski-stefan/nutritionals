@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .models import Brand, Pharmacy, Product
+from .models import Brand, Pharmacy, Product, ProductCollection
 
 
 class ProductReadListSerializer(serializers.ModelSerializer):
@@ -41,4 +41,24 @@ class PharmacyReadListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Pharmacy
         fields = ["id", "name", "homepage", "logo"]
+        read_only_fields = fields
+
+
+class ProductCollectionCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProductCollection
+        fields = ["id", "name"]
+
+
+class ProductCollectionListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProductCollection
+        fields = ["id", "name"]
+        read_only_fields = fields
+
+
+class ProductCollectionRetrieveUpdateDestroySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProductCollection
+        fields = ["id", "name"]
         read_only_fields = fields

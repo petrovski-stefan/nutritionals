@@ -43,30 +43,37 @@ export default function FiltersSidebar({
   const [isFilterDisplayed, setIsFilterDisplayed] = useState(filterDisplayedInitialValue);
 
   const pharmacyNameFilterCheckboxes = pharmacies.map(({ id, name }) => (
-    <div key={id}>
+    <label
+      key={id}
+      className="text-dark/80 hover:text-primary flex cursor-pointer items-center gap-2 text-sm"
+    >
       <input
         type="checkbox"
         value={id}
         onChange={(e) => handleFilterValueChange('pharmacyIds', id, e.target.checked)}
         checked={filters['pharmacyIds'].includes(id)}
+        className="accent-primary h-4 w-4 rounded border-neutral-300"
       />
       {name}
-    </div>
+    </label>
   ));
 
   const brandFilterCheckboxes = brands.map(({ id, name, products_by_brand_count }) => (
-    <div key={name}>
+    <label
+      key={name}
+      className="text-dark/80 hover:text-primary flex cursor-pointer items-center gap-2 text-sm"
+    >
       <input
         type="checkbox"
         value={name}
         onChange={(e) => handleFilterValueChange('brandIds', id, e.target.checked)}
         checked={filters['brandIds'].includes(id)}
+        className="accent-primary h-4 w-4 rounded border-neutral-300"
       />
-
-      <span
-        className={products_by_brand_count === 0 ? 'text-dark/50' : ''}
-      >{`${name} (${products_by_brand_count})`}</span>
-    </div>
+      <span className={products_by_brand_count === 0 ? 'text-dark/40' : ''}>
+        {name} ({products_by_brand_count})
+      </span>
+    </label>
   ));
 
   const handleFilterDisplayToggle = (key: keyof ProductFiltersDisplay) => {
@@ -81,56 +88,64 @@ export default function FiltersSidebar({
   };
 
   return (
-    <div className="sticky top-2 flex w-[20%] flex-col p-4">
+    <aside className="bg-neutral sticky top-4 mt-4 ml-4 flex h-fit w-[22%] flex-col gap-6 rounded-2xl border border-neutral-300 p-5 shadow-sm">
+      {/* Search */}
       <form
         onSubmit={handleSearchFormSubmit}
-        className="mb-7"
+        className="relative"
       >
         <input
-          className="relative w-full rounded-2xl border-2 px-4 py-2 outline-none"
+          className="focus:ring-primary text-dark w-full rounded-xl border border-neutral-300 bg-white px-4 py-2 text-sm focus:ring-2 focus:outline-none"
           type="text"
           name="query"
-          placeholder="Ex. vitamin c ..."
+          placeholder="Search product..."
           value={inputSearchQuery ?? ''}
           onChange={(e) => setInputSearchQuery(e.target.value)}
         />
-        <p>
+        <button
+          type="submit"
+          className="hover:text-primary absolute top-2.5 right-3 text-gray-400 transition-colors"
+        >
+          <SearchIcon className="h-5 w-5" />
+        </button>
+        {inputSearchQuery && (
           <button
-            type="submit"
-            className="hover:text-primary absolute top-6 right-8 flex cursor-pointer"
-          >
-            <SearchIcon />
-          </button>
-          <button
-            className="hover:text-primary absolute top-6 right-16 flex cursor-pointer"
+            type="button"
             onClick={handleClearInputSearchQuery}
+            className="hover:text-primary absolute top-2.5 right-9 text-gray-400 transition-colors"
           >
-            <XIcon />
+            <XIcon className="h-5 w-5" />
           </button>
-        </p>
+        )}
       </form>
-      <div
-        onClick={handleClearFilters}
-        className="cursor-pointer text-center"
-      >
-        [Clear filters]
+
+      {/* Clear Filters */}
+      <div className="text-center">
+        <button
+          onClick={handleClearFilters}
+          className="text-secondary hover:text-accent cursor-pointer text-sm font-medium transition-colors"
+        >
+          [ Clear all filters ]
+        </button>
       </div>
-      <div className="flex flex-col justify-around gap-5">
+
+      {/* Filters */}
+      <div className="flex flex-col gap-5">
         <Filter
-          filterTitle="Filter by pharmacies "
+          filterTitle="Pharmacies"
           filterType="pharmacies"
           checkboxes={pharmacyNameFilterCheckboxes}
           handleFilterDisplayToggle={handleFilterDisplayToggle}
           isFilterDisplayed={isFilterDisplayed}
         />
         <Filter
-          filterTitle="Filter by brand "
+          filterTitle="Brands"
           filterType="brands"
           checkboxes={brandFilterCheckboxes}
           handleFilterDisplayToggle={handleFilterDisplayToggle}
           isFilterDisplayed={isFilterDisplayed}
         />
       </div>
-    </div>
+    </aside>
   );
 }

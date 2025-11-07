@@ -1,6 +1,7 @@
-import { Star } from 'lucide-react';
+import { Star, ExternalLink } from 'lucide-react';
 
 type Props = {
+  id: number;
   name: string;
   price: string;
   brand: string;
@@ -9,9 +10,11 @@ type Props = {
   pharmacyLogo: string;
   url: string;
   updated_at: string;
+  handleClickAddProductToCollection: (id: number, name: string) => void;
 };
 
 export default function ProductCard({
+  id,
   name,
   price,
   discountPrice,
@@ -20,58 +23,71 @@ export default function ProductCard({
   pharmacyLogo,
   url,
   updated_at,
+  handleClickAddProductToCollection,
 }: Props) {
   const hasDiscountPrice = discountPrice !== '';
-  const priceStyles = hasDiscountPrice
-    ? 'line-through text-accent'
-    : 'text-2xl font-bold text-primary';
-  const discountPriceStyles = hasDiscountPrice ? 'text-2xl font-bold text-primary' : 'hidden';
+  const originalPriceStyles = hasDiscountPrice
+    ? 'line-through text-accent text-sm'
+    : 'text-xl font-semibold text-primary';
+  const discountPriceStyles = hasDiscountPrice
+    ? 'text-xl font-semibold text-primary ml-2'
+    : 'hidden';
 
   return (
-    <div className="border-dark/50 relative flex h-[20rem] w-[20%] flex-col justify-around gap-2 rounded-4xl border-2 bg-white px-5 py-9">
+    <div className="group relative flex h-[22rem] w-[18rem] flex-col justify-between rounded-2xl border border-neutral-300 bg-white shadow-sm transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-lg">
+      {/* Star Button */}
+      <button
+        onClick={() => handleClickAddProductToCollection(id, name)}
+        className="hover:text-primary hover:bg-primary/10 absolute top-3 right-3 z-10 cursor-pointer rounded-full p-2 text-gray-400 transition-colors"
+        aria-label="Add to collection"
+      >
+        <Star className="h-5 w-5 fill-current" />
+      </button>
+
+      {/* Sale Tag */}
       {hasDiscountPrice && (
-        <p className="text-accent absolute top-1 left-1/2 -translate-x-1/2 rounded-full bg-red-100 px-3 py-1 text-sm font-semibold shadow-sm">
-          Sale
-        </p>
+        <div className="bg-accent absolute top-12 right-3 rounded-full px-3 py-1 text-xs font-medium text-white shadow-sm">
+          SALE
+        </div>
       )}
 
-      <div className="mx-auto flex max-h-[40%] w-[80%] justify-between">
-        <div className="mb-5 w-[60%]">
-          <img
-            src={pharmacyLogo}
-            alt="pharmacy-logo"
-          />
-        </div>
-        <div className="flex w-[45%] justify-end">
-          <span className="cursor-pointer hover:text-yellow-500">
-            <Star
-              fill="currentColor"
-              className="h-6 w-6"
-            />
-          </span>
-        </div>
+      {/* Top Section */}
+      <div className="flex items-start justify-between p-4 pt-8">
+        <img
+          src={pharmacyLogo}
+          alt={`${pharmacy} logo`}
+          className="h-14 w-14 rounded-md border border-neutral-200 object-contain"
+        />
       </div>
 
-      <p className="text-dark m-0 flex h-16 items-center text-left text-lg">{name}</p>
-      <div className="flex">
-        <p className={`flex h-[20%] items-center ${priceStyles}`}>{price.slice(0, 10)}</p>
-        <p className={`flex h-[20%] items-center ${discountPriceStyles}`}>
-          {discountPrice.slice(0, 10)}
-        </p>
-      </div>
-      <p className="text-dark/70 text-sm">
-        {brand || <span className="opacity-0">Placeholder</span>}
-      </p>
+      {/* Product Info */}
+      <div className="flex flex-col px-4">
+        <h3 className="text-dark h-16 text-lg font-medium">{name}</h3>
 
-      <p className="hover:text-accent text-xs italic">
+        <div className="mt-2 flex items-center">
+          <p className={originalPriceStyles}>{price.slice(0, 10)}</p>
+          <p className={discountPriceStyles}>{discountPrice.slice(0, 10)}</p>
+        </div>
+
+        <p className="text-dark/60 mt-1 text-sm">{brand || <span>&nbsp;</span>}</p>
+      </div>
+
+      {/* Footer */}
+      <div className="mt-auto flex flex-col gap-2 px-4 pb-4">
         <a
           href={url}
           target="_blank"
+          rel="noopener noreferrer"
+          className="text-secondary hover:text-accent flex items-center gap-1 text-sm font-medium transition-colors hover:underline"
         >
-          🔗 View more on {pharmacy}'s website...
+          <ExternalLink className="h-4 w-4" />
+          View on {pharmacy}
         </a>
-      </p>
-      <p className="text-sm">Last updated: {new Date(updated_at).toDateString()}</p>
+
+        <p className="text-xs text-gray-500">
+          Updated: {new Date(updated_at).toLocaleDateString('en-GB')}
+        </p>
+      </div>
     </div>
   );
 }

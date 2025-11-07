@@ -17,22 +17,29 @@ export default function Filter({
   isFilterDisplayed,
   filterType,
 }: Props) {
-  return (
-    <div className="px-2">
-      <span className="font-bold">{filterTitle} </span>
-      <button
-        onClick={(_) => handleFilterDisplayToggle(filterType)}
-        className="cursor-pointer align-middle"
-      >
-        {isFilterDisplayed[filterType] === true ? (
-          <ChevronUpCircleIcon />
-        ) : (
-          <ChevronDownCircleIcon />
-        )}
-      </button>
+  const shouldOverflow = checkboxes.length > 10;
 
-      {isFilterDisplayed[filterType] && checkboxes}
-      <hr />
+  return (
+    <div
+      className={`max-h-96 rounded-xl border border-neutral-200 bg-white p-3 shadow-sm transition-all hover:shadow-md ${shouldOverflow ? 'overflow-y-scroll' : ''}`}
+    >
+      <div className="mb-2 flex items-center justify-between">
+        <span className="text-dark font-semibold">{filterTitle}</span>
+        <button
+          onClick={() => handleFilterDisplayToggle(filterType)}
+          className="hover:text-primary text-gray-400 transition-colors"
+        >
+          {isFilterDisplayed[filterType] ? (
+            <ChevronUpCircleIcon className="h-5 w-5" />
+          ) : (
+            <ChevronDownCircleIcon className="h-5 w-5" />
+          )}
+        </button>
+      </div>
+
+      {isFilterDisplayed[filterType] && (
+        <div className="mt-2 flex flex-col gap-2 pl-1">{checkboxes}</div>
+      )}
     </div>
   );
 }

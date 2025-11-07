@@ -1,8 +1,11 @@
 from urllib.parse import parse_qs
 
 from common.models import BaseModel
+from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.db import models
+
+User = get_user_model()
 
 
 def validate_catalog_queryparams_string(value: str) -> None:
@@ -84,3 +87,20 @@ class Product(BaseModel):
 
     class Meta:
         verbose_name_plural = "Products"
+
+
+class ProductInCollection(BaseModel):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    collection = models.ForeignKey("ProductCollection", on_delete=models.CASCADE)
+
+    def __str__(self) -> str:
+        return f"{self.product.name} in {self.collection.name}"
+
+
+class ProductCollection(BaseModel):
+    name = models.CharField(max_length=255)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    products = models.ManyToManyField(Product, through=ProductInCollection)
+
+    def __str__(self) -> str:
+        return f"{self.name} by {self.user.username}"
