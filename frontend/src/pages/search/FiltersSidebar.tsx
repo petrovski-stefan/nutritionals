@@ -17,7 +17,8 @@ type Props = {
   handleFilterValueChange: (
     key: keyof ProductFiltersValues,
     value: number,
-    isChecked: boolean
+    isChecked: boolean,
+    isDiscountFilter?: boolean
   ) => void;
   handleClearInputSearchQuery: () => void;
   filters: ProductFiltersValues;
@@ -25,6 +26,7 @@ type Props = {
 };
 
 const filterDisplayedInitialValue = {
+  discount: true,
   pharmacies: true,
   brands: false,
 };
@@ -76,6 +78,22 @@ export default function FiltersSidebar({
     </label>
   ));
 
+  const discountCheckboxes = ['Only on discount'].map((name, id) => (
+    <label
+      key={name}
+      className="text-dark/80 hover:text-primary flex cursor-pointer items-center gap-2 text-sm"
+    >
+      <input
+        type="checkbox"
+        value={name}
+        onChange={(e) => handleFilterValueChange('discount', id, e.target.checked, true)}
+        checked={filters['discount']}
+        className="accent-primary h-4 w-4 rounded border-neutral-300"
+      />
+      {name}
+    </label>
+  ));
+
   const handleFilterDisplayToggle = (key: keyof ProductFiltersDisplay) => {
     setIsFilterDisplayed((oldValue) => ({ ...oldValue, [key]: !oldValue[key] }));
   };
@@ -84,7 +102,7 @@ export default function FiltersSidebar({
     if (filters['brandIds'].length === 0 && filters['pharmacyIds'].length === 0) {
       return;
     }
-    setFilters({ brandIds: [], pharmacyIds: [] });
+    setFilters({ brandIds: [], pharmacyIds: [], discount: false });
   };
 
   return (
@@ -131,6 +149,13 @@ export default function FiltersSidebar({
 
       {/* Filters */}
       <div className="flex flex-col gap-5">
+        <CheckboxesFilter
+          filterTitle="Discount"
+          filterType="discount"
+          checkboxes={discountCheckboxes}
+          handleFilterDisplayToggle={handleFilterDisplayToggle}
+          isFilterDisplayed={isFilterDisplayed}
+        />
         <CheckboxesFilter
           filterTitle="Pharmacies"
           filterType="pharmacies"

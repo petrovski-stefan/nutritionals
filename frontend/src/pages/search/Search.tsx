@@ -14,6 +14,7 @@ import ProductsGrid from './ProductsGrid';
 const filtersDefault = {
   pharmacyIds: [],
   brandIds: [],
+  discount: false,
 };
 
 export default function Search() {
@@ -87,12 +88,24 @@ export default function Search() {
   const handleFilterChange = (
     key: keyof ProductFiltersValues,
     value: number,
-    isChecked: boolean
+    isChecked: boolean,
+    isDiscountFilter: boolean = false
   ) => {
+    if (isDiscountFilter) {
+      setFilters((prev) => ({ ...prev, [key]: isChecked }));
+      return;
+    }
+
     if (isChecked) {
-      setFilters((oldValue) => ({ ...oldValue, [key]: [...oldValue[key], value] }));
+      setFilters((oldValue) => ({
+        ...oldValue,
+        [key]: [...(oldValue[key] as Array<number>), value],
+      }));
     } else {
-      setFilters((oldValue) => ({ ...oldValue, [key]: oldValue[key].filter((v) => v !== value) }));
+      setFilters((oldValue) => ({
+        ...oldValue,
+        [key]: (oldValue[key] as Array<number>).filter((v) => v !== value),
+      }));
     }
   };
 

@@ -26,11 +26,11 @@ class ProductFilterSet(filters.FilterSet):
     def filter_has_discount(self, queryset, name, value) -> QuerySet:
         """
         If value is True, return products with non-empty discount_price.
-        If value is False, return products with empty discount_price.
+        If value is False, return products all products.
         """
         if value:
             return queryset.exclude(discount_price="")
-        return queryset.filter(discount_price="")
+        return queryset
 
     def filter_limit(self, queryset, name, value) -> QuerySet:
         if value:

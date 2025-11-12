@@ -11,7 +11,7 @@ export const getProducts = async (queryParams: ProductListQueryParams) => {
   const params = new URLSearchParams();
 
   for (const [key, value] of Object.entries(queryParams)) {
-    if (key === undefined || value.length === 0) {
+    if (key === undefined || (typeof value === 'object' && value.length === 0)) {
       continue;
     }
 
@@ -21,6 +21,8 @@ export const getProducts = async (queryParams: ProductListQueryParams) => {
       params.append(`productdiscover__pharmacy__in`, (value as Array<number>).join(','));
     } else if (key === 'brandIds') {
       params.append(`brand__in`, (value as Array<number>).join(','));
+    } else if (key === 'discount') {
+      params.append(`has_discount`, value.toString());
     }
   }
   const response = await axiosInstance.get(`api/v1/products/`, {

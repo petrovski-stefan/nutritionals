@@ -26,15 +26,18 @@ export type BackendPharmacy = {
 export type ProductFiltersValues = {
   pharmacyIds: Array<number>;
   brandIds: Array<number>;
+  discount: boolean;
 };
 
 export type ProductFiltersDisplay = {
   pharmacies: boolean;
   brands: boolean;
+  discount: boolean;
 };
 
 export type ProductListQueryParams = {
   brandIds?: Array<number>;
   pharmacyIds?: Array<number>;
+  discount?: boolean;
   searchQueryParam?: string;
 };
