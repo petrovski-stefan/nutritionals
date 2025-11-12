@@ -10,7 +10,7 @@ type Props = {
   filterType: keyof ProductFiltersDisplay;
 };
 
-export default function Filter({
+export default function CheckboxesFilter({
   filterTitle,
   handleFilterDisplayToggle,
   checkboxes,

@@ -6,7 +6,7 @@ import type {
   ProductFiltersDisplay,
   ProductFiltersValues,
 } from '../../types/product';
-import Filter from './Filter';
+import CheckboxesFilter from './CheckboxesFilter';
 
 type Props = {
   inputSearchQuery: string;
@@ -131,14 +131,14 @@ export default function FiltersSidebar({
 
       {/* Filters */}
       <div className="flex flex-col gap-5">
-        <Filter
+        <CheckboxesFilter
           filterTitle="Pharmacies"
           filterType="pharmacies"
           checkboxes={pharmacyNameFilterCheckboxes}
           handleFilterDisplayToggle={handleFilterDisplayToggle}
           isFilterDisplayed={isFilterDisplayed}
         />
-        <Filter
+        <CheckboxesFilter
           filterTitle="Brands"
           filterType="brands"
           checkboxes={brandFilterCheckboxes}
