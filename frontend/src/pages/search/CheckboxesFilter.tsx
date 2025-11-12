@@ -18,16 +18,17 @@ export default function CheckboxesFilter({
   filterType,
 }: Props) {
   const shouldOverflow = checkboxes.length > 10;
+  const shouldDisplayScroller = shouldOverflow && isFilterDisplayed[filterType];
 
   return (
     <div
-      className={`max-h-96 rounded-xl border border-neutral-200 bg-white p-3 shadow-sm transition-all hover:shadow-md ${shouldOverflow ? 'overflow-y-scroll' : ''}`}
+      className={`max-h-96 rounded-xl border border-neutral-200 bg-white p-3 shadow-sm transition-all hover:shadow-md ${shouldDisplayScroller ? 'overflow-y-scroll' : ''}`}
     >
       <div className="mb-2 flex items-center justify-between">
         <span className="text-dark font-semibold">{filterTitle}</span>
         <button
           onClick={() => handleFilterDisplayToggle(filterType)}
-          className="hover:text-primary text-gray-400 transition-colors"
+          className={`hover:text-primary text-gray-400 transition-colors ${shouldDisplayScroller ? '' : 'mr-4'}`}
         >
           {isFilterDisplayed[filterType] ? (
             <ChevronUpCircleIcon className="h-5 w-5" />
