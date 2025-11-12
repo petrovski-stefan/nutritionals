@@ -6,7 +6,7 @@ import Login from '../pages/login/Login';
 import Register from '../pages/register/Register';
 import type { ReactElement } from 'react';
 import AuthGuard from '../components/AuthGuard';
-import MyLists from '../pages/MyLists';
+import MyCollections from '../pages/my-collections/MyCollections';
 
 type Route = {
   linkText: string;
@@ -74,7 +74,7 @@ const routes: Array<Route> = [
         mode="private"
         redirectTo="/register"
       >
-        <MyLists />
+        <MyCollections />
       </AuthGuard>
     ),
     showInHeaderMode: 'showIfAuthOnly',
