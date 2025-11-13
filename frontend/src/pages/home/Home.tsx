@@ -3,10 +3,12 @@ import { Link, useNavigate } from 'react-router-dom';
 import BestDealsProductCard from './BestDealProductCard';
 import Section from '../../components/Section';
 import SupportedPharmacyCard from './SupportedPharmacyCard';
-import type { BackendPharmacy, BackendProduct } from '../../types/product';
+import type { BackendProduct } from '../../types/product';
 import SearchDropdown from './SearchDropdown';
-import * as ProductAPI from '../../api/products';
+import ProductService from '../../api/product';
 import { SearchIcon, X } from 'lucide-react';
+import PharmacyService from '../../api/pharmacy';
+import type { BackendPharmacy } from '../../types/pharmacy';
 
 export default function Home() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -20,11 +22,11 @@ export default function Home() {
 
   useEffect(() => {
     const fetchPharmacies = async () => {
-      const response = await ProductAPI.getPharmacies();
+      const response = await PharmacyService.getPharmacies();
       if (response.status) setPharmacies(response.data);
     };
     const fetchProductsOnDiscount = async () => {
-      const response = await ProductAPI.getProductsOnDiscount();
+      const response = await ProductService.getProductsOnDiscount();
       if (response.status) setProductsOnDiscount(response.data);
     };
     fetchPharmacies();
@@ -39,7 +41,7 @@ export default function Home() {
 
     const search = async (query: string) => {
       setIsLoading(true);
-      const response = await ProductAPI.searchProducts(query, 20);
+      const response = await ProductService.searchProducts(query, 20);
       if (response.status) setProducts(response.data);
       else setProducts([]);
       setIsLoading(false);

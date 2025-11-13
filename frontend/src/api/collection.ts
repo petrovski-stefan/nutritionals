@@ -30,11 +30,14 @@ export class CollectionService {
     productId: number,
     accessToken: string
   ) => {
+    const params = new URLSearchParams({ product_id: productId.toString() });
+
     const response = await axiosInstance.put(
-      `${COLLECTION_BASE_PATH}${collectionId}/?product_id=${productId}`,
+      `${COLLECTION_BASE_PATH}${collectionId}/`,
       {},
       {
         headers: { Authorization: `Bearer ${accessToken}` },
+        params,
       }
     );
 
@@ -46,12 +49,12 @@ export class CollectionService {
     productId: number,
     accessToken: string
   ) => {
-    const response = await axiosInstance.delete(
-      `${COLLECTION_BASE_PATH}${collectionId}/?product_id=${productId}`,
-      {
-        headers: { Authorization: `Bearer ${accessToken}` },
-      }
-    );
+    const params = new URLSearchParams({ product_id: productId.toString() });
+
+    const response = await axiosInstance.delete(`${COLLECTION_BASE_PATH}${collectionId}/`, {
+      headers: { Authorization: `Bearer ${accessToken}` },
+      params,
+    });
 
     return response.data as APIResponse<null>;
   };

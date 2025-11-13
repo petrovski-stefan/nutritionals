@@ -10,19 +10,6 @@ export type BackendProduct = {
   updated_at: string;
 };
 
-export type BackendBrand = {
-  id: number;
-  name: string;
-  products_by_brand_count: number;
-};
-
-export type BackendPharmacy = {
-  id: number;
-  name: string;
-  homepage: string;
-  logo: string;
-};
-
 export type ProductFiltersValues = {
   pharmacyIds: Array<number>;
   brandIds: Array<number>;

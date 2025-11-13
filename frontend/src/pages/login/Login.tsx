@@ -1,7 +1,7 @@
 import { useState, type FormEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import type { LoginCredentials } from '../../types/users';
-import { UserService } from '../../api/users';
+import type { LoginCredentials } from '../../types/user';
+import { UserService } from '../../api/user';
 import { useAuthContext } from '../../context/AuthContext';
 
 const loginCredentialsInitialValue = {

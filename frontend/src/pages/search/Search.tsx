@@ -1,15 +1,14 @@
 import { useEffect, useState, type FormEvent } from 'react';
 import { useSearchParams } from 'react-router-dom';
 
-import * as ProductAPI from '../../api/products';
-import type {
-  BackendProduct,
-  BackendBrand,
-  ProductFiltersValues,
-  BackendPharmacy,
-} from '../../types/product';
+import ProductService from '../../api/product';
+import type { BackendProduct, ProductFiltersValues } from '../../types/product';
 import FiltersSidebar from './FiltersSidebar';
 import ProductsGrid from './ProductsGrid';
+import BrandService from '../../api/brand';
+import PharmacyService from '../../api/pharmacy';
+import type { BackendBrandWithProductCount } from '../../types/brand';
+import type { BackendPharmacy } from '../../types/pharmacy';
 
 const filtersDefault = {
   pharmacyIds: [],
@@ -23,7 +22,7 @@ export default function Search() {
 
   const [products, setProducts] = useState<Array<BackendProduct>>([]);
   const [error, setError] = useState<string | null>(null);
-  const [brands, setBrands] = useState<Array<BackendBrand>>([]);
+  const [brands, setBrands] = useState<Array<BackendBrandWithProductCount>>([]);
   const [pharmacies, setPharmacies] = useState<Array<BackendPharmacy>>([]);
   const [filters, setFilters] = useState<ProductFiltersValues>(filtersDefault);
 
@@ -36,7 +35,7 @@ export default function Search() {
           ...filters,
           searchQueryParam: initialQuery ?? inputSearchQuery,
         };
-    const response = await ProductAPI.getProducts(params);
+    const response = await ProductService.getProducts(params);
 
     if (response.status) {
       setProducts(response.data);
@@ -48,7 +47,7 @@ export default function Search() {
 
   const fetchProductsBrands = async (blank: boolean) => {
     const params = blank ? '' : (initialQuery ?? inputSearchQuery);
-    const response = await ProductAPI.getProductsBrands(params);
+    const response = await BrandService.getBrandsWithProductCount(params);
 
     if (response.status) {
       setBrands(response.data);
@@ -60,7 +59,7 @@ export default function Search() {
 
   useEffect(() => {
     const fetchPharmacies = async () => {
-      const response = await ProductAPI.getPharmacies();
+      const response = await PharmacyService.getPharmacies();
 
       if (response.status) {
         setPharmacies(response.data);

@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from 'react';
-import type { RegisterCredentials } from '../../types/users';
-import { UserService } from '../../api/users';
+import type { RegisterCredentials } from '../../types/user';
+import { UserService } from '../../api/user';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuthContext } from '../../context/AuthContext';
 

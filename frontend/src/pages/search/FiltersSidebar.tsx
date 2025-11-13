@@ -1,18 +1,15 @@
 import { useState, type FormEvent } from 'react';
 import { SearchIcon, XIcon } from 'lucide-react';
-import type {
-  BackendBrand,
-  BackendPharmacy,
-  ProductFiltersDisplay,
-  ProductFiltersValues,
-} from '../../types/product';
+import type { ProductFiltersDisplay, ProductFiltersValues } from '../../types/product';
 import CheckboxesFilter from './CheckboxesFilter';
+import type { BackendBrandWithProductCount } from '../../types/brand';
+import type { BackendPharmacy } from '../../types/pharmacy';
 
 type Props = {
   inputSearchQuery: string;
   setInputSearchQuery: (value: string) => void;
   handleSearchFormSubmit: (e: FormEvent) => void;
-  brands: Array<BackendBrand>;
+  brands: Array<BackendBrandWithProductCount>;
   pharmacies: Array<BackendPharmacy>;
   handleFilterValueChange: (
     key: keyof ProductFiltersValues,
