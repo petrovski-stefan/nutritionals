@@ -1,6 +1,6 @@
 import { Route, Routes } from 'react-router-dom';
 import Layout from './components/Layout';
-import routes from './routes/routes';
+import routes from './routes';
 import { AuthProvider } from './context/AuthContext';
 
 function App() {

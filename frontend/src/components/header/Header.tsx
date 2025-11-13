@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import routes from '../../routes/routes';
+import routes from '../../routes';
 import MenuItem from './MenuItem';
 import { useAuthContext } from '../../context/AuthContext';
 import UserCard from './UserCard';
