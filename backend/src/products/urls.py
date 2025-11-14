@@ -6,6 +6,7 @@ from .views import (
     ProductCollectionListCreateAPIView,
     ProductCollectionRetrieveUpdateDestroyAPIView,
     ProductListAPIView,
+    ProductSmartSearchAPIView,
 )
 
 urlpatterns = [
@@ -13,6 +14,11 @@ urlpatterns = [
         "",
         view=ProductListAPIView.as_view(),
         name="product-list",
+    ),
+    path(
+        "smart-search/",
+        view=ProductSmartSearchAPIView.as_view(),
+        name="product-smart-search",
     ),
     path(
         "brands/",

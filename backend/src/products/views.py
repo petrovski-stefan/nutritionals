@@ -5,6 +5,9 @@ from rest_framework.generics import (
     ListCreateAPIView,
     RetrieveUpdateDestroyAPIView,
 )
+from rest_framework.request import Request
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
 from .filters import ProductFilterSet
 from .models import Pharmacy, Product, ProductCollection
@@ -35,6 +38,15 @@ class ProductListAPIView(NoAuthMixin, ListAPIView):
     )
     filter_backends = (filters.DjangoFilterBackend,)
     filterset_class = ProductFilterSet
+
+
+class ProductSmartSearchAPIView(NoAuthMixin, APIView):
+    def post(self, request: Request) -> Response:
+        search_query = request.data.get("search_query", None)
+
+        sample_products = Product.objects.all()[:5]
+
+        return Response(ProductReadListSerializer(sample_products, many=True).data)
 
 
 class BrandListAPIView(NoAuthMixin, ListAPIView):
