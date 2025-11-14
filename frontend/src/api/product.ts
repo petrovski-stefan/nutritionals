@@ -55,6 +55,14 @@ class ProductService {
     return response.data as APIResponse<Array<BackendProduct>>;
   };
 
+  static readonly smartSearchProducts = async (searchQuery: string) => {
+    const response = await axiosInstance.post(`${PRODUCTS_BASE_URL}smart-search/`, {
+      search_query: searchQuery,
+    });
+
+    return response.data as APIResponse<Array<BackendProduct>>;
+  };
+
   static readonly getProductsOnDiscount = async () => {
     const params = new URLSearchParams({ has_discount: 'true' });
 
