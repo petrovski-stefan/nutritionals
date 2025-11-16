@@ -21,7 +21,7 @@ export default function UserCard({ username, handleLogout }: Props) {
       {showLogoutButton && (
         <div className="absolute right-0 mt-2 w-32 rounded-lg bg-white shadow-lg">
           <button
-            className="text-dark hover:bg-accent/10 w-full cursor-pointer rounded-lg px-4 py-2 text-left transition-colors"
+            className="text-dark hover:bg-accent/10 w-full cursor-pointer rounded-lg px-4 py-2 text-center transition-colors"
             onClick={() => {
               handleLogout();
               setShowLogoutButton(false);
