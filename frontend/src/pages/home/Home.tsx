@@ -127,16 +127,22 @@ export default function Home() {
       {/* Products on Discount */}
       <Section center={false}>
         <p className="flex justify-center p-4 text-2xl font-bold">Products on discount</p>
-        <div className="mt-5 flex flex-wrap justify-center gap-5">
-          {productsOnDiscount.map((product) => (
-            <BestDealsProductCard
-              key={product.id}
-              discountPrice={product.discount_price}
-              pharmacyName={product.pharmacy}
-              {...product}
-            />
-          ))}
-        </div>
+        {productsOnDiscount.length > 0 ? (
+          <div className="mt-5 flex flex-wrap justify-center gap-5">
+            {productsOnDiscount.map((product) => (
+              <BestDealsProductCard
+                key={product.id}
+                discountPrice={product.discount_price}
+                pharmacyName={product.pharmacy}
+                {...product}
+              />
+            ))}
+          </div>
+        ) : (
+          <p className="text-dark/70 mt-5 text-center text-sm">
+            No products on discount. Check again tomorrow.
+          </p>
+        )}
       </Section>
 
       {/* Supported Pharmacies */}
