@@ -1,9 +1,13 @@
 import { useEffect, useState } from 'react';
-import type { BackendCollection, ProductInCollection } from '../../types/collection';
+import type {
+  BackendCollection,
+  ProductInCollection as ProductInCollectionType,
+} from '../../types/collection';
 import { CollectionService } from '../../api/collection';
 import { useAuthContext } from '../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { XIcon, ChevronDownIcon, ChevronUpIcon } from 'lucide-react';
+import { ChevronDownIcon, ChevronUpIcon } from 'lucide-react';
+import ProductInCollection from './ProductInCollection';
 
 export default function MyCollections() {
   const [collections, setCollections] = useState<Array<BackendCollection>>([]);
@@ -77,38 +81,13 @@ export default function MyCollections() {
             {/* Products */}
             {expandedCollections.includes(collection.id) && collection.products.length > 0 && (
               <div className="mt-4 flex flex-col gap-3">
-                {collection.products.map((product: ProductInCollection) => (
-                  <div
+                {collection.products.map((product: ProductInCollectionType) => (
+                  <ProductInCollection
                     key={product.id}
-                    className="flex items-center justify-between rounded-xl border p-3 shadow-sm transition hover:shadow-md"
-                  >
-                    <div className="flex flex-col">
-                      <p className="text-dark hover:decoration-secondary font-semibold hover:underline">
-                        {product.name}
-                      </p>
-                      <div className="flex items-center gap-2">
-                        {product.discount_price ? (
-                          <>
-                            <span className="text-dark/50 line-through">{product.price}</span>
-                            <span className="text-primary font-bold">{product.discount_price}</span>
-                          </>
-                        ) : (
-                          <span className="text-dark font-bold">{product.price}</span>
-                        )}
-                      </div>
-                      <p className="text-dark/60 text-sm">
-                        Updated: {new Date(product.updated_at).toLocaleDateString('en-GB')}
-                      </p>
-                    </div>
-
-                    {/* Remove Button */}
-                    <button
-                      onClick={() => removeProduct(collection.id, product.id)}
-                      className="ml-4 cursor-pointer rounded-full bg-red-500 p-2 text-white hover:bg-red-600"
-                    >
-                      <XIcon className="h-5 w-5" />
-                    </button>
-                  </div>
+                    {...product}
+                    removeProduct={removeProduct}
+                    collectionId={collection.id}
+                  />
                 ))}
               </div>
             )}

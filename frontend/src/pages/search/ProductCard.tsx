@@ -27,10 +27,10 @@ export default function ProductCard({
 }: Props) {
   const hasDiscountPrice = discountPrice !== '';
   const originalPriceStyles = hasDiscountPrice
-    ? 'line-through text-accent text-sm'
+    ? 'line-through text-accent text-sm text-primary'
     : 'text-xl font-semibold text-primary';
   const discountPriceStyles = hasDiscountPrice
-    ? 'text-xl font-semibold text-primary ml-2'
+    ? 'text-xl font-semibold ml-2 text-accent'
     : 'hidden';
 
   return (

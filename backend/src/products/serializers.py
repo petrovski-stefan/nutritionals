@@ -30,9 +30,9 @@ class ProductReadListSerializer(serializers.ModelSerializer):
 
 class ProductInCollectionDetailSerializer(serializers.ModelSerializer):
     # # brand = serializers.CharField(source="brand.name", default=None)
-    # pharmacy_logo = serializers.ImageField(
-    #     source="productdiscover.pharmacy.logo", default=None
-    # )
+    pharmacy_logo = serializers.ImageField(
+        source="productdiscover.pharmacy.logo", default=None
+    )
     # url = serializers.CharField(source="productdiscover.url")
 
     class Meta:
@@ -46,7 +46,7 @@ class ProductInCollectionDetailSerializer(serializers.ModelSerializer):
             # "url",
             # "brand",
             # "pharmacy",
-            # "pharmacy_logo",
+            "pharmacy_logo",
             "updated_at",
         ]
         read_only_fields = fields
