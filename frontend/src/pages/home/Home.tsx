@@ -80,11 +80,11 @@ export default function Home() {
       {/* Search Section */}
       <Section center={true}>
         <form
-          className="relative flex w-full max-w-3xl items-center rounded-2xl bg-white px-6 py-2 shadow-md"
+          className="relative mx-auto flex w-full max-w-3xl items-center rounded-3xl bg-white px-4 py-2 shadow-md"
           onSubmit={handleFormSubmit}
         >
           <input
-            className="flex-1 rounded-2xl bg-neutral-200 p-4 outline-none"
+            className="focus:ring-accent focus:border-accent flex-1 rounded-2xl bg-white px-4 py-3 transition outline-none focus:ring-2"
             type="text"
             placeholder="Ex. vitamin C ..."
             value={searchQuery}
