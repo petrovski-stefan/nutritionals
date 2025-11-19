@@ -3,32 +3,52 @@ import type { RegisterCredentials } from '../../types/user';
 import { UserService } from '../../api/user';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuthContext } from '../../context/AuthContext';
+import REGISTER_TEXT from '../../locale/register';
 
-const registerCredentialsInitialValue = {
+const defaultCredentials = {
   username: '',
   password: '',
   confirmPassword: '',
 };
 
+type Error = keyof (typeof REGISTER_TEXT)['errors'];
+
 export default function Register() {
-  const [registerCredentials, setRegisterCredentials] = useState<RegisterCredentials>(
-    registerCredentialsInitialValue
-  );
+  const [credentials, setCredentials] = useState<RegisterCredentials>(defaultCredentials);
   const [isLoading, setIsLoading] = useState(false);
-  const [errors, setErrors] = useState<null | string>(null);
+  const [error, setError] = useState<null | Error>(null);
   const { login } = useAuthContext();
   const navigate = useNavigate();
 
-  const handleRegisterCredentialsOnChange = (key: keyof RegisterCredentials, value: string) => {
-    setRegisterCredentials({ ...registerCredentials, [key]: value });
+  const handleCredentialsOnChange = (key: keyof RegisterCredentials, value: string) => {
+    setCredentials({ ...credentials, [key]: value });
   };
 
-  const handleRegisterFormSubmit = async (e: FormEvent) => {
+  const handleFormSubmit = async (e: FormEvent) => {
     e.preventDefault();
 
-    setErrors(null);
+    setError(null);
     setIsLoading(true);
-    const response = await UserService.register(registerCredentials);
+
+    if (Object.values(credentials).filter((value) => value === '').length > 0) {
+      setError('requiredFieldsEmptyError');
+      setIsLoading(false);
+      return;
+    }
+
+    if (credentials['password'] !== credentials['confirmPassword']) {
+      setError('passwordsDoNotMatchError');
+      setIsLoading(false);
+      return;
+    }
+
+    if (credentials['password'].length < 8) {
+      setError('weakPasswordError');
+      setIsLoading(false);
+      return;
+    }
+
+    const response = await UserService.register(credentials);
 
     if (response.status) {
       setIsLoading(false);
@@ -36,51 +56,57 @@ export default function Register() {
       navigate('/');
     } else {
       setIsLoading(false);
-      setErrors(response.errors_type);
+      setError(response.errors_type as Error);
     }
   };
 
   return (
     <div className="mt-5 flex h-1/2 items-center justify-center">
       <div className="w-1/4 px-2 py-4">
-        {errors && (
+        {error && (
           <div className="mb-4 rounded-lg bg-red-100 px-4 py-2 text-center text-red-700">
-            {errors}
+            {REGISTER_TEXT['errors'][error]}
           </div>
         )}
 
         <form
-          onSubmit={handleRegisterFormSubmit}
+          onSubmit={handleFormSubmit}
           className="space-y-5"
         >
           <div className="flex flex-col">
-            <label className="text-dark mb-2 font-medium">Username</label>
+            <label className="text-dark mb-2 font-medium">
+              {REGISTER_TEXT['form']['username']}
+            </label>
             <input
               type="text"
-              value={registerCredentials.username}
-              onChange={(e) => handleRegisterCredentialsOnChange('username', e.target.value)}
+              value={credentials.username}
+              onChange={(e) => handleCredentialsOnChange('username', e.target.value)}
               className="border-dark/30 focus:ring-accent focus:border-accent rounded-2xl border px-4 py-3 transition focus:ring-2 focus:outline-none"
-              placeholder="Enter your username"
+              placeholder={REGISTER_TEXT['form']['usernamePlaceholder']}
             />
           </div>
           <div className="flex flex-col">
-            <label className="text-dark mb-2 font-medium">Password</label>
+            <label className="text-dark mb-2 font-medium">
+              {REGISTER_TEXT['form']['password']}
+            </label>
             <input
               type="password"
-              value={registerCredentials.password}
-              onChange={(e) => handleRegisterCredentialsOnChange('password', e.target.value)}
+              value={credentials.password}
+              onChange={(e) => handleCredentialsOnChange('password', e.target.value)}
               className="border-dark/30 focus:ring-accent focus:border-accent rounded-2xl border px-4 py-3 transition focus:ring-2 focus:outline-none"
-              placeholder="Enter your password"
+              placeholder={REGISTER_TEXT['form']['passwordPlaceholder']}
             />
           </div>
           <div className="flex flex-col">
-            <label className="text-dark mb-2 font-medium">Confirm password</label>
+            <label className="text-dark mb-2 font-medium">
+              {REGISTER_TEXT['form']['repeatPassword']}
+            </label>
             <input
               type="password"
-              value={registerCredentials.confirmPassword}
-              onChange={(e) => handleRegisterCredentialsOnChange('confirmPassword', e.target.value)}
+              value={credentials.confirmPassword}
+              onChange={(e) => handleCredentialsOnChange('confirmPassword', e.target.value)}
               className="border-dark/30 focus:ring-accent focus:border-accent rounded-2xl border px-4 py-3 transition focus:ring-2 focus:outline-none"
-              placeholder="Enter your password"
+              placeholder={REGISTER_TEXT['form']['repeatPasswordPlaceholder']}
             />
           </div>
 
@@ -89,16 +115,18 @@ export default function Register() {
             disabled={isLoading}
             className="bg-accent hover:bg-accent/90 w-full rounded-2xl py-3 font-bold text-white transition disabled:opacity-70"
           >
-            {isLoading ? 'Registering ...' : 'Register'}
+            {isLoading
+              ? REGISTER_TEXT['form']['registerButtonLoading']
+              : REGISTER_TEXT['form']['registerButton']}
           </button>
         </form>
         <p className="text-dark/70 mt-6 text-center text-sm">
-          <span>Already have an account? </span>
+          <span>{REGISTER_TEXT['hasAccount']}</span>
           <Link
             to="/login"
             className="text-accent font-medium hover:underline"
           >
-            Login!
+            {REGISTER_TEXT['loginLink']}
           </Link>
         </p>
       </div>
