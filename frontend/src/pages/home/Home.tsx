@@ -9,6 +9,21 @@ import ProductService from '../../api/product';
 import { SearchIcon, X } from 'lucide-react';
 import PharmacyService from '../../api/pharmacy';
 import type { BackendPharmacy } from '../../types/pharmacy';
+import HOME_TEXT from '../../locale/home';
+
+const defaultErrors = {
+  search: null,
+  productsOnDiscount: null,
+  pharmacies: null,
+};
+
+const defaultLoadings = {
+  search: false,
+  productsOnDiscount: false,
+  pharmacies: false,
+};
+
+type Error = 'noProductsFoundError' | 'unexpectedError';
 
 export default function Home() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -16,38 +31,75 @@ export default function Home() {
   const [products, setProducts] = useState<BackendProduct[]>([]);
   const [productsOnDiscount, setProductsOnDiscount] = useState<BackendProduct[]>([]);
   const [pharmacies, setPharmacies] = useState<BackendPharmacy[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoadings, setIsLoadings] = useState(defaultLoadings);
+  const [errors, setErrors] = useState(defaultErrors);
 
   const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchPharmacies = async () => {
-      const response = await PharmacyService.getPharmacies();
-      if (response.status) setPharmacies(response.data);
+    const fetchData = async () => {
+      handleErrorsChange('productsOnDiscount', null);
+      handleErrorsChange('pharmacies', null);
+      handleIsLoadingsChange('pharmacies', true);
+      handleIsLoadingsChange('productsOnDiscount', true);
+
+      try {
+        const pharmaciesResponse = await PharmacyService.getPharmacies();
+        const productsOnDiscountResponse = await ProductService.getProductsOnDiscount();
+
+        if (pharmaciesResponse.status) setPharmacies(pharmaciesResponse.data);
+        else handleErrorsChange('pharmacies', 'unexpectedError');
+
+        if (productsOnDiscountResponse.status)
+          setProductsOnDiscount(productsOnDiscountResponse.data);
+        else handleErrorsChange('productsOnDiscount', 'unexpectedError');
+      } catch (error) {
+        handleErrorsChange('pharmacies', 'unexpectedError');
+        handleErrorsChange('productsOnDiscount', 'unexpectedError');
+      } finally {
+        handleIsLoadingsChange('pharmacies', false);
+        handleIsLoadingsChange('productsOnDiscount', false);
+      }
     };
-    const fetchProductsOnDiscount = async () => {
-      const response = await ProductService.getProductsOnDiscount();
-      if (response.status) setProductsOnDiscount(response.data);
-    };
-    fetchPharmacies();
-    fetchProductsOnDiscount();
+
+    fetchData();
   }, []);
 
   useEffect(() => {
     if (searchQuery.length < 2) {
       setIsSearchDropdownOpen(false);
+      setProducts([]);
+      handleErrorsChange('search', null);
       return;
     }
 
-    const search = async (query: string) => {
-      setIsLoading(true);
-      const response = await ProductService.searchProducts(query, 20);
-      if (response.status) setProducts(response.data);
-      else setProducts([]);
-      setIsLoading(false);
+    const searchProducts = async (query: string) => {
+      handleIsLoadingsChange('search', true);
+      handleErrorsChange('search', null);
+
+      try {
+        const response = await ProductService.searchProducts(query, 20);
+
+        if (response.status) {
+          if (response.data.length > 0) {
+            setProducts(response.data);
+          } else {
+            setProducts([]);
+            handleErrorsChange('search', 'noProductsFoundError');
+          }
+        } else {
+          setProducts([]);
+          handleErrorsChange('search', 'unexpectedError');
+        }
+      } catch (error) {
+        setProducts([]);
+        handleErrorsChange('search', 'unexpectedError');
+      } finally {
+        handleIsLoadingsChange('search', false);
+      }
     };
 
-    search(searchQuery);
+    searchProducts(searchQuery);
     setIsSearchDropdownOpen(true);
   }, [searchQuery]);
 
@@ -65,16 +117,20 @@ export default function Home() {
     setSearchQuery('');
   };
 
+  const handleIsLoadingsChange = (key: keyof typeof defaultLoadings, value: boolean) => {
+    setIsLoadings((prev) => ({ ...prev, [key]: value }));
+  };
+
+  const handleErrorsChange = (key: keyof typeof defaultErrors, value: Error | null) => {
+    setErrors((prev) => ({ ...prev, [key]: value }));
+  };
+
   return (
     <div className="bg-neutral min-h-screen">
       {/* Hero Section */}
       <Section center={true}>
-        <h1 className="text-dark text-center text-3xl font-bold">
-          Find the best prices on supplements in your local pharmacies.
-        </h1>
-        <p className="text-dark/70 mt-5 text-center text-lg">
-          Compare deals instantly and save on what matters to you.
-        </p>
+        <h1 className="text-dark text-center text-3xl font-bold">{HOME_TEXT['hero']['h1']}</h1>
+        <p className="text-dark/70 mt-5 text-center text-lg">{HOME_TEXT['hero']['p']}</p>
       </Section>
 
       {/* Search Section */}
@@ -86,7 +142,7 @@ export default function Home() {
           <input
             className="focus:ring-accent focus:border-accent flex-1 rounded-2xl bg-white px-4 py-3 transition outline-none focus:ring-2"
             type="text"
-            placeholder="Ex. vitamin C ..."
+            placeholder={HOME_TEXT['form']['placeholder']}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             onKeyDown={handleKeyDownEnter}
@@ -102,7 +158,7 @@ export default function Home() {
           )}
           <button
             type="submit"
-            className="bg-accent hover:bg-accent/90 ml-4 flex h-10 w-10 items-center justify-center rounded-full text-white transition"
+            className="bg-accent hover:bg-accent/90 ml-4 flex h-10 w-10 cursor-pointer items-center justify-center rounded-full text-white transition"
           >
             <SearchIcon className="h-5 w-5" />
           </button>
@@ -110,7 +166,8 @@ export default function Home() {
           {isSearchDropdownOpen && (
             <SearchDropdown
               products={products}
-              loading={isLoading}
+              isLoading={isLoadings['search']}
+              error={errors['search']}
             />
           )}
         </form>
@@ -119,43 +176,88 @@ export default function Home() {
             to="/smart-search"
             className="hover:decoration-accent text-dark/70 text-sm italic hover:underline"
           >
-            Try AI-assisted search.
+            {HOME_TEXT['form']['tryAISearch']}
           </Link>
         </div>
       </Section>
 
       {/* Products on Discount */}
       <Section center={false}>
-        <p className="flex justify-center p-4 text-2xl font-bold">Products on discount</p>
-        {productsOnDiscount.length > 0 ? (
-          <div className="mt-5 flex flex-wrap justify-center gap-5">
-            {productsOnDiscount.map((product) => (
-              <BestDealsProductCard
-                key={product.id}
-                discountPrice={product.discount_price}
-                pharmacyName={product.pharmacy}
-                {...product}
-              />
-            ))}
-          </div>
-        ) : (
+        <h1 className="flex justify-center p-4 text-2xl font-bold">
+          {HOME_TEXT['productsOnDiscount']['h1']}
+        </h1>
+
+        {/* Data */}
+        {!isLoadings['productsOnDiscount'] &&
+          !errors['productsOnDiscount'] &&
+          productsOnDiscount.length > 0 && (
+            <div className="mt-5 flex flex-wrap justify-center gap-5">
+              {productsOnDiscount.map((product) => (
+                <BestDealsProductCard
+                  key={product.id}
+                  discountPrice={product.discount_price}
+                  pharmacyName={product.pharmacy}
+                  {...product}
+                />
+              ))}
+            </div>
+          )}
+
+        {/* No data */}
+        {!isLoadings['productsOnDiscount'] &&
+          !errors['productsOnDiscount'] &&
+          productsOnDiscount.length === 0 && (
+            <p className="text-dark/70 mt-5 text-center text-sm">
+              {HOME_TEXT['productsOnDiscount']['noProductsOnDiscount']}
+            </p>
+          )}
+
+        {/* Error */}
+        {!isLoadings['productsOnDiscount'] && errors['productsOnDiscount'] && (
           <p className="text-dark/70 mt-5 text-center text-sm">
-            No products on discount. Check again tomorrow.
+            {HOME_TEXT['productsOnDiscount'][errors['productsOnDiscount']]}
+          </p>
+        )}
+
+        {/* Loading */}
+        {isLoadings['productsOnDiscount'] && (
+          <p className="text-dark/70 mt-5 text-center text-sm">
+            {HOME_TEXT['productsOnDiscount']['loading']}
           </p>
         )}
       </Section>
 
       {/* Supported Pharmacies */}
       <Section center={false}>
-        <p className="flex justify-center p-4 text-2xl font-bold">Supported pharmacies currently</p>
-        <div className="mt-5 flex flex-wrap justify-center gap-5">
-          {pharmacies.map((pharmacy) => (
-            <SupportedPharmacyCard
-              key={pharmacy.id}
-              {...pharmacy}
-            />
-          ))}
-        </div>
+        <h1 className="flex justify-center p-4 text-2xl font-bold">
+          {HOME_TEXT['supportedPharmacies']['h1']}
+        </h1>
+
+        {/* Data */}
+        {!isLoadings['pharmacies'] && !errors['pharmacies'] && (
+          <div className="mt-5 flex flex-wrap justify-center gap-5">
+            {pharmacies.map((pharmacy) => (
+              <SupportedPharmacyCard
+                key={pharmacy.id}
+                {...pharmacy}
+              />
+            ))}
+          </div>
+        )}
+
+        {/* Loading */}
+        {isLoadings['pharmacies'] && (
+          <p className="text-dark/70 mt-5 text-center text-sm">
+            {HOME_TEXT['supportedPharmacies']['loading']}
+          </p>
+        )}
+
+        {/* Error */}
+        {!isLoadings['pharmacies'] && errors['pharmacies'] && (
+          <p className="text-dark/70 mt-5 text-center text-sm">
+            {HOME_TEXT['supportedPharmacies'][errors['pharmacies']]}
+          </p>
+        )}
       </Section>
     </div>
   );

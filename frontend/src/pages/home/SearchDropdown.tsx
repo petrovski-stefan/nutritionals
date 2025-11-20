@@ -1,12 +1,14 @@
 import type { BackendProduct } from '../../types/product';
 import DropdownProductCard from './DropdownProduct';
+import HOME_TEXT from '../../locale/home';
 
 type Props = {
   products: Array<BackendProduct>;
-  loading: boolean;
+  isLoading: boolean;
+  error: 'unexpectedError' | 'noProductsFoundError' | null;
 };
 
-export default function SearchDropdown({ products, loading }: Props) {
+export default function SearchDropdown({ products, isLoading, error }: Props) {
   const searchProductsDropdownCards = products.map((product) => (
     <DropdownProductCard
       key={product.id}
@@ -16,14 +18,12 @@ export default function SearchDropdown({ products, loading }: Props) {
     />
   ));
 
-  const hasProducts = searchProductsDropdownCards.length > 0;
-
   return (
     <div className="bg-neutral absolute top-20 z-50 max-h-96 w-full max-w-2xl overflow-y-auto rounded-2xl p-2 shadow-lg">
-      {loading && <p className="text-dark/50 py-4 text-center">Loading ...</p>}
-      {!loading && hasProducts && searchProductsDropdownCards}
-      {!loading && !hasProducts && (
-        <p className="text-dark/50 py-4 text-center">No products found. Try again.</p>
+      {isLoading && <p className="text-dark/50 py-4 text-center">{HOME_TEXT['form']['loading']}</p>}
+      {!isLoading && !error && searchProductsDropdownCards}
+      {!isLoading && error && (
+        <p className="text-dark/50 py-4 text-center">{HOME_TEXT['form'][error]}</p>
       )}
     </div>
   );
