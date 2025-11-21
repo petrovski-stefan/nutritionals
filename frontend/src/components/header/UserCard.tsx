@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import USER_CARD_TEXT from '../../locale/user-card';
 
 type Props = {
   username: string;
@@ -14,7 +15,7 @@ export default function UserCard({ username, handleLogout }: Props) {
         onClick={() => setShowLogoutButton((old) => !old)}
         className="bg-accent hover:bg-accent/90 cursor-pointer rounded-lg px-4 py-2 font-medium text-white transition-colors"
       >
-        Hello, {username}
+        {USER_CARD_TEXT['welcome']} {username}
       </button>
 
       {/* Dropdown menu */}
@@ -27,7 +28,7 @@ export default function UserCard({ username, handleLogout }: Props) {
               setShowLogoutButton(false);
             }}
           >
-            Logout
+            {USER_CARD_TEXT['logout']}
           </button>
         </div>
       )}
