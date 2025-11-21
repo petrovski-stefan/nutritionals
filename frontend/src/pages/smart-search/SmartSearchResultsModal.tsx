@@ -1,14 +1,25 @@
 import { XIcon } from 'lucide-react';
 import type { BackendProduct } from '../../types/product';
 import ProductCard from './ProductCard';
+import SMART_SEARCH_TEXT from '../../locale/smart-search';
+
+type Error = 'unexpectedError' | 'noProductsFoundError' | null;
 
 type Props = {
   query: string;
   products: BackendProduct[];
+  error: Error;
+  isLoading: boolean;
   onClose: () => void;
 };
 
-export default function SmartSearchResultsModal({ query, products, onClose }: Props) {
+export default function SmartSearchResultsModal({
+  query,
+  products,
+  onClose,
+  error,
+  isLoading,
+}: Props) {
   const productsLength = products.length;
   const hasProducts = productsLength > 0;
 
@@ -25,20 +36,39 @@ export default function SmartSearchResultsModal({ query, products, onClose }: Pr
 
         {/* Results text */}
         <h2 className="text-dark mb-4 text-xl font-bold">
-          {hasProducts
-            ? `AI found ${productsLength} products that match your query: "${query}".`
-            : `AI didn't find any products that match your query "${query}".`}
+          {!isLoading &&
+            !error &&
+            hasProducts &&
+            SMART_SEARCH_TEXT['modal']['productsFound'](query, productsLength)}
+          {!isLoading &&
+            !error &&
+            !hasProducts &&
+            SMART_SEARCH_TEXT['modal']['noProductsFound'](query)}
+
+          {isLoading && <p>{SMART_SEARCH_TEXT['form']['loading']}</p>}
         </h2>
 
-        {/* Product cards */}
-        <div className="grid gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-          {products.map((product) => (
-            <ProductCard
-              key={product.id}
-              {...product}
-            />
-          ))}
-        </div>
+        {/* Data */}
+        {!isLoading && !error && (
+          <div className="grid gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+            {products.map((product) => (
+              <ProductCard
+                key={product.id}
+                {...product}
+              />
+            ))}
+          </div>
+        )}
+
+        {/* Error */}
+        {!isLoading && error && <p>{SMART_SEARCH_TEXT['form'][error]}</p>}
+
+        {/* Loading */}
+        {isLoading && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30">
+            <div className="border-t-accent h-16 w-16 animate-spin rounded-full border-4 border-gray-200"></div>
+          </div>
+        )}
       </div>
     </div>
   );

@@ -4,11 +4,15 @@ import SmartSearchResultsModal from './SmartSearchResultsModal';
 import ProductService from '../../api/product';
 import { useState, type FormEvent } from 'react';
 import type { BackendProduct } from '../../types/product';
+import SMART_SEARCH_TEXT from '../../locale/smart-search';
+
+type Error = 'unexpectedError' | 'noProductsFoundError';
 
 export default function SmartSearch() {
   const [inputSearchQuery, setInputSearchQuery] = useState('');
   const [productResults, setProductResults] = useState<BackendProduct[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<null | Error>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleSearchFormSubmit = async (e: FormEvent) => {
@@ -17,6 +21,7 @@ export default function SmartSearch() {
 
     setIsLoading(true);
     setIsModalOpen(true);
+    setError(null);
     setProductResults([]);
 
     try {
@@ -25,10 +30,15 @@ export default function SmartSearch() {
         setProductResults(response.data);
       }
     } catch (error) {
-      console.error(error);
+      setError('unexpectedError');
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleModalOnClose = () => {
+    setIsModalOpen(false);
+    setInputSearchQuery('');
   };
 
   return (
@@ -36,7 +46,7 @@ export default function SmartSearch() {
       {/* Hero */}
       <Section>
         <h1 className="text-dark mx-auto max-w-2xl text-center text-lg sm:text-xl md:text-2xl">
-          Describe your goal or concern, and our AI will find the best supplements for you.
+          {SMART_SEARCH_TEXT['hero']['h1']}
         </h1>
       </Section>
 
@@ -48,7 +58,7 @@ export default function SmartSearch() {
         >
           <input
             type="text"
-            placeholder="Describe your goal or concern… (e.g., improve sleep)"
+            placeholder={SMART_SEARCH_TEXT['form']['placeholder']}
             value={inputSearchQuery}
             maxLength={100}
             onChange={(e) => setInputSearchQuery(e.target.value)}
@@ -76,10 +86,9 @@ export default function SmartSearch() {
 
       {/* Warning text */}
       <Section>
-        <p className="text-dark/70 mx-auto max-w-lg text-center">
-          This feature is for informational purposes only and does not diagnose or treat medical
-          conditions. Always consult a healthcare professional before starting any new supplement.
-        </p>
+        <h1 className="text-dark/70 mx-auto max-w-lg text-center">
+          {SMART_SEARCH_TEXT['warning']['h1']}
+        </h1>
       </Section>
 
       {/* Modal */}
@@ -87,15 +96,10 @@ export default function SmartSearch() {
         <SmartSearchResultsModal
           query={inputSearchQuery}
           products={productResults}
-          onClose={() => setIsModalOpen(false)}
+          isLoading={isLoading}
+          error={error}
+          onClose={handleModalOnClose}
         />
-      )}
-
-      {/* Loader */}
-      {isLoading && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30">
-          <div className="border-t-accent h-16 w-16 animate-spin rounded-full border-4 border-gray-200"></div>
-        </div>
       )}
     </div>
   );
