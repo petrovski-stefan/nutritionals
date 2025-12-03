@@ -9,6 +9,7 @@ import BrandService from '../../api/brand';
 import PharmacyService from '../../api/pharmacy';
 import type { BackendBrandWithProductCount } from '../../types/brand';
 import type { BackendPharmacy } from '../../types/pharmacy';
+import SEARCH_TEXT from '../../locale/search';
 
 const filtersDefault = {
   pharmacyIds: [],

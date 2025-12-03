@@ -4,6 +4,7 @@ import ProductCard from './ProductCard';
 import AddToCollectionModal from './AddToCollectionModal';
 import { CollectionService } from '../../api/collection';
 import { useAuthContext } from '../../context/AuthContext';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 type Props = {
   products: Array<BackendProduct>;
@@ -24,7 +25,9 @@ export default function ProductsGrid({ products }: Props) {
   const [productToCollection, setProductToCollection] = useState<ProductToCollection | null>(null);
   const [collections, setCollections] = useState<Collection[]>([]);
 
-  const { accessToken } = useAuthContext();
+  const { accessToken, isLoggedIn } = useAuthContext();
+  const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     const getCollections = async () => {
@@ -37,12 +40,15 @@ export default function ProductsGrid({ products }: Props) {
   }, []);
 
   const handleClickAddProductToCollection = (id: number, name: string) => {
+    if (!isLoggedIn) {
+      navigate('/login', { state: { from: location } });
+      return;
+    }
     setIsAddToCollectionModalOpen(true);
     setProductToCollection({ id, name });
   };
 
   const handleAddProductToCollection = async (productId: number, collectionId: number) => {
-    console.log(`Added product ${productId} to collection ${collectionId}`);
     const response = await CollectionService.addProductToCollection(
       collectionId,
       productId,

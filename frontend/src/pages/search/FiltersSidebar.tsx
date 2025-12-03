@@ -4,6 +4,7 @@ import type { ProductFiltersDisplay, ProductFiltersValues } from '../../types/pr
 import CheckboxesFilter from './CheckboxesFilter';
 import type { BackendBrandWithProductCount } from '../../types/brand';
 import type { BackendPharmacy } from '../../types/pharmacy';
+import SEARCH_TEXT from '../../locale/search';
 
 type Props = {
   inputSearchQuery: string;
@@ -75,21 +76,23 @@ export default function FiltersSidebar({
     </label>
   ));
 
-  const discountCheckboxes = ['Only on discount'].map((name, id) => (
-    <label
-      key={name}
-      className="text-dark/80 hover:text-primary flex cursor-pointer items-center gap-2 text-sm"
-    >
-      <input
-        type="checkbox"
-        value={name}
-        onChange={(e) => handleFilterValueChange('discount', id, e.target.checked, true)}
-        checked={filters['discount']}
-        className="accent-primary h-4 w-4 rounded border-neutral-300"
-      />
-      {name}
-    </label>
-  ));
+  const discountCheckboxes = [`${SEARCH_TEXT['filters']['discountFilterValue']}`].map(
+    (name, id) => (
+      <label
+        key={name}
+        className="text-dark/80 hover:text-primary flex cursor-pointer items-center gap-2 text-sm"
+      >
+        <input
+          type="checkbox"
+          value={name}
+          onChange={(e) => handleFilterValueChange('discount', id, e.target.checked, true)}
+          checked={filters['discount']}
+          className="accent-primary h-4 w-4 rounded border-neutral-300"
+        />
+        {name}
+      </label>
+    )
+  );
 
   const handleFilterDisplayToggle = (key: keyof ProductFiltersDisplay) => {
     setIsFilterDisplayed((oldValue) => ({ ...oldValue, [key]: !oldValue[key] }));
@@ -113,7 +116,7 @@ export default function FiltersSidebar({
           className="focus:ring-primary text-dark w-full rounded-xl border border-neutral-300 bg-white px-4 py-2 text-sm focus:ring-2 focus:outline-none"
           type="text"
           name="query"
-          placeholder="Search product..."
+          placeholder={SEARCH_TEXT['filters']['searchPlaceholder']}
           value={inputSearchQuery ?? ''}
           onChange={(e) => setInputSearchQuery(e.target.value)}
         />
@@ -140,28 +143,28 @@ export default function FiltersSidebar({
           onClick={handleClearFilters}
           className="text-secondary hover:text-accent cursor-pointer text-sm font-medium transition-colors"
         >
-          [ Clear all filters ]
+          {SEARCH_TEXT['filters']['clearFilters']}
         </button>
       </div>
 
       {/* Filters */}
       <div className="flex flex-col gap-5">
         <CheckboxesFilter
-          filterTitle="Discount"
+          filterTitle={SEARCH_TEXT['filters']['discountFilterTitle']}
           filterType="discount"
           checkboxes={discountCheckboxes}
           handleFilterDisplayToggle={handleFilterDisplayToggle}
           isFilterDisplayed={isFilterDisplayed}
         />
         <CheckboxesFilter
-          filterTitle="Pharmacies"
+          filterTitle={SEARCH_TEXT['filters']['pharmaciesFilterTitle']}
           filterType="pharmacies"
           checkboxes={pharmacyNameFilterCheckboxes}
           handleFilterDisplayToggle={handleFilterDisplayToggle}
           isFilterDisplayed={isFilterDisplayed}
         />
         <CheckboxesFilter
-          filterTitle="Brands"
+          filterTitle={SEARCH_TEXT['filters']['brandsFilterTitle']}
           filterType="brands"
           checkboxes={brandFilterCheckboxes}
           handleFilterDisplayToggle={handleFilterDisplayToggle}

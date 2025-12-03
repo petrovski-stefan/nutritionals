@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { XIcon, FolderPlusIcon } from 'lucide-react';
+import SEARCH_TEXT from '../../locale/search';
 
 type Collection = {
   id: number;
@@ -33,7 +34,9 @@ export default function AddToCollectionModal({
         {/* Header */}
         <div className="mb-5 flex items-center justify-between border-b border-neutral-200 pb-3">
           <h2 className="text-dark text-xl font-semibold">
-            Add <span className="text-primary">{productToCollection.name}</span> to Collection
+            {SEARCH_TEXT['collectionsModal']['add']}
+            <span className="text-primary">{productToCollection.name}</span>{' '}
+            {SEARCH_TEXT['collectionsModal']['toCollection']}
           </h2>
           <button
             onClick={() => setIsAddToCollectionModalOpen(false)}
@@ -56,7 +59,9 @@ export default function AddToCollectionModal({
               </button>
             ))
           ) : (
-            <p className="text-sm text-gray-500 italic">No collections yet.</p>
+            <p className="text-sm text-gray-500 italic">
+              {SEARCH_TEXT['collectionsModal']['noCollectionsYet']}
+            </p>
           )}
         </div>
 
@@ -67,7 +72,7 @@ export default function AddToCollectionModal({
               type="text"
               value={newCollectionName}
               onChange={(e) => setNewCollectionName(e.target.value)}
-              placeholder="New collection name"
+              placeholder={SEARCH_TEXT['collectionsModal']['collectionPlaceholder']}
               className="focus:ring-primary flex-1 rounded-lg border border-neutral-300 px-3 py-2 focus:ring-2 focus:outline-none"
             />
             <button
@@ -80,13 +85,13 @@ export default function AddToCollectionModal({
               }}
               className="bg-primary hover:bg-primary/90 cursor-pointer rounded-lg px-4 py-2 text-white"
             >
-              Create
+              {SEARCH_TEXT['collectionsModal']['create']}
             </button>
             <button
               onClick={() => setIsCreatingNew(false)}
               className="bg-neutral text-dark hover:bg-neutral/80 cursor-pointer rounded-lg px-4 py-2"
             >
-              Cancel
+              {SEARCH_TEXT['collectionsModal']['cancel']}
             </button>
           </div>
         ) : (
@@ -95,7 +100,7 @@ export default function AddToCollectionModal({
             className="text-dark/70 hover:text-primary hover:border-primary/50 mt-3 flex w-full cursor-pointer items-center justify-center gap-2 rounded-lg border border-dashed border-neutral-400 px-4 py-2 transition-all"
           >
             <FolderPlusIcon className="h-4 w-4" />
-            Create new collection
+            {SEARCH_TEXT['collectionsModal']['createCollection']}
           </button>
         )}
       </div>

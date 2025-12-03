@@ -1,5 +1,5 @@
-import { useState, type FormEvent } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useEffect, useState, type FormEvent } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import type { LoginCredentials } from '../../types/user';
 import { UserService } from '../../api/user';
 import { useAuthContext } from '../../context/AuthContext';
@@ -16,10 +16,18 @@ export default function Login() {
   const [credentials, setCredentials] = useState<LoginCredentials>(defaultCredentials);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<null | Error>(null);
+  const [from, setFrom] = useState('/');
 
   const { login } = useAuthContext();
 
   const navigate = useNavigate();
+  const location = useLocation();
+
+  useEffect(() => {
+    const fromPathname = location.state?.from.pathname || '/';
+    console.log(fromPathname);
+    setFrom(fromPathname);
+  }, [location]);
 
   const handleCredentialsOnChange = (key: keyof LoginCredentials, value: string) => {
     setError(null);
@@ -43,7 +51,7 @@ export default function Login() {
 
       if (response.status) {
         login(credentials.username, response.data.access);
-        navigate('/');
+        navigate(from, { replace: true });
       } else {
         setError(response.errors_type as Error);
       }

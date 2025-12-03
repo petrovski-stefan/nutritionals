@@ -1,4 +1,5 @@
 import { Star, ExternalLink } from 'lucide-react';
+import SEARCH_TEXT from '../../locale/search';
 
 type Props = {
   id: number;
@@ -47,7 +48,7 @@ export default function ProductCard({
       {/* Sale Tag */}
       {hasDiscountPrice && (
         <div className="bg-accent absolute top-12 right-3 rounded-full px-3 py-1 text-xs font-medium text-white shadow-sm">
-          SALE
+          {SEARCH_TEXT['productCard']['sale']}
         </div>
       )}
 
@@ -81,11 +82,11 @@ export default function ProductCard({
           className="text-secondary hover:text-accent flex items-center gap-1 text-sm font-medium transition-colors hover:underline"
         >
           <ExternalLink className="h-4 w-4" />
-          View on {pharmacy}
+          {`${SEARCH_TEXT['productCard']['view']} ${pharmacy}`}
         </a>
 
         <p className="text-xs text-gray-500">
-          Updated: {new Date(updated_at).toLocaleDateString('en-GB')}
+          {`${SEARCH_TEXT['productCard']['updatedAt']} ${new Date(updated_at).toLocaleDateString('en-GB')}`}
         </p>
       </div>
     </div>
