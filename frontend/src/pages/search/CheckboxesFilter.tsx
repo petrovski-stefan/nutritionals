@@ -1,6 +1,7 @@
 import { ChevronDownCircleIcon, ChevronUpCircleIcon } from 'lucide-react';
 import type { ReactNode } from 'react';
 import type { ProductFiltersDisplay } from '../../types/product';
+import Tooltip from '../../components/Tooltip';
 
 type Props = {
   filterTitle: string;
@@ -31,9 +32,16 @@ export default function CheckboxesFilter({
           className={`hover:text-primary text-gray-400 transition-colors ${shouldDisplayScroller ? '' : 'mr-4'}`}
         >
           {isFilterDisplayed[filterType] ? (
-            <ChevronUpCircleIcon className="h-5 w-5" />
+            <Tooltip
+              text="Затвори"
+              placement="left"
+            >
+              <ChevronUpCircleIcon className="h-5 w-5" />
+            </Tooltip>
           ) : (
-            <ChevronDownCircleIcon className="h-5 w-5" />
+            <Tooltip text="Отвори">
+              <ChevronDownCircleIcon className="h-5 w-5" />
+            </Tooltip>
           )}
         </button>
       </div>

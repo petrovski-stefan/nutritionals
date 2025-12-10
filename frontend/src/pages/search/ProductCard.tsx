@@ -1,5 +1,6 @@
 import { Star, ExternalLink } from 'lucide-react';
 import SEARCH_TEXT from '../../locale/search';
+import Tooltip from '../../components/Tooltip';
 
 type Props = {
   id: number;
@@ -11,7 +12,7 @@ type Props = {
   pharmacyLogo: string;
   url: string;
   updated_at: string;
-  handleClickAddProductToCollection: (id: number, name: string) => void;
+  handleClickAddProductToMyList: (id: number, name: string) => void;
 };
 
 export default function ProductCard({
@@ -24,7 +25,7 @@ export default function ProductCard({
   pharmacyLogo,
   url,
   updated_at,
-  handleClickAddProductToCollection,
+  handleClickAddProductToMyList,
 }: Props) {
   const hasDiscountPrice = discountPrice !== '';
   const originalPriceStyles = hasDiscountPrice
@@ -37,12 +38,17 @@ export default function ProductCard({
   return (
     <div className="group relative flex h-[22rem] w-[18rem] flex-col justify-between rounded-2xl border border-neutral-300 bg-white shadow-sm transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-lg">
       {/* Star Button */}
+
       <button
-        onClick={() => handleClickAddProductToCollection(id, name)}
+        onClick={() => handleClickAddProductToMyList(id, name)}
         className="hover:text-primary hover:bg-primary/10 absolute top-3 right-3 z-10 cursor-pointer rounded-full p-2 text-gray-400 transition-colors"
-        aria-label="Add to collection"
       >
-        <Star className="h-5 w-5 fill-current" />
+        <Tooltip
+          text="Додај во листа"
+          placement="bottom"
+        >
+          <Star className="h-5 w-5 fill-current" />
+        </Tooltip>
       </button>
 
       {/* Sale Tag */}

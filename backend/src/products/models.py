@@ -87,20 +87,3 @@ class Product(BaseModel):
 
     class Meta:
         verbose_name_plural = "Products"
-
-
-class ProductInCollection(BaseModel):
-    product = models.ForeignKey(Product, on_delete=models.CASCADE)
-    collection = models.ForeignKey("ProductCollection", on_delete=models.CASCADE)
-
-    def __str__(self) -> str:
-        return f"{self.product.name} in {self.collection.name}"
-
-
-class ProductCollection(BaseModel):
-    name = models.CharField(max_length=255)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    products = models.ManyToManyField(Product, through=ProductInCollection)
-
-    def __str__(self) -> str:
-        return f"{self.name} by {self.user.username}"

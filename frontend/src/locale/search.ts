@@ -22,14 +22,14 @@ const TEXT = {
     view: 'Погледни на',
     updatedAt: 'Ажурирано: ',
   },
-  collectionsModal: {
+  myListsModal: {
     add: 'Додај го ',
-    toCollection: 'во колекција',
-    noCollectionsYet: 'Немате креирано колекција',
-    createCollection: 'Креирајте нова колекција',
+    toMyList: 'во листа',
+    noMyListsYet: 'Немате креирано листи',
+    createMyList: 'Креирајте нова листа',
     create: 'Зачувај',
     cancel: 'Откажи',
-    collectionPlaceholder: 'Моја колекција ...',
+    myListPlaceholder: 'Моја листа ...',
   },
 };
 

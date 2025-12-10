@@ -4,9 +4,7 @@ from .models import (
     Brand,
     Pharmacy,
     Product,
-    ProductCollection,
     ProductDiscover,
-    ProductInCollection,
 )
 
 
@@ -81,13 +79,3 @@ class ProductAdmin(admin.ModelAdmin):
         "created_at",
         "updated_at",
     ]
-
-
-@admin.register(ProductCollection)
-class ProductCollectionAdmin(admin.ModelAdmin):
-    pass
-
-
-@admin.register(ProductInCollection)
-class ProductInCollectionAdmin(admin.ModelAdmin):
-    pass

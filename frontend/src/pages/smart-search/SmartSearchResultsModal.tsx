@@ -2,6 +2,7 @@ import { XIcon } from 'lucide-react';
 import type { BackendProduct } from '../../types/product';
 import ProductCard from './ProductCard';
 import SMART_SEARCH_TEXT from '../../locale/smart-search';
+import Tooltip from '../../components/Tooltip';
 
 type Error = 'unexpectedError' | 'noProductsFoundError' | null;
 
@@ -31,7 +32,12 @@ export default function SmartSearchResultsModal({
           onClick={onClose}
           className="text-dark/50 hover:text-dark absolute top-4 right-4 cursor-pointer transition"
         >
-          <XIcon className="h-6 w-6" />
+          <Tooltip
+            text="Затвори"
+            placement="left"
+          >
+            <XIcon className="h-6 w-6" />
+          </Tooltip>
         </button>
 
         {/* Results text */}

@@ -5,6 +5,7 @@ import CheckboxesFilter from './CheckboxesFilter';
 import type { BackendBrandWithProductCount } from '../../types/brand';
 import type { BackendPharmacy } from '../../types/pharmacy';
 import SEARCH_TEXT from '../../locale/search';
+import Tooltip from '../../components/Tooltip';
 
 type Props = {
   inputSearchQuery: string;
@@ -122,17 +123,21 @@ export default function FiltersSidebar({
         />
         <button
           type="submit"
-          className="hover:text-primary absolute top-2.5 right-3 text-gray-400 transition-colors"
+          className="hover:text-primary absolute top-2.5 right-3 cursor-pointer text-gray-400 transition-colors"
         >
-          <SearchIcon className="h-5 w-5" />
+          <Tooltip text="Пребарувај">
+            <SearchIcon className="h-5 w-5" />
+          </Tooltip>
         </button>
         {inputSearchQuery && (
           <button
             type="button"
             onClick={handleClearInputSearchQuery}
-            className="hover:text-primary absolute top-2.5 right-9 text-gray-400 transition-colors"
+            className="hover:text-primary absolute top-2.5 right-9 cursor-pointer text-gray-400 transition-colors"
           >
-            <XIcon className="h-5 w-5" />
+            <Tooltip text="Исчисти пребарување">
+              <XIcon className="h-5 w-5" />
+            </Tooltip>
           </button>
         )}
       </form>

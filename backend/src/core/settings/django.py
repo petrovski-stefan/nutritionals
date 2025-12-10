@@ -45,6 +45,7 @@ INSTALLED_APPS += [
     "scrapers",
     "products",
     "users",
+    "mylists",
 ]
 
 MIDDLEWARE = [

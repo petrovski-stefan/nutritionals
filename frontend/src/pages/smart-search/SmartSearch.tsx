@@ -5,6 +5,7 @@ import ProductService from '../../api/product';
 import { useState, type FormEvent } from 'react';
 import type { BackendProduct } from '../../types/product';
 import SMART_SEARCH_TEXT from '../../locale/smart-search';
+import Tooltip from '../../components/Tooltip';
 
 type Error = 'unexpectedError' | 'noProductsFoundError';
 
@@ -71,15 +72,19 @@ export default function SmartSearch() {
               onClick={() => setInputSearchQuery('')}
               className="text-dark/50 hover:text-dark absolute top-1/2 right-20 -translate-y-1/2 cursor-pointer transition"
             >
-              <XIcon className="h-5 w-5" />
+              <Tooltip text="Исчисти пребарување">
+                <XIcon className="h-5 w-5" />
+              </Tooltip>
             </button>
           )}
 
           <button
             type="submit"
-            className="bg-accent hover:bg-accent/90 ml-4 flex h-10 w-10 items-center justify-center rounded-full text-white transition"
+            className="bg-accent hover:bg-accent/90 ml-4 flex h-10 w-10 cursor-pointer items-center justify-center rounded-full text-white transition"
           >
-            <SearchIcon className="h-5 w-5" />
+            <Tooltip text="Пребарувај">
+              <SearchIcon className="h-5 w-5" />
+            </Tooltip>
           </button>
         </form>
       </Section>

@@ -6,7 +6,7 @@ import Login from '../pages/login/Login';
 import Register from '../pages/register/Register';
 import type { ReactElement } from 'react';
 import AuthGuard from '../components/AuthGuard';
-import MyCollections from '../pages/my-collections/MyCollections';
+import MyLists from '../pages/mylists/MyLists';
 
 type Route = {
   linkText: string;
@@ -17,31 +17,31 @@ type Route = {
 
 const routes: Array<Route> = [
   {
-    linkText: 'Home',
+    linkText: 'Почетна',
     path: '/',
     element: <Home />,
     showInHeaderMode: 'show',
   },
   {
-    linkText: 'Search',
+    linkText: 'Пребарување',
     path: '/search',
     element: <Search />,
     showInHeaderMode: 'show',
   },
   {
-    linkText: 'Smart Search',
+    linkText: 'Паметно пребарување',
     path: '/smart-search',
     element: <SmartSearch />,
     showInHeaderMode: 'show',
   },
   {
-    linkText: 'About',
+    linkText: 'За нас',
     path: '/about',
     element: <About />,
     showInHeaderMode: 'show',
   },
   {
-    linkText: 'Login',
+    linkText: 'Најави се',
     path: '/login',
     element: (
       <AuthGuard
@@ -54,7 +54,7 @@ const routes: Array<Route> = [
     showInHeaderMode: 'hide',
   },
   {
-    linkText: 'Join us',
+    linkText: 'Приклучи се',
     path: '/register',
     element: (
       <AuthGuard
@@ -67,14 +67,14 @@ const routes: Array<Route> = [
     showInHeaderMode: 'showIfNotAuthOnly',
   },
   {
-    linkText: 'My lists',
+    linkText: 'Мои листи',
     path: '/my-lists',
     element: (
       <AuthGuard
         mode="private"
         redirectTo="/register"
       >
-        <MyCollections />
+        <MyLists />
       </AuthGuard>
     ),
     showInHeaderMode: 'showIfAuthOnly',
