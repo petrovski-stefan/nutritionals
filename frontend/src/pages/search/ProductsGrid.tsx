@@ -5,25 +5,16 @@ import Modal from './Modal';
 import { MyListService } from '../../api/mylist';
 import { useAuthContext } from '../../context/AuthContext';
 import { useLocation, useNavigate } from 'react-router-dom';
+import type { BackendMyListWithItemsCount, ProductToMyList } from '../../types/mylist';
 
 type Props = {
   products: Array<BackendProduct>;
 };
 
-type ProductToMyList = {
-  id: number;
-  name: string;
-};
-
-type MyList = {
-  id: number;
-  name: string;
-};
-
 export default function ProductsGrid({ products }: Props) {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [productToMyList, setProductToMyList] = useState<ProductToMyList | null>(null);
-  const [myLists, setMyLists] = useState<MyList[]>([]);
+  const [myLists, setMyLists] = useState<BackendMyListWithItemsCount[]>([]);
 
   const { accessToken, isLoggedIn } = useAuthContext();
   const navigate = useNavigate();

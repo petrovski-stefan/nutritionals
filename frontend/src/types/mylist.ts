@@ -26,3 +26,8 @@ export type BackendMyListWithItemsCount = BaseBackendMyList & {
 export type BackendMyListWithItems = BaseBackendMyList & {
   items: BackendMyListItem[];
 };
+
+export type ProductToMyList = {
+  id: number;
+  name: string;
+};

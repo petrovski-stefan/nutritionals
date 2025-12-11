@@ -9,7 +9,7 @@ type Props = {
   myLists: BackendMyListWithItemsCount[];
   handleAddProductToMyList: (productId: number, myListId: number) => void;
   handleCreateMyList: (name: string) => void;
-  setIsAddModalOpen: (value: boolean) => void;
+  setIsAddModalOpen: () => void;
 };
 
 export default function Modal({
@@ -33,7 +33,7 @@ export default function Modal({
             {SEARCH_TEXT['myListsModal']['toMyList']}
           </h2>
           <button
-            onClick={() => setIsAddModalOpen(false)}
+            onClick={setIsAddModalOpen}
             className="hover:text-dark cursor-pointer text-gray-400 transition-colors"
           >
             <Tooltip text="Затвори">

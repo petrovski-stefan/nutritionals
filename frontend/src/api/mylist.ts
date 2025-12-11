@@ -56,11 +56,12 @@ export class MyListService {
   static readonly addProductToMyList = async (
     myListId: number,
     productId: number,
-    accessToken: string
+    accessToken: string,
+    isProductAddedBySmartSearch: boolean = false
   ) => {
     const response = await axiosInstance.post(
       `${BASE_PATH}${myListId}/products/`,
-      { product_id: productId },
+      { product_id: productId, is_added_through_smart_search: isProductAddedBySmartSearch },
       {
         headers: { Authorization: `Bearer ${accessToken}` },
       }

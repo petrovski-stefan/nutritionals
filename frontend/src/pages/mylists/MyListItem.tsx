@@ -57,7 +57,7 @@ export default function MyListItem({
           </a>{' '}
           {is_added_through_smart_search && (
             <Tooltip text="Паметно пребаруван продукт">
-              <BrainIcon className="text-primary inline" />
+              <BrainIcon className={`${!isEven ? 'text-primary' : 'text-white'} inline`} />
             </Tooltip>
           )}
         </span>
