@@ -43,6 +43,7 @@ class MyListItemService:
             is_added_through_smart_search=is_added_through_smart_search,
         )
 
+    @staticmethod
     def get_mylistitem_for_destroy(*, mylist_id: int, product_id: int) -> MyListItem:
         return get_object_or_404(
             MyListItem, product_id=product_id, my_list_id=mylist_id
