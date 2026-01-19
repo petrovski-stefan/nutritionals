@@ -131,6 +131,9 @@ USE_TZ = True
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
+# OpenAI
+
+OPENAI_API_KEY = env("OPENAI_API_KEY")
 
 # DRF
 
@@ -144,9 +147,10 @@ REST_FRAMEWORK = {
         "rest_framework_simplejwt.authentication.JWTAuthentication",
     ),
 }
+
 LOGGING = {
     "version": 1,
-    "disable_existing_loggers": True,
+    "disable_existing_loggers": False,
     "formatters": {
         "simple": {
             "format": "{levelname} - {asctime} - {name} - {message}",
@@ -162,32 +166,11 @@ LOGGING = {
         },
     },
     "loggers": {
+        "django.server": {
+            "handlers": [],
+            "propagate": False,
+        },
         "API": {
-            "handlers": ["console"],
-            "level": "INFO",
-            "propagate": False,
-        },
-        "24APTEKA-DISCOVER": {
-            "handlers": ["console"],
-            "level": "INFO",
-            "propagate": False,
-        },
-        "PHARMACY-CATALOG-SCRAPE-SCHEDULER": {
-            "handlers": ["console"],
-            "level": "INFO",
-            "propagate": False,
-        },
-        "PHARMACY-CATALOG-SCRAPE": {
-            "handlers": ["console"],
-            "level": "INFO",
-            "propagate": False,
-        },
-        "PRODUCT-SCRAPE-SCHEDULER": {
-            "handlers": ["console"],
-            "level": "INFO",
-            "propagate": False,
-        },
-        "PRODUCT-DETAIL-SCRAPE": {
             "handlers": ["console"],
             "level": "INFO",
             "propagate": False,

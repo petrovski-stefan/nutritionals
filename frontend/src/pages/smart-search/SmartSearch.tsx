@@ -61,6 +61,7 @@ export default function SmartSearch() {
             type="text"
             placeholder={SMART_SEARCH_TEXT['form']['placeholder']}
             value={inputSearchQuery}
+            minLength={3}
             maxLength={100}
             onChange={(e) => setInputSearchQuery(e.target.value)}
             className="focus:ring-accent focus:border-accent flex-1 rounded-2xl bg-white px-4 py-3 transition outline-none focus:ring-2"

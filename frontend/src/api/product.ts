@@ -57,7 +57,7 @@ class ProductService {
 
   static readonly smartSearchProducts = async (searchQuery: string) => {
     const response = await axiosInstance.post(`${PRODUCTS_BASE_URL}smart-search/`, {
-      search_query: searchQuery,
+      query: searchQuery,
     });
 
     return response.data as APIResponse<Array<BackendProduct>>;

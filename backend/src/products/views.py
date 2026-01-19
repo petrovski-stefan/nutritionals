@@ -1,4 +1,5 @@
 from common.mixins import NoAuthMixin
+from django.db.models import QuerySet
 from django_filters import rest_framework as filters
 from rest_framework.generics import (
     ListAPIView,
@@ -13,8 +14,9 @@ from .serializers import (
     BrandReadListSerializer,
     PharmacyReadListSerializer,
     ProductReadListSerializer,
+    ProductSmartSearchInputSerializer,
 )
-from .services import get_brands_with_product_count
+from .services import BrandService, ProductService
 
 
 class ProductListAPIView(NoAuthMixin, ListAPIView):
@@ -24,7 +26,6 @@ class ProductListAPIView(NoAuthMixin, ListAPIView):
     ).only(
         "name",
         "price",
-        "is_in_stock",
         "updated_at",
         "brand__name",
         "productdiscover__pharmacy__name",
@@ -37,20 +38,23 @@ class ProductListAPIView(NoAuthMixin, ListAPIView):
 
 class ProductSmartSearchAPIView(NoAuthMixin, APIView):
     def post(self, request: Request) -> Response:
-        search_query = request.data.get("search_query", None)
+        input_serializer = ProductSmartSearchInputSerializer(data=request.data)
+        input_serializer.is_valid(raise_exception=True)
 
-        sample_products = Product.objects.all()[:5]
+        product_qs = ProductService.get_smart_seached_products(
+            input_serializer.validated_data.get("query")
+        )
 
-        return Response(ProductReadListSerializer(sample_products, many=True).data)
+        return Response(ProductReadListSerializer(product_qs, many=True).data)
 
 
 class BrandListAPIView(NoAuthMixin, ListAPIView):
     serializer_class = BrandReadListSerializer
 
-    def get_queryset(self):
+    def get_queryset(self) -> QuerySet:
         name = self.request.query_params.get("name", "")
 
-        return get_brands_with_product_count(name)
+        return BrandService.get_brands_with_product_count(name)
 
 
 class PharmacyListAPIView(NoAuthMixin, ListAPIView):

@@ -61,7 +61,6 @@ class ProductAdmin(admin.ModelAdmin):
         "price",
         "discount_price",
         "brand__name",
-        "is_in_stock",
         "created_at",
         "updated_at",
     ]
@@ -75,7 +74,6 @@ class ProductAdmin(admin.ModelAdmin):
 
     search_fields = ["name"]
     list_filter = [
-        "is_in_stock",
         "created_at",
         "updated_at",
     ]

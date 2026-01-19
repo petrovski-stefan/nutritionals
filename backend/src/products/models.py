@@ -35,6 +35,7 @@ class Pharmacy(BaseModel):
     )
     catalog_max_pages = models.PositiveSmallIntegerField()
     catalog_scraping_delay_in_seconds = models.FloatField()
+    can_the_product_be_updated_from_catalog = models.BooleanField(default=False)
 
     # delay between single product scrapes
 
@@ -78,9 +79,7 @@ class Product(BaseModel):
     price = models.CharField(max_length=100)
     discount_price = models.CharField(max_length=100, blank=True)
     brand = models.ForeignKey(Brand, null=True, blank=True, on_delete=models.SET_NULL)
-    is_in_stock = models.BooleanField()
-
-    # description
+    tags = models.CharField(max_length=150, blank=True)
 
     def __str__(self) -> str:
         return self.name

@@ -9,12 +9,12 @@ from .views import (
 
 urlpatterns = [
     path(
-        "",
+        "products/",
         view=ProductListAPIView.as_view(),
         name="product-list",
     ),
     path(
-        "smart-search/",
+        "products/smart-search/",
         view=ProductSmartSearchAPIView.as_view(),
         name="product-smart-search",
     ),

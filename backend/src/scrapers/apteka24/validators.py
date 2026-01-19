@@ -2,6 +2,7 @@ from pydantic import (
     AfterValidator,
     BaseModel,
     BeforeValidator,
+    HttpUrl,
     StringConstraints,
 )
 from typing_extensions import Annotated
@@ -38,7 +39,7 @@ def clear_dot_from_price(value: str) -> str:
     return value
 
 
-class Product(BaseModel):
+class CatalogProduct(BaseModel):
     name: Annotated[
         str,
         StringConstraints(min_length=2),
@@ -55,9 +56,10 @@ class Product(BaseModel):
         AfterValidator(clear_dot_from_price),
         AfterValidator(discount_price_format),
     ]
-    is_in_stock: bool
     brand: str | None
-    description: Annotated[
+    tags: Annotated[
         str | None,
+        StringConstraints(max_length=150),
         BeforeValidator(none_to_empty_string),
     ]
+    url: HttpUrl

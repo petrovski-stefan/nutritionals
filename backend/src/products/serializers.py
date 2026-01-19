@@ -18,7 +18,6 @@ class ProductReadListSerializer(serializers.ModelSerializer):
             "name",
             "price",
             "discount_price",
-            "is_in_stock",
             "url",
             "brand",
             "pharmacy",
@@ -42,3 +41,7 @@ class PharmacyReadListSerializer(serializers.ModelSerializer):
         model = Pharmacy
         fields = ["id", "name", "homepage", "logo"]
         read_only_fields = fields
+
+
+class ProductSmartSearchInputSerializer(serializers.Serializer):
+    query = serializers.CharField(min_length=3, max_length=100)

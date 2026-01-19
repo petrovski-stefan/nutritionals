@@ -2,7 +2,7 @@ import type { APIResponse } from '../types/api';
 import type { BackendBrandWithProductCount } from '../types/brand';
 import axiosInstance from './axios';
 
-const BRANDS_BASE_URL = 'api/v1/products/brands/';
+const BRANDS_BASE_URL = 'api/v1/brands/';
 
 class BrandService {
   static readonly getBrandsWithProductCount = async (name: string) => {
