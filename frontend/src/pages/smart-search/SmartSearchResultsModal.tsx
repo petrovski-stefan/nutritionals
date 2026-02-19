@@ -40,8 +40,8 @@ export default function SmartSearchResultsModal({
         setMyLists(response.data);
       }
     };
-    getMyLists();
-  }, []);
+    if (isLoggedIn) getMyLists();
+  }, [isLoggedIn]);
 
   const productsLength = products.length;
   const hasProducts = productsLength > 0;
@@ -78,7 +78,6 @@ export default function SmartSearchResultsModal({
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
       {productToMyList === null && (
         <div className="relative max-h-[80vh] w-full max-w-4xl overflow-y-auto rounded-2xl bg-white p-6 shadow-xl">
-          {/* Close modal button */}
           <button
             onClick={onClose}
             className="text-dark/50 hover:text-dark absolute top-4 right-4 cursor-pointer transition"
@@ -91,7 +90,6 @@ export default function SmartSearchResultsModal({
             </Tooltip>
           </button>
 
-          {/* Results text */}
           <h2 className="text-dark mb-4 text-xl font-bold">
             {!isLoading &&
               !error &&
@@ -105,7 +103,6 @@ export default function SmartSearchResultsModal({
             {isLoading && <p>{SMART_SEARCH_TEXT['form']['loading']}</p>}
           </h2>
 
-          {/* Data */}
           {!isLoading && !error && (
             <div className="grid gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
               {products.map((product) => (
@@ -118,10 +115,8 @@ export default function SmartSearchResultsModal({
             </div>
           )}
 
-          {/* Error */}
           {!isLoading && error && <p>{SMART_SEARCH_TEXT['form'][error]}</p>}
 
-          {/* Loading */}
           {isLoading && (
             <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30">
               <div className="border-t-accent h-16 w-16 animate-spin rounded-full border-4 border-gray-200"></div>

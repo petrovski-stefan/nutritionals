@@ -1,7 +1,8 @@
 from bs4 import BeautifulSoup, ResultSet, Tag
 from pydantic import ValidationError
 
-from . import exceptions, selectors, validators
+from ..shared import exceptions
+from . import selectors, validators
 
 PRODUCT_FIELD_IN_PRODUCT_CARD_SELECTOR_MAP = {
     "name": selectors.CATALOG_PRODUCT_CARD_NAME,
@@ -62,20 +63,6 @@ def _extract_field_from_card(field: str, card: Tag) -> str | list[str] | None:
     return element.get_text(strip=True)
 
 
-def _extract_tags(card: Tag) -> str:
-    """Return maximum of 15 tags as 1 string of the product joined by a comma
-    like 'vitamin', 'immune', 'bones' etc"""
-
-    all_tags: list[str] = card.get("class", [])
-    filtered_tags = [
-        tag.split("product_cat-")[1]
-        for tag in all_tags
-        if tag.startswith("product_cat-")
-    ]
-
-    return ",".join(filtered_tags[:15])
-
-
 def _split_prices(
     prices: list[str] | None,
 ) -> tuple[None, None] | tuple[str, str] | tuple[str, None]:
@@ -97,7 +84,6 @@ def _get_card_data(card: Tag) -> dict[str, str | None]:
     brand = _extract_field_from_card("brand", card)
     prices = _extract_field_from_card("prices", card)
     url = _extract_field_from_card("url", card)
-    tags = _extract_tags(card)
 
     price, discount_price = _split_prices(prices)
 
@@ -107,7 +93,6 @@ def _get_card_data(card: Tag) -> dict[str, str | None]:
         "price": price,
         "discount_price": discount_price,
         "url": url,
-        "tags": tags,
     }
 
 

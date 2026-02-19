@@ -3,6 +3,6 @@ export type BackendBrand = {
   name: string;
 };
 
-export type BackendBrandWithProductCount = BackendBrand & {
-  products_by_brand_count: number;
+export type BackendBrandWithGroupCount = BackendBrand & {
+  group_count: number;
 };

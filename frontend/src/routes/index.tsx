@@ -15,7 +15,7 @@ type Route = {
   showInHeaderMode: 'show' | 'hide' | 'showIfAuthOnly' | 'showIfNotAuthOnly';
 };
 
-const routes: Array<Route> = [
+const routes: Route[] = [
   {
     linkText: 'Почетна',
     path: '/',
@@ -23,7 +23,7 @@ const routes: Array<Route> = [
     showInHeaderMode: 'show',
   },
   {
-    linkText: 'Пребарување',
+    linkText: 'Спореди цени',
     path: '/search',
     element: <Search />,
     showInHeaderMode: 'show',
@@ -35,7 +35,7 @@ const routes: Array<Route> = [
     showInHeaderMode: 'show',
   },
   {
-    linkText: 'За нас',
+    linkText: 'Услови за користење',
     path: '/about',
     element: <About />,
     showInHeaderMode: 'show',

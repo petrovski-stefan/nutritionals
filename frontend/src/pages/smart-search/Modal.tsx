@@ -25,11 +25,10 @@ export default function Modal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
       <div className="relative w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl">
-        {/* Header */}
         <div className="mb-5 flex items-center justify-between border-b border-neutral-200 pb-3">
           <h2 className="text-dark text-xl font-semibold">
             {SEARCH_TEXT['myListsModal']['add']}
-            <span className="text-primary">{productToMyList.name}</span>{' '}
+            <span className="text-primary">{productToMyList.productName}</span>{' '}
             {SEARCH_TEXT['myListsModal']['toMyList']}
           </h2>
           <button
@@ -42,13 +41,12 @@ export default function Modal({
           </button>
         </div>
 
-        {/* Existing My Lists */}
         <div className="mb-4 flex max-h-56 flex-col gap-2 overflow-y-auto">
           {myLists.length > 0 ? (
             myLists.map((myList) => (
               <button
                 key={myList.id}
-                onClick={() => handleAddProductToMyList(productToMyList.id, myList.id)}
+                onClick={() => handleAddProductToMyList(productToMyList.productId, myList.id)}
                 className="hover:border-primary hover:bg-primary/10 w-full cursor-pointer rounded-lg border border-neutral-300 px-4 py-2 text-left transition-all duration-200"
               >
                 {myList.name}
@@ -61,9 +59,8 @@ export default function Modal({
           )}
         </div>
 
-        {/* Create New My List */}
         {isCreatingNew ? (
-          <div className="mt-2 flex gap-2">
+          <div className="mt-2 flex gap-1 md:gap-2">
             <input
               type="text"
               value={newMyListName}

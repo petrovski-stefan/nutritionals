@@ -1,32 +1,44 @@
 type Props = {
+  idx: number;
   name: string;
   homepage: string;
-  logo: string;
+  num_products: number;
+  last_scraped_at: string | null;
 };
 
-export default function SupportedPharmacyCard({ name, homepage, logo }: Props) {
-  return (
-    <div className="border-dark/50 relative flex w-[15%] min-w-[180px] flex-col items-center gap-4 rounded-4xl border-2 bg-white p-5 transition-transform hover:scale-105 hover:shadow-lg">
-      {/* Pharmacy Logo */}
-      <div className="flex h-24 w-24 items-center justify-center rounded-full bg-neutral-100 p-4 shadow-inner">
-        <img
-          src={logo}
-          alt={name}
-          className="max-h-full max-w-full object-contain"
-        />
-      </div>
+export default function SupportedPharmacyCard({
+  idx,
+  name,
+  homepage,
+  num_products,
+  last_scraped_at,
+}: Props) {
+  const lastScrapedAt = last_scraped_at
+    ? new Date(last_scraped_at).toLocaleDateString('en-GB')
+    : '/';
 
-      {/* Pharmacy Name */}
-      <p className="text-dark text-center text-lg font-semibold">
+  const cardBackgroundColor = idx % 2 === 0 ? 'bg-white' : 'bg-green-50';
+
+  return (
+    <div
+      className={`flex h-[200px] w-[200px] flex-col items-center justify-center gap-3 rounded-3xl border border-gray-200 ${cardBackgroundColor} p-4 shadow-md transition-transform hover:scale-105 hover:shadow-xl`}
+    >
+      <p className="line-clamp-2 text-center text-2xl font-semibold text-black">
         <a
           href={homepage}
           target="_blank"
-          className="hover:decoration-accent hover:underline"
           rel="noopener noreferrer"
+          className="text-primary hover:text-accent transition-colors hover:underline"
         >
           {name}
         </a>
       </p>
+
+      <p className="text-center text-lg text-gray-700">
+        <span className="text-primary font-bold">{num_products}</span> суплементи
+      </p>
+
+      <p className="text-center text-xs text-gray-400">Ажурирано на: {lastScrapedAt}</p>
     </div>
   );
 }

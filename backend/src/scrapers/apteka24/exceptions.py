@@ -1,2 +1,0 @@
-class CardsNotFoundError(Exception):
-    pass

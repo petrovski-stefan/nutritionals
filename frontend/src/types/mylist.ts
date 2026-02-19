@@ -3,13 +3,15 @@ export type BackendMyListItem = {
   is_added_through_smart_search: boolean;
   product_id: number;
   product_name: string;
-  product_price: string;
-  product_discount_price: string;
-  product_updated_at: string;
+  product_price: number;
+  product_discount_price: number | null;
+  product_discount_percent: number | null;
+  product_last_scraped_at: string;
   product_url: string;
   product_brand_name: string | null;
-  pharmacy_logo: string;
+  product_pharmacy_name: string;
   created_at: string;
+  updated_at: string;
 };
 
 export type BaseBackendMyList = {
@@ -28,6 +30,7 @@ export type BackendMyListWithItems = BaseBackendMyList & {
 };
 
 export type ProductToMyList = {
-  id: number;
-  name: string;
+  productId: number;
+  productName: string;
+  pharmacyName: string;
 };

@@ -1,17 +1,17 @@
 import { useEffect, useState } from 'react';
-import type { BackendProduct } from '../../types/product';
-import ProductCard from './ProductCard';
 import Modal from './Modal';
 import { MyListService } from '../../api/mylist';
 import { useAuthContext } from '../../context/AuthContext';
 import { useLocation, useNavigate } from 'react-router-dom';
 import type { BackendMyListWithItemsCount, ProductToMyList } from '../../types/mylist';
+import type { BackendProductGroup } from '../../types/productgroup';
+import ProductGroupCard from './ProductGroupCard';
 
 type Props = {
-  products: Array<BackendProduct>;
+  groups: BackendProductGroup[];
 };
 
-export default function ProductsGrid({ products }: Props) {
+export default function ProductsGrid({ groups }: Props) {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [productToMyList, setProductToMyList] = useState<ProductToMyList | null>(null);
   const [myLists, setMyLists] = useState<BackendMyListWithItemsCount[]>([]);
@@ -27,16 +27,20 @@ export default function ProductsGrid({ products }: Props) {
         setMyLists(response.data);
       }
     };
-    getMyLists();
-  }, []);
+    if (isLoggedIn) getMyLists();
+  }, [isLoggedIn]);
 
-  const handleClickAddProductToMyList = (id: number, name: string) => {
+  const handleClickAddProductToMyList = (
+    productId: number,
+    productName: string,
+    pharmacyName: string
+  ) => {
     if (!isLoggedIn) {
       navigate('/login', { state: { from: location } });
       return;
     }
     setIsAddModalOpen(true);
-    setProductToMyList({ id, name });
+    setProductToMyList({ productId, productName, pharmacyName });
   };
 
   const handleAddProductToMyList = async (productId: number, myListId: number) => {
@@ -56,18 +60,8 @@ export default function ProductsGrid({ products }: Props) {
     }
   };
 
-  const productCards = products.map((product) => (
-    <ProductCard
-      key={product.id}
-      pharmacyLogo={product.pharmacy_logo}
-      discountPrice={product.discount_price}
-      handleClickAddProductToMyList={handleClickAddProductToMyList}
-      {...product}
-    />
-  ));
-
   return (
-    <div className="ml-10 flex w-[75%] flex-wrap justify-start gap-10 p-4">
+    <div className="flex h-full w-full flex-wrap justify-center gap-10 p-4 md:ml-10 md:w-[75%] md:justify-start">
       {isAddModalOpen && productToMyList && (
         <Modal
           productToMyList={productToMyList}
@@ -78,7 +72,13 @@ export default function ProductsGrid({ products }: Props) {
         />
       )}
 
-      {productCards}
+      {groups.map((group) => (
+        <ProductGroupCard
+          key={group.id}
+          productGroup={group}
+          handleClickAddProductToMyList={handleClickAddProductToMyList}
+        />
+      ))}
     </div>
   );
 }

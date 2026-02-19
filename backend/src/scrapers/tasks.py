@@ -1,169 +1,106 @@
 import logging
-from datetime import timedelta
 
 from celery import shared_task
-from django.db.models import Q
-from django.utils import timezone
-from products.models import Pharmacy, ProductDiscover
-from products.services import BrandService, ProductDiscoverService, ProductService
+from products.models import Pharmacy, PharmacyCatalog
+from products.services.product import create_or_update_scraped_product
 
-from .shared.client import delay, get_random_useragent, make_request_and_get_html
+from .shared.client import get_random_useragent, make_request_and_get_html
 from .shared.imports import load_pharmacy_fns
 from .shared.soup import get_soup
-from .shared.validation import get_validated_product
 
 logger = logging.getLogger(__name__)
 
 
 @shared_task
-def schedule_pharmacies_catalogue_scrape() -> None:
-    pharmacies = list(Pharmacy.objects.values_list("name", flat=True))
+def schedule_pharmacy_catalogs_scrape() -> None:
+    catalogs = list(
+        PharmacyCatalog.objects.filter(is_active=True).values_list(
+            "id", "pharmacy__name"
+        )
+    )
 
-    for pharmacy in pharmacies:
-        headers = {"User-Agent": get_random_useragent()}
-        scrape_pharmacy_catalog.delay(pharmacy, headers)
+    for catalog_id, pharmacy_name in catalogs:
+        schedule_catalog_page_scrape.delay(catalog_id, pharmacy_name)
 
-    logger.info(f"Scheduled catalog scrape for: {', '.join(pharmacies)} ...")
+    unique_pharmacy_names = {n for _, n in catalogs}
+    logger.info(f"Scheduled catalog scrape for: {', '.join(unique_pharmacy_names)}")
 
 
-@shared_task  # TODO: Retry handling
-def scrape_pharmacy_catalog(pharmacy_name: str, headers: dict) -> None:
-    pharmacy = Pharmacy.objects.get(name=pharmacy_name)
-
-    run_started_at = timezone.now()
-    failed_pages_count = 0
-
-    logger.info(f"Started pharmacy catalog scraping for {pharmacy_name} ...")
+@shared_task
+def schedule_catalog_page_scrape(catalog_id: int, pharmacy_name: str) -> None:
+    catalog = PharmacyCatalog.objects.select_related("category").get(id=catalog_id)
 
     try:
         (
             get_catalog_url_by_page,
-            extract_cards_from_page,
-            get_products_from_cards,
-            _,
+            *_,
         ) = load_pharmacy_fns(pharmacy_name)
 
     except ImportError as e:
         logger.error(e)
         return
 
-    end_page_num = pharmacy.catalog_max_pages
+    start = 0 if catalog.page_numbering_starts_at_zero else 1
+    end_page_num = catalog.max_pages
 
-    for page_num in range(1, end_page_num + 1):
+    for i in range(end_page_num):
+        page_num = start + i
+
         url = get_catalog_url_by_page(
-            pharmacy.catalog_base_url, page_num, pharmacy.catalog_url_queryparams_string
+            catalog.url_without_page,
+            page_num,
+            catalog.queryparams_string,
         )
+        headers = {"User-Agent": get_random_useragent()}
 
-        try:
-            html = make_request_and_get_html(url, headers)
-        except Exception as e:
-            logger.warning(
-                f"({pharmacy_name}) Failed to process page {page_num}: {e} ..."
-            )
-            failed_pages_count += 1
+        category_name = catalog.category.name if catalog.category is not None else ""
 
-            continue
-
-        soup = get_soup(html)
-
-        try:
-            cards = extract_cards_from_page(soup)
-        except Exception as e:
-            logger.warning(
-                f"Extracting product cards failed: {e} ..."  # noqa
-            )
-            failed_pages_count += 1
-            continue
-
-        products = get_products_from_cards(cards)
-        urls = [product["url"] for product in products]
-
-        ProductDiscoverService.update_or_create_many_product_discovers(
-            pharmacy=pharmacy,
-            run_started_at=run_started_at,
-            product_urls=urls,
-        )
-
-        if pharmacy.can_the_product_be_updated_from_catalog:
-            logger.info(products)
-
-        logger.info(
-            f"({pharmacy_name}) Page: {page_num}/{end_page_num} Found: {len(urls)}"
-        )
-
-        delay(pharmacy.catalog_scraping_delay_in_seconds)
-
-    # Finalize
-    ProductDiscoverService.update_all_product_discovers_status_by_run_started_at(
-        pharmacy=pharmacy, run_started_at=run_started_at
-    )
-
-    logger.info(
-        f"({pharmacy_name}) Catalog scrape finished with {failed_pages_count} failed pages ... "
-    )
-
-    if failed_pages_count > 0:
-        pass  # TODO: handle task retry
+        scrape_pharmacy_page.delay(pharmacy_name, url, headers, page_num, category_name)
 
 
 @shared_task
-def schedule_product_detail_scrape(limit: int = 15) -> None:
-    cutoff = timezone.now() - timedelta(hours=24)
-    next_for_scraping = (
-        ProductDiscover.objects.select_related("pharmacy")
-        .filter(
-            Q(product_last_scraped_at__lte=cutoff)
-            | Q(product_last_scraped_at__isnull=True)
-        )
-        .filter(pharmacy__can_the_product_be_updated_from_catalog=False)[:limit]
-    )
+def scrape_pharmacy_page(
+    pharmacy_name: str, url: str, headers: dict, page_num: int, category_name: str
+) -> None:
+    pharmacy = Pharmacy.objects.get(name=pharmacy_name)
 
-    headers = {"User-Agent": get_random_useragent()}
-    for d in next_for_scraping:
-        scrape_product_detail.delay(d.url, headers)
+    try:
+        (
+            _,
+            extract_cards_from_page,
+            get_products_from_cards,
+        ) = load_pharmacy_fns(pharmacy_name)
 
-    logger.info(f"Scheduled {next_for_scraping.count()} products for scrape")
+    except ImportError as e:
+        logger.error(e)
 
-
-@shared_task
-def scrape_product_detail(url: str, headers: dict[str, str]) -> None:
-    product_discover = ProductDiscover.objects.select_related(
-        "product", "pharmacy"
-    ).get(url=url)
-    product = product_discover.product
-    pharmacy_name = product_discover.pharmacy.name
-    (_, _, _, get_product_from_page) = load_pharmacy_fns(pharmacy_name)
+        return
 
     try:
         html = make_request_and_get_html(url, headers)
-    except Exception:
-        return  # TODO: trigger task retry
+    except Exception as e:
+        logger.warning(f"({pharmacy_name}) Failed to process page {page_num}: {e}")
 
-    soup = get_soup(html)
-    data = get_product_from_page(soup=soup)
-
-    validated_data = get_validated_product(data=data, klass=None)  # TODO: validation
-    # create product scrape event
-    if validated_data is None:
         return
 
-    # description = validated_data.pop("description")  # noqa
+    soup = get_soup(html)
 
-    brand_name = validated_data.pop("brand", None)
-    brand = BrandService.get_or_create_brand_by_name(name=brand_name)
+    try:
+        cards = extract_cards_from_page(soup)
+    except Exception as e:
+        logger.warning(f"({pharmacy_name}) Failed extracting cards: {e}")
 
-    ProductService.create_or_update_scraped_product(
-        product=product,
-        product_discover=product_discover,
-        brand=brand,
-        validated_data=validated_data,
+        return
+
+    products = get_products_from_cards(cards)
+    to_db = []
+
+    for product_data in products:
+        p = create_or_update_scraped_product(
+            pharmacy=pharmacy, validated_data=product_data, category_name=category_name
+        )
+        to_db.append(p)
+
+    logger.info(
+        f"({pharmacy_name}) Page: {page_num} Found: {len(products)} To DB: {len(to_db)}"
     )
-
-
-# Call openai for summarization of description if none
-# and create product description with description + tags
-# Or even submit a new child task
-
-
-##########
-# V2

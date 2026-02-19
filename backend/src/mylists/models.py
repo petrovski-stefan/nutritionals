@@ -8,18 +8,18 @@ User = get_user_model()
 
 class MyListItem(BaseModel):
     product = models.ForeignKey("products.Product", on_delete=models.CASCADE)
-    my_list = models.ForeignKey("MyList", on_delete=models.CASCADE)
+    mylist = models.ForeignKey("MyList", on_delete=models.CASCADE)
     is_added_through_smart_search = models.BooleanField(default=False)
 
     class Meta:
         constraints = [
             UniqueConstraint(
-                fields=["product", "my_list"], name="unique_together_product_my_list"
+                fields=["product", "mylist"], name="unique_together_product_mylist"
             )
         ]
 
     def __str__(self) -> str:
-        return f"{self.product.name} in {self.my_list.name}"
+        return f"MyListItem {self.id}"
 
 
 class MyList(BaseModel):
@@ -33,4 +33,4 @@ class MyList(BaseModel):
         ]
 
     def __str__(self) -> str:
-        return f"{self.name} by {self.user.username}"
+        return self.name

@@ -10,6 +10,7 @@ import MyList from './MyList';
 import MyListItem from './MyListItem';
 import MYLISTS_TEXT from '../../locale/mylists';
 import CreateUpdateMyListModal from './CreateUpdateMyListModal';
+import { PlusIcon } from 'lucide-react';
 
 type Loading = {
   myLists: boolean;
@@ -103,6 +104,7 @@ export default function MyLists() {
   };
 
   const handleClickCreateNewMyList = () => {
+    setError((prev) => ({ ...prev, createUpdateMyList: null }));
     setIsCreateUpdateMyListModalOpen(true);
   };
 
@@ -116,21 +118,22 @@ export default function MyLists() {
   };
 
   const handleDeleteMyList = async (myListId: number) => {
-    await MyListService.deleteMyList(myListId, accessToken);
+    const response = await MyListService.deleteMyList(myListId, accessToken);
 
-    // TODO: fix DELETE response structure
-    setMyLists((prev) => prev.filter(({ id }) => id !== myListId));
+    if (response === null) {
+      setMyLists((prev) => prev.filter(({ id }) => id !== myListId));
 
-    if (myListIdToView === myListId) {
-      setMyListIdToView(null);
-      setMyListProductsToView([]);
+      if (myListIdToView === myListId) {
+        setMyListIdToView(null);
+        setMyListProductsToView([]);
+      }
     }
   };
 
-  const alreadyUsedMyListNames = myLists.map(({ name }) => name);
+  const alreadyUsedMyListNamesSet = new Set(myLists.map(({ name }) => name));
 
   const handleCreateUpdateMyList = async (name: string, myListToEdit?: EditMyList) => {
-    if (alreadyUsedMyListNames.includes(name)) {
+    if (alreadyUsedMyListNamesSet.has(name)) {
       setError((prev) => ({ ...prev, createUpdateMyList: 'myListNameAlreadyUsed' }));
       return;
     }
@@ -186,30 +189,25 @@ export default function MyLists() {
   };
 
   const myListsLength = myLists.length;
-  const shouldMyListsHaveOverflowScroll = myListsLength > 6;
-
   const isThereSelectedMyList = myListIdToView !== null;
   const selectedMyListItemsLength = isThereSelectedMyList ? myListProductsToView.length : 0;
-  const shouldSelectedMyListItemsHaveOverflowScroll = selectedMyListItemsLength > 6;
 
   return (
     <div className="flex flex-col gap-4 p-4">
-      {/* Header */}
-      <div className="flex h-[20%] w-[30%] items-center justify-start px-2">
+      <div className="flex h-[20%] w-full items-center justify-center px-2 md:w-[30%] md:justify-start">
         <div>
           <h2 className="text-2xl font-bold text-gray-800">{MYLISTS_TEXT['hero']['h1']}</h2>
         </div>
         <div className="ml-5">
           <button
             onClick={handleClickCreateNewMyList}
-            className="bg-primary hover:text-accent w-30 cursor-pointer rounded-2xl text-center align-middle text-sm font-bold text-gray-800"
+            className="bg-primary hover:text-accent cursor-pointer rounded-3xl align-middle"
           >
-            {MYLISTS_TEXT['hero']['addNewMyListButton']}
+            <PlusIcon />
           </button>
         </div>
       </div>
 
-      {/* Modal */}
       {isCreateUpdateMyListModalOpen && (
         <CreateUpdateMyListModal
           handleCloseCreateUpdateMyListModal={handleCloseCreateNewMyList}
@@ -221,13 +219,8 @@ export default function MyLists() {
         />
       )}
 
-      <div className="flex min-h-[400px] gap-4">
-        {/* Left, My Lists */}
-        <ul
-          className={`h-[70%] w-[30%] rounded bg-white shadow-sm ${
-            shouldMyListsHaveOverflowScroll ? 'overflow-y-scroll' : ''
-          }`}
-        >
+      <div className="flex min-h-[400px] flex-col gap-4 md:flex-row">
+        <ul className="max-h-[70vh] w-full overflow-y-auto rounded bg-white shadow-sm md:w-[30%]">
           {!isLoading['myLists'] &&
             !error['myLists'] &&
             myListsLength > 0 &&
@@ -255,12 +248,7 @@ export default function MyLists() {
           )}
         </ul>
 
-        {/* Right, Products */}
-        <ul
-          className={`h-[70%] w-[70%] rounded bg-white shadow-sm ${
-            shouldSelectedMyListItemsHaveOverflowScroll ? 'overflow-y-scroll' : ''
-          }`}
-        >
+        <ul className="max-h-[70vh] w-full overflow-y-auto rounded bg-white shadow-sm md:w-[70%]">
           {myListIdToView &&
             !isLoading['products'] &&
             !error['products'] &&

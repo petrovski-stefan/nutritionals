@@ -1,21 +1,9 @@
 import logging
-import random
-import time
 
 import requests
 from fake_useragent import UserAgent
 
 logger = logging.getLogger(__name__)
-
-
-def delay(base_delay_amount: int | float) -> None:
-    """Apply base delay + random delta. If it goes negative, delay a default of 1 sec"""
-
-    delta = random.randint(-5, 5)
-    delay_amount = base_delay_amount + delta
-    delay_amount = max(1, delay_amount)  # prevent negative sleep
-
-    time.sleep(delay_amount)
 
 
 def get_random_useragent() -> str:

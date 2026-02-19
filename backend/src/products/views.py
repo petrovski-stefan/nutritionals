@@ -1,39 +1,40 @@
 from common.mixins import NoAuthMixin
 from django.db.models import QuerySet
-from django_filters import rest_framework as filters
-from rest_framework.generics import (
-    ListAPIView,
-)
+from rest_framework.generics import ListAPIView
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .filters import ProductFilterSet
-from .models import Pharmacy, Product
+from . import filters
 from .serializers import (
-    BrandReadListSerializer,
-    PharmacyReadListSerializer,
-    ProductReadListSerializer,
+    BrandListSerializer,
+    CategoryListSerializer,
+    PharmacyListSerializer,
+    ProductGroupListSerializer,
+    ProductListSerializer,
     ProductSmartSearchInputSerializer,
 )
-from .services import BrandService, ProductService
+from .services import brand as brand_service
+from .services import category as category_service
+from .services import pharmacy as pharmacy_service
+from .services import product as product_service
+from .services import productgroup as productgroup_service
 
 
-class ProductListAPIView(NoAuthMixin, ListAPIView):
-    serializer_class = ProductReadListSerializer
-    queryset = Product.objects.select_related(
-        "brand", "productdiscover", "productdiscover__pharmacy"
-    ).only(
-        "name",
-        "price",
-        "updated_at",
-        "brand__name",
-        "productdiscover__pharmacy__name",
-        "productdiscover__pharmacy__logo",
-        "productdiscover__url",
-    )
-    filter_backends = (filters.DjangoFilterBackend,)
-    filterset_class = ProductFilterSet
+class SearchProductListAPIView(NoAuthMixin, ListAPIView):
+    serializer_class = ProductListSerializer
+
+    def get_queryset(self) -> QuerySet:
+        q = self.request.query_params.get("q", None)
+
+        return product_service.search_products(q=q)
+
+
+class DiscountedProductListAPIView(NoAuthMixin, ListAPIView):
+    serializer_class = ProductListSerializer
+
+    def get_queryset(self) -> QuerySet:
+        return product_service.list_discounted_products()
 
 
 class ProductSmartSearchAPIView(NoAuthMixin, APIView):
@@ -41,22 +42,43 @@ class ProductSmartSearchAPIView(NoAuthMixin, APIView):
         input_serializer = ProductSmartSearchInputSerializer(data=request.data)
         input_serializer.is_valid(raise_exception=True)
 
-        product_qs = ProductService.get_smart_seached_products(
-            input_serializer.validated_data.get("query")
+        product_qs = product_service.get_smart_seached_products(
+            validated_data=input_serializer.validated_data
         )
 
-        return Response(ProductReadListSerializer(product_qs, many=True).data)
+        return Response(ProductListSerializer(product_qs, many=True).data)
 
 
 class BrandListAPIView(NoAuthMixin, ListAPIView):
-    serializer_class = BrandReadListSerializer
+    serializer_class = BrandListSerializer
 
     def get_queryset(self) -> QuerySet:
         name = self.request.query_params.get("name", "")
 
-        return BrandService.get_brands_with_product_count(name)
+        return brand_service.get_brands_with_product_count(name)
 
 
 class PharmacyListAPIView(NoAuthMixin, ListAPIView):
-    serializer_class = PharmacyReadListSerializer
-    queryset = Pharmacy.objects.only("name", "homepage", "logo")
+    serializer_class = PharmacyListSerializer
+
+    def get_queryset(self) -> QuerySet:
+        return pharmacy_service.list_pharmacies_with_product_stats()
+
+
+class CategoryListAPIView(NoAuthMixin, ListAPIView):
+    serializer_class = CategoryListSerializer
+
+    def get_queryset(self) -> QuerySet:
+        return category_service.list_categories()
+
+
+class ProductGroupListAPIView(NoAuthMixin, ListAPIView):
+    serializer_class = ProductGroupListSerializer
+
+    filter_backends = [
+        filters.filters.DjangoFilterBackend,
+    ]
+    filterset_class = filters.ProductGroupFilter
+
+    def get_queryset(self) -> QuerySet:
+        return productgroup_service.list_productgroups()

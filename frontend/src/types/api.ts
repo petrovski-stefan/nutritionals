@@ -10,7 +10,8 @@ type APIError = {
   attr: unknown;
 };
 
-type APIResponseFail = {
+// Export for DELETE methods
+export type APIResponseFail = {
   status: false;
   code: number;
   errors_type: string;

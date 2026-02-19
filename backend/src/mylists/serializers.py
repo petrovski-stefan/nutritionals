@@ -1,4 +1,3 @@
-from products.models import Product
 from rest_framework import serializers
 
 from .models import MyList, MyListItem
@@ -7,39 +6,43 @@ from .models import MyList, MyListItem
 class MyListItemListSerializer(serializers.ModelSerializer):
     product_id = serializers.IntegerField(source="product.id")
     product_name = serializers.CharField(source="product.name")
-    product_price = serializers.CharField(source="product.price")
-    product_discount_price = serializers.CharField(source="product.discount_price")
-    product_name = serializers.CharField(source="product.name")
-    product_url = serializers.CharField(source="product.productdiscover.url")
-    product_updated_at = serializers.DateTimeField(source="product.updated_at")
-
-    product_brand_name = serializers.CharField(source="product.brand", default=None)
-
-    pharmacy_logo = serializers.ImageField(
-        source="product.productdiscover.pharmacy.logo", default=None
+    product_price = serializers.FloatField(source="product.price")
+    product_discount_price = serializers.FloatField(source="product.discount_price")
+    product_discount_percent = serializers.FloatField(
+        read_only=True, default=None, allow_null=True
     )
+    product_url = serializers.URLField(source="product.url")
+    product_last_scraped_at = serializers.DateTimeField(
+        source="product.last_scraped_at"
+    )
+
+    product_brand_name = serializers.CharField(
+        source="product.brand.name", default=None
+    )
+
+    product_pharmacy_name = serializers.CharField(source="product.pharmacy.name")
 
     class Meta:
         model = MyListItem
         fields = (
             "id",
             "is_added_through_smart_search",
+            "created_at",
+            "updated_at",
             "product_id",
             "product_name",
             "product_price",
             "product_discount_price",
+            "product_discount_percent",
             "product_url",
-            "product_updated_at",
+            "product_last_scraped_at",
             "product_brand_name",
-            "pharmacy_logo",
-            "created_at",
+            "product_pharmacy_name",
         )
 
 
 class MyListItemCreateSerializer(serializers.ModelSerializer):
-    product_id = serializers.PrimaryKeyRelatedField(
-        source="product", queryset=Product.objects.all(), write_only=True
-    )
+    product_id = serializers.IntegerField(write_only=True)
 
     class Meta:
         model = MyListItem
@@ -55,7 +58,7 @@ class MyListCreateSerializer(serializers.ModelSerializer):
 
 
 class MyListListSerializer(serializers.ModelSerializer):
-    items_count = serializers.IntegerField(source="products.count")
+    items_count = serializers.IntegerField()
 
     class Meta:
         model = MyList

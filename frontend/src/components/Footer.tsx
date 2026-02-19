@@ -3,7 +3,7 @@ import FOOTER_TEXT from '../locale/footer';
 
 export default function Footer() {
   return (
-    <footer className="bg-dark text-neutral flex h-[8vh] items-center">
+    <footer className="bg-dark text-neutral flex h-32 items-center md:h-16">
       <p className="w-full text-center text-sm">
         {FOOTER_TEXT['p']}
         <Link

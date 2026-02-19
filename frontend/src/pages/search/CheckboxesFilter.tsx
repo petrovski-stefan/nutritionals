@@ -1,14 +1,14 @@
 import { ChevronDownCircleIcon, ChevronUpCircleIcon } from 'lucide-react';
 import type { ReactNode } from 'react';
-import type { ProductFiltersDisplay } from '../../types/product';
+import type { GroupFilterDisplay } from '../../types/productgroup';
 import Tooltip from '../../components/Tooltip';
 
 type Props = {
   filterTitle: string;
-  handleFilterDisplayToggle: (key: keyof ProductFiltersDisplay) => void;
+  handleFilterDisplayToggle: (key: keyof GroupFilterDisplay) => void;
   checkboxes: ReactNode[];
-  isFilterDisplayed: ProductFiltersDisplay;
-  filterType: keyof ProductFiltersDisplay;
+  isFilterDisplayed: GroupFilterDisplay;
+  filterType: keyof GroupFilterDisplay;
 };
 
 export default function CheckboxesFilter({
@@ -23,7 +23,7 @@ export default function CheckboxesFilter({
 
   return (
     <div
-      className={`max-h-96 rounded-xl border border-neutral-200 bg-white p-3 shadow-sm transition-all hover:shadow-md ${shouldDisplayScroller ? 'overflow-y-scroll' : ''}`}
+      className={`max-h-96 overflow-x-hidden rounded-xl border border-neutral-200 bg-white p-3 shadow-sm transition-all hover:shadow-md ${shouldDisplayScroller ? 'overflow-y-scroll' : ''}`}
     >
       <div className="mb-2 flex items-center justify-between">
         <span className="text-dark font-semibold">{filterTitle}</span>

@@ -38,20 +38,20 @@ class MyListModelAdmin(admin.ModelAdmin):
 class MyListItemModelAdmin(admin.ModelAdmin):
     list_display = (
         "product__name",
+        "product__pharmacy__name",
         "is_added_through_smart_search",
-        "my_list__name",
+        "mylist__name",
         "created_at",
         "updated_at",
     )
     list_select_related = (
         "product",
-        "my_list",
-        "my_list__user",
+        "product__pharmacy",
+        "mylist",
     )
     list_filter = (
         "is_added_through_smart_search",
-        "my_list__name",
-        "my_list__user__username",
+        "product__pharmacy",
         "created_at",
         "updated_at",
     )
@@ -59,17 +59,18 @@ class MyListItemModelAdmin(admin.ModelAdmin):
 
     search_fields = (
         "product__name",
-        "my_list__name",
+        "mylist__name",
     )
     search_help_text = "Search by product's or mylist's name ..."
 
     fields = (
         "product",
-        "my_list",
+        "mylist",
         "is_added_through_smart_search",
         "created_at",
         "updated_at",
     )
+    autocomplete_fields = ["product"]
     readonly_fields = (
         "created_at",
         "updated_at",

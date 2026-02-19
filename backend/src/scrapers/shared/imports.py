@@ -1,17 +1,10 @@
 import importlib
 from types import ModuleType
-from typing import Callable
-
-from bs4 import BeautifulSoup, ResultSet, Tag
-
-type ExtractProductsFromPageCallable = Callable[[BeautifulSoup], ResultSet[Tag]]
-
 
 REQUIRED_FNS = [
     "get_catalog_url_by_page",
     "extract_cards_from_page",
     "get_products_from_cards",
-    "get_product_from_page",
 ]
 
 

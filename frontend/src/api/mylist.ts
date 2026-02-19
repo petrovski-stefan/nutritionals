@@ -1,5 +1,5 @@
 import axiosInstance from './axios';
-import type { APIResponse } from '../types/api';
+import type { APIResponse, APIResponseFail } from '../types/api';
 import type { BackendMyListWithItems, BackendMyListWithItemsCount } from '../types/mylist';
 
 const BASE_PATH = 'api/v1/mylists/';
@@ -50,7 +50,11 @@ export class MyListService {
       headers: { Authorization: `Bearer ${accessToken}` },
     });
 
-    return response.data as APIResponse<null>; // TODO: fix response structure
+    if (response.status > 400) {
+      return response.data as APIResponseFail;
+    }
+
+    return null;
   };
 
   static readonly addProductToMyList = async (
