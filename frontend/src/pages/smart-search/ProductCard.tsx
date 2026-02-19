@@ -2,6 +2,7 @@ import { ExternalLink, StarIcon } from 'lucide-react';
 import type { BackendProduct } from '../../types/product';
 import type { ProductToMyList } from '../../types/mylist';
 import Tooltip from '../../components/Tooltip';
+import { formatPrice } from '../../utils/prices';
 
 type Props = BackendProduct & {
   handleClickAddProductToMyList: (productToMyList: ProductToMyList) => void;
@@ -12,52 +13,56 @@ export default function ProductCard({
   name,
   price,
   discount_price,
-  brand,
-  pharmacy,
+  discount_percent,
+  brand_name,
+  pharmacy_name,
   url,
   handleClickAddProductToMyList,
 }: Props) {
-  const hasDiscountPrice = discount_price !== '';
-  const originalPriceStyles = hasDiscountPrice
-    ? 'line-through text-primary text-sm'
-    : 'text-xl font-semibold text-primary';
-  const discountPriceStyles = hasDiscountPrice
-    ? 'text-xl font-semibold text-accent ml-2'
-    : 'hidden';
-
-  const hasBrand = brand !== '';
+  const hasBrand = brand_name !== null;
 
   return (
-    <div className="border-dark/20 hover:bg-dark/20 relative flex cursor-pointer flex-col justify-between rounded-xl border p-4 shadow-sm transition hover:shadow-md">
-      <p className="text-dark mr-5 font-semibold">{name}</p>
-
+    <div className="relative flex flex-col justify-between rounded-xl border border-gray-200 bg-white p-4 shadow-sm transition-shadow hover:shadow-md">
       <button
-        onClick={() => handleClickAddProductToMyList({ id, name })}
-        className="hover:text-primary hover:bg-primary/10 absolute top-3 right-3 z-10 cursor-pointer rounded-full p-2 text-gray-400 transition-colors"
+        onClick={() =>
+          handleClickAddProductToMyList({
+            productId: id,
+            productName: name,
+            pharmacyName: pharmacy_name,
+          })
+        }
+        className="absolute top-2 right-2 z-10 text-gray-400 transition-colors hover:text-yellow-500"
       >
         <Tooltip
           text="Додај во листа"
           placement="bottom"
         >
-          <StarIcon className="h-5 w-5 fill-current" />
+          <StarIcon className="h-5 w-5" />
         </Tooltip>
       </button>
 
-      {/* Prices */}
-      <div className="mt-2 flex items-center">
-        <p className={originalPriceStyles}>{price.slice(0, 10)}</p>
-        <p className={discountPriceStyles}>{discount_price.slice(0, 10)}</p>
+      <h3 className="text-primary pr-8 text-lg font-semibold break-words">{name}</h3>
+
+      <div className="mt-4 flex items-center">
+        {discount_price ? (
+          <div className="flex items-baseline gap-2">
+            <p className="text-sm text-gray-500 line-through">{formatPrice(price)}</p>
+            <p className="text-primary text-xl font-bold">{formatPrice(discount_price)}</p>
+            <span className="text-accent text-base font-semibold">-{discount_percent}%</span>
+          </div>
+        ) : (
+          <p className="text-primary text-xl font-bold">{formatPrice(price)}</p>
+        )}
       </div>
-      {/* Link */}
+
       <a
         href={url}
         target="_blank"
         rel="noopener noreferrer"
-        className="text-secondary hover:text-accent flex items-center gap-1 text-sm font-medium transition-colors hover:underline"
+        className="mt-2 flex items-center gap-1 text-sm text-blue-600 transition-colors hover:text-blue-800 hover:underline"
       >
         <ExternalLink className="h-4 w-4" />
-
-        <p className="text-center text-sm">{hasBrand ? `${brand} - ${pharmacy}` : pharmacy}</p>
+        {hasBrand ? `${brand_name} - ${pharmacy_name}` : pharmacy_name}
       </a>
     </div>
   );

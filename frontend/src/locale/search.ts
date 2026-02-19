@@ -4,7 +4,7 @@ const TEXT = {
   },
   form: {
     placeholder: 'Опишете ја вашата цел ... (на пр., подобрување на сонот)',
-    noProductsFoundError: 'Не беа пронајдени продукти со вашето пребарување.',
+    noProductsFoundError: 'Не беа пронајдени суплементи со вашето пребарување.',
     unexpectedError: 'Се случи неочекувана грешка.',
     loading: 'Се вчитува ...',
   },
@@ -13,7 +13,7 @@ const TEXT = {
     searchPlaceholder: 'Пример. Vitamin C',
     discountFilterTitle: 'Филтрирај по попуст',
     discountFilterValue: 'Има попуст?',
-    pharmaciesFilterTitle: 'Филтрирај по аптека',
+    categoryFilterTitle: 'Филтрирај по категорија',
     brandsFilterTitle: 'Филтрирај по бренд',
     clearFilters: '[Избриши ги сите филтери]',
   },

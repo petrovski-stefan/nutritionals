@@ -1,6 +1,8 @@
 from common.mixins import JWTAuthMixin
+from django.db.models import QuerySet
 from rest_framework import generics
 
+from .models import MyList, MyListItem
 from .serializers import (
     MyListCreateSerializer,
     MyListItemCreateSerializer,
@@ -8,12 +10,15 @@ from .serializers import (
     MyListRetrieveSerializer,
     MyListUpdateSerializer,
 )
-from .services import MyListItemService, MyListService
+from .services import mylist as mylist_service
+from .services import mylistitem as mylistitem_service
 
 
 class MyListListCreateAPIView(JWTAuthMixin, generics.ListCreateAPIView):
-    def get_queryset(self):
-        return MyListService.list_mylists_by_user(user=self.request.user)
+    def get_queryset(self) -> QuerySet[MyList]:
+        return mylist_service.list_mylists_by_user(
+            user=self.request.user, include_products=False
+        )
 
     def get_serializer_class(self):  # noqa
         if self.request.method == "POST":
@@ -21,8 +26,8 @@ class MyListListCreateAPIView(JWTAuthMixin, generics.ListCreateAPIView):
         elif self.request.method == "GET":
             return MyListListSerializer
 
-    def perform_create(self, serializer):
-        serializer.instance = MyListService.create_mylist(
+    def perform_create(self, serializer) -> None:
+        serializer.instance = mylist_service.create_mylist(
             user=self.request.user, name=serializer.validated_data.get("name")
         )
 
@@ -30,8 +35,10 @@ class MyListListCreateAPIView(JWTAuthMixin, generics.ListCreateAPIView):
 class MyListRetrieveUpdateDestroyAPIView(
     JWTAuthMixin, generics.RetrieveUpdateDestroyAPIView
 ):
-    def get_queryset(self):
-        return MyListService.list_mylists_by_user(user=self.request.user)
+    def get_queryset(self) -> QuerySet[MyList]:
+        return mylist_service.list_mylists_by_user(
+            user=self.request.user, include_products=True
+        )
 
     def get_serializer_class(self):  # noqa
         if self.request.method == "GET":
@@ -43,14 +50,15 @@ class MyListRetrieveUpdateDestroyAPIView(
 class MyListProductsCreateAPIView(JWTAuthMixin, generics.CreateAPIView):
     serializer_class = MyListItemCreateSerializer
 
-    def perform_create(self, serializer):
-        MyListItemService.create_mylistitem_in_mylist(
+    def perform_create(self, serializer) -> None:
+        instance = mylistitem_service.create_mylistitem(
             mylist_id=self.kwargs["pk"], **serializer.validated_data
         )
+        serializer.instance = instance
 
 
 class MyListProductsDestroyAPIView(JWTAuthMixin, generics.DestroyAPIView):
-    def get_object(self):
-        return MyListItemService.get_mylistitem_for_destroy(
+    def get_object(self) -> MyListItem:
+        return mylistitem_service.get_mylistitem(
             mylist_id=self.kwargs["pk"], product_id=self.kwargs["product_id"]
         )

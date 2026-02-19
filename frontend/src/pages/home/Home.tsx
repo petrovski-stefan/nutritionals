@@ -1,9 +1,9 @@
-import { useEffect, useState, type FormEvent, type KeyboardEvent } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useEffect, useState, type FormEvent } from 'react';
+import { Link } from 'react-router-dom';
 import BestDealsProductCard from './BestDealProductCard';
 import Section from '../../components/Section';
 import SupportedPharmacyCard from './SupportedPharmacyCard';
-import type { BackendProduct } from '../../types/product';
+import type { BackendDiscountedProduct, BackendProduct } from '../../types/product';
 import SearchDropdown from './SearchDropdown';
 import ProductService from '../../api/product';
 import { SearchIcon, XIcon } from 'lucide-react';
@@ -30,12 +30,10 @@ export default function Home() {
   const [searchQuery, setSearchQuery] = useState('');
   const [isSearchDropdownOpen, setIsSearchDropdownOpen] = useState(false);
   const [products, setProducts] = useState<BackendProduct[]>([]);
-  const [productsOnDiscount, setProductsOnDiscount] = useState<BackendProduct[]>([]);
+  const [productsOnDiscount, setProductsOnDiscount] = useState<BackendDiscountedProduct[]>([]);
   const [pharmacies, setPharmacies] = useState<BackendPharmacy[]>([]);
   const [isLoadings, setIsLoadings] = useState(defaultLoadings);
   const [errors, setErrors] = useState(defaultErrors);
-
-  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -79,7 +77,7 @@ export default function Home() {
       handleErrorsChange('search', null);
 
       try {
-        const response = await ProductService.searchProducts(query, 20);
+        const response = await ProductService.searchProducts(query);
 
         if (response.status) {
           if (response.data.length > 0) {
@@ -106,16 +104,6 @@ export default function Home() {
 
   const handleFormSubmit = (e: FormEvent) => {
     e.preventDefault();
-    if (!searchQuery) return;
-    navigate(`/search?query=${encodeURIComponent(searchQuery)}`);
-    setSearchQuery('');
-  };
-
-  const handleKeyDownEnter = (e: KeyboardEvent<HTMLInputElement>) => {
-    if (e.key !== 'Enter') return;
-    if (!searchQuery) return;
-    navigate(`/search?query=${encodeURIComponent(searchQuery)}`);
-    setSearchQuery('');
   };
 
   const handleIsLoadingsChange = (key: keyof typeof defaultLoadings, value: boolean) => {
@@ -128,13 +116,11 @@ export default function Home() {
 
   return (
     <div className="bg-neutral min-h-screen">
-      {/* Hero Section */}
       <Section center={true}>
         <h1 className="text-dark text-center text-3xl font-bold">{HOME_TEXT['hero']['h1']}</h1>
         <p className="text-dark/70 mt-5 text-center text-lg">{HOME_TEXT['hero']['p']}</p>
       </Section>
 
-      {/* Search Section */}
       <Section center={true}>
         <form
           className="relative mx-auto flex w-full max-w-3xl items-center rounded-3xl bg-white px-4 py-2 shadow-md"
@@ -146,7 +132,6 @@ export default function Home() {
             placeholder={HOME_TEXT['form']['placeholder']}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            onKeyDown={handleKeyDownEnter}
           />
           {searchQuery && (
             <button
@@ -186,13 +171,11 @@ export default function Home() {
         </div>
       </Section>
 
-      {/* Products on Discount */}
       <Section center={false}>
-        <h1 className="flex justify-center p-4 text-2xl font-bold">
+        <h1 className="flex justify-center p-4 text-center text-2xl font-bold">
           {HOME_TEXT['productsOnDiscount']['h1']}
         </h1>
 
-        {/* Data */}
         {!isLoadings['productsOnDiscount'] &&
           !errors['productsOnDiscount'] &&
           productsOnDiscount.length > 0 && (
@@ -200,15 +183,12 @@ export default function Home() {
               {productsOnDiscount.map((product) => (
                 <BestDealsProductCard
                   key={product.id}
-                  discountPrice={product.discount_price}
-                  pharmacyName={product.pharmacy}
                   {...product}
                 />
               ))}
             </div>
           )}
 
-        {/* No data */}
         {!isLoadings['productsOnDiscount'] &&
           !errors['productsOnDiscount'] &&
           productsOnDiscount.length === 0 && (
@@ -217,14 +197,12 @@ export default function Home() {
             </p>
           )}
 
-        {/* Error */}
         {!isLoadings['productsOnDiscount'] && errors['productsOnDiscount'] && (
           <p className="text-dark/70 mt-5 text-center text-sm">
             {HOME_TEXT['productsOnDiscount'][errors['productsOnDiscount']]}
           </p>
         )}
 
-        {/* Loading */}
         {isLoadings['productsOnDiscount'] && (
           <p className="text-dark/70 mt-5 text-center text-sm">
             {HOME_TEXT['productsOnDiscount']['loading']}
@@ -232,32 +210,29 @@ export default function Home() {
         )}
       </Section>
 
-      {/* Supported Pharmacies */}
       <Section center={false}>
         <h1 className="flex justify-center p-4 text-2xl font-bold">
           {HOME_TEXT['supportedPharmacies']['h1']}
         </h1>
 
-        {/* Data */}
         {!isLoadings['pharmacies'] && !errors['pharmacies'] && (
           <div className="mt-5 flex flex-wrap justify-center gap-5">
-            {pharmacies.map((pharmacy) => (
+            {pharmacies.map((pharmacy, i) => (
               <SupportedPharmacyCard
                 key={pharmacy.id}
+                idx={i}
                 {...pharmacy}
               />
             ))}
           </div>
         )}
 
-        {/* Loading */}
         {isLoadings['pharmacies'] && (
           <p className="text-dark/70 mt-5 text-center text-sm">
             {HOME_TEXT['supportedPharmacies']['loading']}
           </p>
         )}
 
-        {/* Error */}
         {!isLoadings['pharmacies'] && errors['pharmacies'] && (
           <p className="text-dark/70 mt-5 text-center text-sm">
             {HOME_TEXT['supportedPharmacies'][errors['pharmacies']]}

@@ -41,7 +41,6 @@ export default function CreateUpdateMyListModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
       <div className="relative w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl">
-        {/* Header */}
         <div className="mb-5 flex items-center justify-between border-b border-neutral-200 pb-3">
           <h2 className="text-dark text-xl font-semibold">
             {mode === 'create'
@@ -59,7 +58,6 @@ export default function CreateUpdateMyListModal({
           </button>
         </div>
 
-        {/* Error & loading */}
         <div>
           {!isLoading && error && <p className="text-red-600">{MYLISTS_TEXT['modal'][error]}</p>}
           {isLoading && <p>{MYLISTS_TEXT['modal']['loading']}</p>}

@@ -1,38 +1,15 @@
-from django.db.models import QuerySet
 from django_filters import rest_framework as filters
 
-from .models import Product
+from .models import ProductGroup
 
 
-class ProductFilterSet(filters.FilterSet):
-    LIMIT_CHOICES = (
-        (10, "10"),
-        (20, "20"),
-        (50, "50"),
-        (100, "100"),
+class ProductGroupFilter(filters.FilterSet):
+    name = filters.CharFilter(field_name="name", lookup_expr="icontains")
+    brand = filters.BaseInFilter(field_name="brand_id", lookup_expr="in")
+    categories = filters.BaseInFilter(
+        field_name="categories__id", lookup_expr="in", distinct=True
     )
 
-    limit = filters.ChoiceFilter(choices=LIMIT_CHOICES, method="filter_limit")
-    has_discount = filters.BooleanFilter(method="filter_has_discount")
-
     class Meta:
-        model = Product
-        fields = {
-            "name": ["icontains"],
-            "brand": ["in"],
-            "productdiscover__pharmacy": ["in"],
-        }
-
-    def filter_has_discount(self, queryset, name, value) -> QuerySet:
-        """
-        If value is True, return products with non-empty discount_price.
-        If value is False, return products all products.
-        """
-        if value:
-            return queryset.exclude(discount_price="")
-        return queryset
-
-    def filter_limit(self, queryset, name, value) -> QuerySet:
-        if value:
-            return queryset[: int(value)]
-        return queryset
+        model = ProductGroup
+        fields = ["name", "brand", "categories"]

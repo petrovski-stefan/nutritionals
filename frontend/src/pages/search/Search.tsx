@@ -1,53 +1,51 @@
 import { useEffect, useState, type FormEvent } from 'react';
-import { useSearchParams } from 'react-router-dom';
 
-import ProductService from '../../api/product';
-import type { BackendProduct, ProductFiltersValues } from '../../types/product';
 import FiltersSidebar from './FiltersSidebar';
 import ProductsGrid from './ProductsGrid';
 import BrandService from '../../api/brand';
-import PharmacyService from '../../api/pharmacy';
-import type { BackendBrandWithProductCount } from '../../types/brand';
-import type { BackendPharmacy } from '../../types/pharmacy';
-import SEARCH_TEXT from '../../locale/search';
+import type { BackendBrandWithGroupCount } from '../../types/brand';
+import type { BackendCategory } from '../../types/category';
+import CategoryService from '../../api/category';
+import type { BackendProductGroup, GroupFilterValue } from '../../types/productgroup';
+import * as ProductGroupService from '../../api/productgroup';
 
 const filtersDefault = {
-  pharmacyIds: [],
   brandIds: [],
-  discount: false,
+  categoryIds: [],
 };
 
 export default function Search() {
-  const [inputSearchQuery, setInputSearchQuery] = useState<string>('');
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [groups, setGroups] = useState<BackendProductGroup[]>([]);
+  const [brands, setBrands] = useState<BackendBrandWithGroupCount[]>([]);
+  const [categories, setCategories] = useState<BackendCategory[]>([]);
 
-  const [products, setProducts] = useState<Array<BackendProduct>>([]);
+  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [brands, setBrands] = useState<Array<BackendBrandWithProductCount>>([]);
-  const [pharmacies, setPharmacies] = useState<Array<BackendPharmacy>>([]);
-  const [filters, setFilters] = useState<ProductFiltersValues>(filtersDefault);
 
-  const initialQuery = searchParams.get('query');
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [filters, setFilters] = useState<GroupFilterValue>(filtersDefault);
 
-  const fetchProducts = async (blank: boolean) => {
-    const params = blank
-      ? {}
-      : {
-          ...filters,
-          searchQueryParam: initialQuery ?? inputSearchQuery,
-        };
-    const response = await ProductService.getProducts(params);
+  const fetchProducts = async () => {
+    setError(null);
+    setIsLoading(true);
+
+    const response = await ProductGroupService.getProductGroups(
+      searchQuery,
+      filters.categoryIds,
+      filters.brandIds
+    );
 
     if (response.status) {
-      setProducts(response.data);
+      setGroups(response.data);
     } else {
-      setProducts([]);
+      setGroups([]);
       setError(response.errors_type);
     }
+    setIsLoading(false);
   };
 
   const fetchProductsBrands = async (blank: boolean) => {
-    const params = blank ? '' : (initialQuery ?? inputSearchQuery);
+    const params = blank ? '' : searchQuery;
     const response = await BrandService.getBrandsWithProductCount(params);
 
     if (response.status) {
@@ -60,12 +58,12 @@ export default function Search() {
 
   useEffect(() => {
     const fetchPharmacies = async () => {
-      const response = await PharmacyService.getPharmacies();
+      const response = await CategoryService.getCategories();
 
       if (response.status) {
-        setPharmacies(response.data);
+        setCategories(response.data);
       } else {
-        setPharmacies([]);
+        setCategories([]);
         setError(response.errors_type);
       }
     };
@@ -73,38 +71,23 @@ export default function Search() {
   }, []);
 
   const fetchData = async (blank: boolean = false) => {
-    await Promise.all([fetchProducts(blank), fetchProductsBrands(blank)]);
+    await Promise.all([fetchProducts(), fetchProductsBrands(blank)]);
   };
 
   useEffect(() => {
-    if (initialQuery) {
-      setInputSearchQuery(initialQuery as string);
-      setSearchParams(undefined);
-    }
-
     fetchData();
   }, [JSON.stringify(filters)]);
 
-  const handleFilterChange = (
-    key: keyof ProductFiltersValues,
-    value: number,
-    isChecked: boolean,
-    isDiscountFilter: boolean = false
-  ) => {
-    if (isDiscountFilter) {
-      setFilters((prev) => ({ ...prev, [key]: isChecked }));
-      return;
-    }
-
+  const handleFilterChange = (key: keyof GroupFilterValue, value: number, isChecked: boolean) => {
     if (isChecked) {
-      setFilters((oldValue) => ({
-        ...oldValue,
-        [key]: [...(oldValue[key] as Array<number>), value],
+      setFilters((prev) => ({
+        ...prev,
+        [key]: [...prev[key], value],
       }));
     } else {
-      setFilters((oldValue) => ({
-        ...oldValue,
-        [key]: (oldValue[key] as Array<number>).filter((v) => v !== value),
+      setFilters((prev) => ({
+        ...prev,
+        [key]: prev[key].filter((v) => v !== value),
       }));
     }
   };
@@ -112,7 +95,7 @@ export default function Search() {
   const handleSearchFormSubmit = async (e: FormEvent) => {
     e.preventDefault();
 
-    if (inputSearchQuery.length < 2) {
+    if (searchQuery.length < 2) {
       return;
     }
 
@@ -120,28 +103,34 @@ export default function Search() {
   };
 
   const handleClearInputSearchQuery = async () => {
-    if (inputSearchQuery === '') {
+    if (searchQuery === '') {
       return;
     }
 
-    setInputSearchQuery('');
+    setSearchQuery('');
     fetchData(true);
   };
 
   return (
-    <div className="relative flex min-h-[90vh] w-full justify-around">
+    <div className="relative flex min-h-screen w-full flex-col justify-around md:flex-row">
       <FiltersSidebar
         handleSearchFormSubmit={handleSearchFormSubmit}
-        inputSearchQuery={inputSearchQuery}
-        setInputSearchQuery={setInputSearchQuery}
+        inputSearchQuery={searchQuery}
+        setInputSearchQuery={setSearchQuery}
         brands={brands}
-        pharmacies={pharmacies}
+        categories={categories}
         handleFilterValueChange={handleFilterChange}
         handleClearInputSearchQuery={handleClearInputSearchQuery}
         filters={filters}
         setFilters={setFilters}
       />
-      {error ?? <ProductsGrid products={products} />}
+      {!isLoading && !error && <ProductsGrid groups={groups} />}
+      {!isLoading && error}
+      {isLoading && (
+        <div className="ml-10 flex h-full w-[75%] flex-wrap justify-center gap-10 p-4">
+          <div className="border-t-accent h-16 w-16 animate-spin rounded-full border-4 border-gray-200"></div>
+        </div>
+      )}
     </div>
   );
 }

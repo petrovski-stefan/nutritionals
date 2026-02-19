@@ -1,5 +1,5 @@
 import type { BackendMyListWithItemsCount } from '../../types/mylist';
-import { EyeIcon, Edit2Icon, DeleteIcon } from 'lucide-react';
+import { EyeIcon, Edit2Icon, TrashIcon } from 'lucide-react';
 import MYLISTS_TEXT from '../../locale/mylists';
 import { useAuthContext } from '../../context/AuthContext';
 import Tooltip from '../../components/Tooltip';
@@ -31,38 +31,36 @@ export default function MyList({
     ? 'text-accent'
     : isEven
       ? 'text-white'
-      : 'text-gray-800';
-  const secondaryTextColor = isEven ? 'text-gray-200' : 'text-gray-500';
+      : 'text-primary';
+  const secondaryTextColor = isEven ? 'text-white/70' : 'text-primary/70';
 
   return (
     <li
-      className={`${backgroundColor} flex h-20 items-center justify-between rounded-md border-b border-gray-200 px-4`}
+      className={`${backgroundColor} flex flex-row justify-between gap-0 rounded-lg border-b border-gray-200 px-4 py-4 shadow-sm sm:w-full md:items-center md:gap-4`}
     >
-      {/* Info */}
-      <div className="flex flex-col justify-center gap-1">
-        <p className={`text-xl font-semibold ${textColor}`}>{name}</p>
-        <p className={`${secondaryTextColor}`}>
+      <div className="flex min-w-0 flex-1 flex-col justify-center">
+        <p className={`text-lg font-semibold ${textColor}`}>{name}</p>
+        <p className={`mt-1 text-sm ${secondaryTextColor}`}>
           {items_count === 0 && MYLISTS_TEXT['myLists']['noProducts']}
           {items_count === 1 && `${items_count} ${MYLISTS_TEXT['myLists']['oneProduct']}`}
           {items_count > 1 && `${items_count} ${MYLISTS_TEXT['myLists']['products']}`}
         </p>
-        <p className={`text-xs ${secondaryTextColor}`}>
+        <p className={`mt-1 text-xs italic ${secondaryTextColor}`}>
           {MYLISTS_TEXT['myLists']['lastUpdatedAt']}{' '}
           {new Date(updated_at).toLocaleDateString('en-GB')}
         </p>
       </div>
 
-      {/* Actions */}
-      <div className="flex gap-3">
+      <div className="flex flex-shrink-0 items-center gap-2 md:gap-3">
         <Tooltip
           text="Прегледај"
           placement="bottom"
         >
           <button
-            className="cursor-pointer rounded p-1 transition hover:bg-gray-100"
+            className="cursor-pointer rounded-full bg-blue-500 p-2 text-white hover:bg-blue-600"
             onClick={() => handleMyListToView(id)}
           >
-            <EyeIcon className={`hover:text-accent ${textColor}`} />
+            <EyeIcon className="h-5 w-5" />
           </button>
         </Tooltip>
 
@@ -72,9 +70,9 @@ export default function MyList({
         >
           <button
             onClick={() => handleClickMyListToEdit(id, name)}
-            className="cursor-pointer rounded p-1 transition hover:bg-gray-100"
+            className="cursor-pointer rounded-full bg-yellow-500 p-2 text-white hover:bg-yellow-600"
           >
-            <Edit2Icon className={`hover:text-secondary ${textColor}`} />
+            <Edit2Icon className="h-5 w-5" />
           </button>
         </Tooltip>
 
@@ -84,9 +82,9 @@ export default function MyList({
         >
           <button
             onClick={() => handleDeleteMyList(id, accessToken)}
-            className="cursor-pointer rounded p-1 transition hover:bg-gray-100"
+            className="cursor-pointer rounded-full bg-red-500 p-2 text-white hover:bg-red-600"
           >
-            <DeleteIcon className={`hover:text-red-700 ${textColor}`} />
+            <TrashIcon className="h-5 w-5" />
           </button>
         </Tooltip>
       </div>

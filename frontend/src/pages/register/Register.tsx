@@ -62,7 +62,7 @@ export default function Register() {
 
   return (
     <div className="mt-5 flex h-1/2 items-center justify-center">
-      <div className="w-1/4 px-2 py-4">
+      <div className="w-5/6 px-2 py-4 md:w-1/4">
         {error && (
           <div className="mb-4 rounded-lg bg-red-100 px-4 py-2 text-center text-red-700">
             {REGISTER_TEXT['errors'][error]}

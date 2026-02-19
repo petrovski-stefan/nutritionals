@@ -1,32 +1,26 @@
 import { useState, type FormEvent } from 'react';
 import { SearchIcon, XIcon } from 'lucide-react';
-import type { ProductFiltersDisplay, ProductFiltersValues } from '../../types/product';
+import type { GroupFilterDisplay, GroupFilterValue } from '../../types/productgroup';
 import CheckboxesFilter from './CheckboxesFilter';
-import type { BackendBrandWithProductCount } from '../../types/brand';
-import type { BackendPharmacy } from '../../types/pharmacy';
+import type { BackendBrandWithGroupCount } from '../../types/brand';
 import SEARCH_TEXT from '../../locale/search';
 import Tooltip from '../../components/Tooltip';
+import type { BackendCategory } from '../../types/category';
 
 type Props = {
   inputSearchQuery: string;
   setInputSearchQuery: (value: string) => void;
   handleSearchFormSubmit: (e: FormEvent) => void;
-  brands: Array<BackendBrandWithProductCount>;
-  pharmacies: Array<BackendPharmacy>;
-  handleFilterValueChange: (
-    key: keyof ProductFiltersValues,
-    value: number,
-    isChecked: boolean,
-    isDiscountFilter?: boolean
-  ) => void;
+  brands: Array<BackendBrandWithGroupCount>;
+  categories: BackendCategory[];
+  handleFilterValueChange: (key: keyof GroupFilterValue, value: number, isChecked: boolean) => void;
   handleClearInputSearchQuery: () => void;
-  filters: ProductFiltersValues;
-  setFilters: (value: ProductFiltersValues) => void;
+  filters: GroupFilterValue;
+  setFilters: (value: GroupFilterValue) => void;
 };
 
 const filterDisplayedInitialValue = {
-  discount: true,
-  pharmacies: true,
+  categories: true,
   brands: false,
 };
 
@@ -35,7 +29,7 @@ export default function FiltersSidebar({
   setInputSearchQuery,
   handleSearchFormSubmit,
   brands,
-  pharmacies,
+  categories,
   handleFilterValueChange,
   handleClearInputSearchQuery,
   filters,
@@ -43,23 +37,7 @@ export default function FiltersSidebar({
 }: Props) {
   const [isFilterDisplayed, setIsFilterDisplayed] = useState(filterDisplayedInitialValue);
 
-  const pharmacyNameFilterCheckboxes = pharmacies.map(({ id, name }) => (
-    <label
-      key={id}
-      className="text-dark/80 hover:text-primary flex cursor-pointer items-center gap-2 text-sm"
-    >
-      <input
-        type="checkbox"
-        value={id}
-        onChange={(e) => handleFilterValueChange('pharmacyIds', id, e.target.checked)}
-        checked={filters['pharmacyIds'].includes(id)}
-        className="accent-primary h-4 w-4 rounded border-neutral-300"
-      />
-      {name}
-    </label>
-  ));
-
-  const brandFilterCheckboxes = brands.map(({ id, name, products_by_brand_count }) => (
+  const brandFilterCheckboxes = brands.map(({ id, name, group_count }) => (
     <label
       key={name}
       className="text-dark/80 hover:text-primary flex cursor-pointer items-center gap-2 text-sm"
@@ -71,44 +49,41 @@ export default function FiltersSidebar({
         checked={filters['brandIds'].includes(id)}
         className="accent-primary h-4 w-4 rounded border-neutral-300"
       />
-      <span className={products_by_brand_count === 0 ? 'text-dark/40' : ''}>
-        {name} ({products_by_brand_count})
+      <span className={group_count === 0 ? 'text-dark/40' : ''}>
+        {name} ({group_count})
       </span>
     </label>
   ));
 
-  const discountCheckboxes = [`${SEARCH_TEXT['filters']['discountFilterValue']}`].map(
-    (name, id) => (
-      <label
-        key={name}
-        className="text-dark/80 hover:text-primary flex cursor-pointer items-center gap-2 text-sm"
-      >
-        <input
-          type="checkbox"
-          value={name}
-          onChange={(e) => handleFilterValueChange('discount', id, e.target.checked, true)}
-          checked={filters['discount']}
-          className="accent-primary h-4 w-4 rounded border-neutral-300"
-        />
-        {name}
-      </label>
-    )
-  );
+  const categoryFilterCheckboxes = categories.map(({ id, name }) => (
+    <label
+      key={name}
+      className="text-dark/80 hover:text-primary flex cursor-pointer items-center gap-2 text-sm"
+    >
+      <input
+        type="checkbox"
+        value={name}
+        onChange={(e) => handleFilterValueChange('categoryIds', id, e.target.checked)}
+        checked={filters['categoryIds'].includes(id)}
+        className="accent-primary h-4 w-4 rounded border-neutral-300"
+      />
+      <span>{name}</span>
+    </label>
+  ));
 
-  const handleFilterDisplayToggle = (key: keyof ProductFiltersDisplay) => {
-    setIsFilterDisplayed((oldValue) => ({ ...oldValue, [key]: !oldValue[key] }));
+  const handleFilterDisplayToggle = (key: keyof GroupFilterDisplay) => {
+    setIsFilterDisplayed((prev) => ({ ...prev, [key]: !prev[key] }));
   };
 
   const handleClearFilters = () => {
-    if (filters['brandIds'].length === 0 && filters['pharmacyIds'].length === 0) {
+    if (filters['brandIds'].length === 0 && filters['categoryIds'].length === 0) {
       return;
     }
-    setFilters({ brandIds: [], pharmacyIds: [], discount: false });
+    setFilters({ brandIds: [], categoryIds: [] });
   };
 
   return (
-    <aside className="bg-neutral sticky top-4 mt-4 ml-4 flex h-fit w-[22%] flex-col gap-6 rounded-2xl border border-neutral-300 p-5 shadow-sm">
-      {/* Search */}
+    <aside className="bg-neutral top-4 mt-4 flex h-fit w-full flex-col gap-6 rounded-2xl border border-neutral-300 p-5 shadow-sm md:sticky md:ml-4 md:w-[25%]">
       <form
         onSubmit={handleSearchFormSubmit}
         className="relative"
@@ -142,7 +117,6 @@ export default function FiltersSidebar({
         )}
       </form>
 
-      {/* Clear Filters */}
       <div className="text-center">
         <button
           onClick={handleClearFilters}
@@ -152,22 +126,15 @@ export default function FiltersSidebar({
         </button>
       </div>
 
-      {/* Filters */}
       <div className="flex flex-col gap-5">
         <CheckboxesFilter
-          filterTitle={SEARCH_TEXT['filters']['discountFilterTitle']}
-          filterType="discount"
-          checkboxes={discountCheckboxes}
+          filterTitle={SEARCH_TEXT['filters']['categoryFilterTitle']}
+          filterType="categories"
+          checkboxes={categoryFilterCheckboxes}
           handleFilterDisplayToggle={handleFilterDisplayToggle}
           isFilterDisplayed={isFilterDisplayed}
         />
-        <CheckboxesFilter
-          filterTitle={SEARCH_TEXT['filters']['pharmaciesFilterTitle']}
-          filterType="pharmacies"
-          checkboxes={pharmacyNameFilterCheckboxes}
-          handleFilterDisplayToggle={handleFilterDisplayToggle}
-          isFilterDisplayed={isFilterDisplayed}
-        />
+
         <CheckboxesFilter
           filterTitle={SEARCH_TEXT['filters']['brandsFilterTitle']}
           filterType="brands"
