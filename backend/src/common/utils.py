@@ -54,6 +54,8 @@ def transliterate_cyrillic_to_latin(text: str | None) -> str | None:
         "ц": "c",
         "ч": "ch",
         "џ": "dz",
+        "њ": "nj",
+        "Њ": "nj",
         "ш": "sh",
     }
 

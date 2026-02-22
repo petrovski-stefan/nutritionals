@@ -9,9 +9,17 @@ import ProductGroupCard from './ProductGroupCard';
 
 type Props = {
   groups: BackendProductGroup[];
+  totalPages: number;
+  currentPage: number;
+  handlePaginationClick: (back: boolean) => void;
 };
 
-export default function ProductsGrid({ groups }: Props) {
+export default function ProductsGrid({
+  groups,
+  totalPages,
+  currentPage,
+  handlePaginationClick,
+}: Props) {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [productToMyList, setProductToMyList] = useState<ProductToMyList | null>(null);
   const [myLists, setMyLists] = useState<BackendMyListWithItemsCount[]>([]);
@@ -79,6 +87,34 @@ export default function ProductsGrid({ groups }: Props) {
           handleClickAddProductToMyList={handleClickAddProductToMyList}
         />
       ))}
+
+      {groups.length > 0 && (
+        <div className="flex w-full justify-center">
+          <div className="flex w-1/2 justify-around">
+            <div>
+              <button
+                className="bg-accent cursor-pointer rounded-2xl p-2 font-bold text-white"
+                disabled={currentPage === 1}
+                onClick={() => handlePaginationClick(true)}
+              >
+                Претходна
+              </button>
+            </div>
+            <div>
+              {currentPage}/{totalPages}
+            </div>
+            <div>
+              <button
+                className="bg-primary cursor-pointer rounded-2xl p-2 font-bold text-white"
+                disabled={currentPage === totalPages}
+                onClick={() => handlePaginationClick(false)}
+              >
+                Следна
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

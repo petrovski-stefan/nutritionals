@@ -53,6 +53,7 @@ class Pharmacy(BaseModel):
 
 class Brand(BaseModel):
     name = models.CharField(max_length=100, unique=True)
+    normalized_name = models.CharField(max_length=100, blank=True, db_index=True)
 
     def __str__(self) -> str:
         return self.name
@@ -75,6 +76,7 @@ class ProductCategory(BaseModel):
 
 class Product(BaseModel):
     name = models.CharField(max_length=400)
+    normalized_name = models.CharField(max_length=400, blank=True, db_index=True)
 
     price = models.FloatField()
     discount_price = models.FloatField(blank=True, null=True)

@@ -6,6 +6,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from . import filters
+from .pagination import ProductGroupPagePagination
 from .serializers import (
     BrandListSerializer,
     CategoryListSerializer,
@@ -79,6 +80,8 @@ class ProductGroupListAPIView(NoAuthMixin, ListAPIView):
         filters.filters.DjangoFilterBackend,
     ]
     filterset_class = filters.ProductGroupFilter
+
+    pagination_class = ProductGroupPagePagination
 
     def get_queryset(self) -> QuerySet:
         return productgroup_service.list_productgroups()

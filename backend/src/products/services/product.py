@@ -1,4 +1,5 @@
 import logging
+import re
 from dataclasses import dataclass
 
 from common.utils import transliterate_cyrillic_to_latin
@@ -86,12 +87,34 @@ OUTPUT SCHEMA:
 """
 
 
-def _get_additional_product_data_from_openai(name: str) -> dict:
+def _get_additional_product_data_from_openai(
+    name: str,
+) -> tuple[str | None, str | None, list]:
     data = {"name": name}
 
-    return openai_service.get_openai_response(
+    additional_data = openai_service.get_openai_response(
         system_prompt=SUPPLEMENT_CLASSIFICATION_SYSTEM_PROMPT, input=data
     )
+
+    return _parse_additional_product_data_from_openai(
+        openai_response_dict=additional_data
+    )
+
+
+def _parse_additional_product_data_from_openai(
+    *, openai_response_dict: dict
+) -> tuple[str, str, list[str]]:
+    form_with_count = (
+        transliterate_cyrillic_to_latin(openai_response_dict.get("form_count")) or ""
+    ).lower()
+
+    dosage = (
+        transliterate_cyrillic_to_latin(openai_response_dict.get("dosage")) or ""
+    ).lower()
+
+    categories = openai_response_dict.get("categories", [])
+
+    return form_with_count, dosage, categories
 
 
 def _create_scraped_product(
@@ -103,33 +126,32 @@ def _create_scraped_product(
 ) -> Product:
     """Create a new product"""
 
+    normalized_name = get_normalized_product_name(
+        product_name=scraped_product.name, brand_name=scraped_product.brand
+    )
+
     from .brand import get_or_create_brand_by_name, infer_brand_from_product_name
 
     if scraped_product.brand is not None:
         brand = get_or_create_brand_by_name(name=scraped_product.brand)
     else:
-        brand = infer_brand_from_product_name(scraped_product.name)
+        brand = infer_brand_from_product_name(
+            product_name=scraped_product.name, normalized_product_name=normalized_name
+        )
 
-    additional_product_data = _get_additional_product_data_from_openai(
-        scraped_product.name
+    form_with_count, dosage, openai_categories = (
+        _get_additional_product_data_from_openai(scraped_product.name)
     )
-
-    form_with_count = (
-        transliterate_cyrillic_to_latin(additional_product_data.get("form_count")) or ""
-    )
-    dosage = (
-        transliterate_cyrillic_to_latin(additional_product_data.get("dosage")) or ""
-    )
-    openai_categories = additional_product_data.get("categories")
 
     categories = category_service.get_unique_categories(
         openai_categories=openai_categories, catalog_category=category_name
     )
 
-    is_reviewed = bool(categories and form_with_count and dosage)
+    is_reviewed = bool(categories and form_with_count)
 
     product = Product.objects.create(
         name=scraped_product.name,
+        normalized_name=normalized_name,
         price=scraped_product.price,
         discount_price=scraped_product.discount_price,
         pharmacy=pharmacy,
@@ -145,7 +167,9 @@ def _create_scraped_product(
         categories=categories, product=product
     )
 
-    logger.info(f"({pharmacy.name}) Created product ({product.pk}) {product.name}")
+    logger.info(
+        f"({pharmacy.name}) Created product ({product.pk}) {product.name} - {product.normalized_name}"  # noqa
+    )
 
     return product
 
@@ -177,7 +201,10 @@ def _update_scraped_product(
     if product.brand is None:
         from .brand import infer_brand_from_product_name
 
-        infered_brand = infer_brand_from_product_name(scraped_product.name)
+        infered_brand = infer_brand_from_product_name(
+            product_name=scraped_product.name,
+            normalized_product_name=product.normalized_name,
+        )
         if infered_brand is not None:
             product.brand = infered_brand
             fields_to_update.append("brand")
@@ -202,7 +229,7 @@ def _update_scraped_product(
 def create_or_update_scraped_product(
     *, pharmacy: Pharmacy, validated_data: dict, category_name: str | None
 ) -> Product:
-    """Create or update a scraped product and return it"""
+    """Create or update a scraped product, assign it to a group and return it"""
 
     last_scraped_at = timezone.now()
 
@@ -407,11 +434,18 @@ def get_smart_seached_products(*, validated_data: dict) -> QuerySet[Product]:
     return base_products_qs().filter(id__in=openai_product_ids)
 
 
-def normalize_name(*, name: str, brand_name: str | None) -> str:
+def get_normalized_product_name(*, product_name: str, brand_name: str | None) -> str:
 
-    if not brand_name or not name.startswith(brand_name):
-        return transliterate_cyrillic_to_latin(name)
+    lowercase_product_name = product_name.lower()
+    latin_product_name = transliterate_cyrillic_to_latin(lowercase_product_name)
+    brand_name_to_remove = brand_name.lower() if brand_name else ""
 
-    normalized_name = name.replace(brand_name, "", count=1).strip()
+    product_name_without_brand = latin_product_name.replace(
+        brand_name_to_remove, "", count=1
+    ).strip()
 
-    return transliterate_cyrillic_to_latin(normalized_name)
+    normalized = product_name_without_brand
+    for char in [" x ", "/", "(", ")", ","]:
+        normalized = normalized.replace(char, " ")
+
+    return re.sub(r"\s+", " ", normalized).strip()

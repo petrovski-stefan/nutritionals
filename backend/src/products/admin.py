@@ -80,6 +80,7 @@ class PharmacyAdmin(admin.ModelAdmin):
 class BrandAdmin(admin.ModelAdmin):
     list_display = [
         "name",
+        "normalized_name",
         "created_at",
         "updated_at",
     ]
@@ -98,6 +99,7 @@ class BrandAdmin(admin.ModelAdmin):
 class ProductAdmin(admin.ModelAdmin):
     list_display = [
         "name",
+        "normalized_name",
         "pharmacy__name",
         "categories_display",
         "is_reviewed",
@@ -122,9 +124,9 @@ class ProductAdmin(admin.ModelAdmin):
         "updated_at",
     ]
 
-    search_fields = ["name"]
+    search_fields = ["name", "normalized_name"]
     search_help_text = "Search by product's name"
-
+    autocomplete_fields = ["brand", "group"]
     list_filter = [
         "is_reviewed",
         "last_scraped_at",
@@ -177,3 +179,5 @@ class ProductGroupCategoryInline(admin.TabularInline):
 @admin.register(ProductGroup)
 class ProductGroupAdmin(admin.ModelAdmin):
     inlines = [ProductGroupCategoryInline]
+
+    search_fields = ["name"]

@@ -25,18 +25,28 @@ export default function Search() {
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [filters, setFilters] = useState<GroupFilterValue>(filtersDefault);
 
-  const fetchProducts = async () => {
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+
+  const pageSize = 6;
+
+  const fetchProducts = async (blank?: boolean, page?: number) => {
     setError(null);
     setIsLoading(true);
 
+    const pageForSearch = page || currentPage;
+    const queryForSearch = blank ? '' : searchQuery;
+
     const response = await ProductGroupService.getProductGroups(
-      searchQuery,
+      queryForSearch,
       filters.categoryIds,
-      filters.brandIds
+      filters.brandIds,
+      pageForSearch
     );
 
     if (response.status) {
-      setGroups(response.data);
+      setGroups(response.data.results);
+      setTotalPages(Math.ceil(response.data.count / pageSize));
     } else {
       setGroups([]);
       setError(response.errors_type);
@@ -70,13 +80,13 @@ export default function Search() {
     fetchPharmacies();
   }, []);
 
-  const fetchData = async (blank: boolean = false) => {
-    await Promise.all([fetchProducts(), fetchProductsBrands(blank)]);
+  const fetchData = async (blank: boolean = false, page?: number) => {
+    await Promise.all([fetchProducts(blank, page), fetchProductsBrands(blank)]);
   };
 
   useEffect(() => {
     fetchData();
-  }, [JSON.stringify(filters)]);
+  }, [JSON.stringify(filters), currentPage]);
 
   const handleFilterChange = (key: keyof GroupFilterValue, value: number, isChecked: boolean) => {
     if (isChecked) {
@@ -90,6 +100,8 @@ export default function Search() {
         [key]: prev[key].filter((v) => v !== value),
       }));
     }
+
+    setCurrentPage(1);
   };
 
   const handleSearchFormSubmit = async (e: FormEvent) => {
@@ -99,7 +111,8 @@ export default function Search() {
       return;
     }
 
-    fetchData();
+    setCurrentPage(1);
+    fetchData(false, 1);
   };
 
   const handleClearInputSearchQuery = async () => {
@@ -108,9 +121,24 @@ export default function Search() {
     }
 
     setSearchQuery('');
-    fetchData(true);
+    setCurrentPage(1);
+    await fetchData(true);
   };
 
+  const handleClickPagination = (back: boolean) => {
+    if (back) {
+      if (currentPage === 1) {
+        return;
+      }
+
+      setCurrentPage((prev) => prev - 1);
+    } else {
+      if (currentPage === totalPages) {
+        return;
+      }
+      setCurrentPage((prev) => prev + 1);
+    }
+  };
   return (
     <div className="relative flex min-h-screen w-full flex-col justify-around md:flex-row">
       <FiltersSidebar
@@ -124,7 +152,14 @@ export default function Search() {
         filters={filters}
         setFilters={setFilters}
       />
-      {!isLoading && !error && <ProductsGrid groups={groups} />}
+      {!isLoading && !error && (
+        <ProductsGrid
+          groups={groups}
+          totalPages={totalPages}
+          currentPage={currentPage}
+          handlePaginationClick={handleClickPagination}
+        />
+      )}
       {!isLoading && error}
       {isLoading && (
         <div className="ml-10 flex h-full w-[75%] flex-wrap justify-center gap-10 p-4">

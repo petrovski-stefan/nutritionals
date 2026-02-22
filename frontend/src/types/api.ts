@@ -10,7 +10,6 @@ type APIError = {
   attr: unknown;
 };
 
-// Export for DELETE methods
 export type APIResponseFail = {
   status: false;
   code: number;
@@ -19,4 +18,14 @@ export type APIResponseFail = {
   data: null;
 };
 
+export type APIPaginatedResponseSuccess<T> = {
+  status: true;
+  code: number;
+  data: {
+    count: number;
+    results: T;
+  };
+};
+
 export type APIResponse<T> = APIResponseSuccess<T> | APIResponseFail;
+export type APIPaginatedResponse<T> = APIPaginatedResponseSuccess<T> | APIResponseFail;
