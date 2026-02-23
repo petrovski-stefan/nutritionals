@@ -43,7 +43,7 @@ export default function SmartSearch() {
 
   const [pharmacyOptions, setPharmacyOptions] = useState<BackendPharmacy[]>([]);
   const [categoryOptions, setCategoryOptions] = useState<BackendCategory[]>([]);
-
+  console.log(error);
   useEffect(() => {
     const fetchData = async () => {
       // handleErrorsChange('productsOnDiscount', null);
@@ -63,6 +63,7 @@ export default function SmartSearch() {
       } catch (error) {
         // handleErrorsChange('pharmacies', 'unexpectedError');
         // handleErrorsChange('productsOnDiscount', 'unexpectedError');
+        console.log(error);
       } finally {
         // handleIsLoadingsChange('pharmacies', false);
         // handleIsLoadingsChange('productsOnDiscount', false);
