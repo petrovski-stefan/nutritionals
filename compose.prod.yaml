@@ -71,8 +71,7 @@ services:
       context: ./frontend
       dockerfile: Dockerfile.prod
     depends_on:
-      web:
-        condition: service_healthy
+      - web
     ports:
       - "80:80"
       - "443:443"
