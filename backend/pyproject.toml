@@ -17,12 +17,14 @@ dependencies = [
     "drf-standardized-errors==0.14.1",
     "fake-useragent==2.2.0",
     "flower==2.0.1",
+    "gunicorn==25.1.0",
     "openai==2.13.0",
     "pillow==12.0.0",
     "psycopg[binary,pool]==3.2.9",
     "pydantic==2.12.3",
     "redis==6.1.0",
     "requests==2.32.4",
+    "whitenoise==6.11.0",
 ]
 
 [dependency-groups]

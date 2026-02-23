@@ -28,8 +28,8 @@ SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(hours=40),
 }
 
-STATIC_URL = "static/"
-STATIC_ROOT = BASE_DIR.parent / "staticfiles"
+STATIC_URL = "/static/"
+STATIC_ROOT = BASE_DIR.parent / "staticfiles"  # app/staticfiles/
 
 MEDIA_URL = "/media/"
-MEDIA_ROOT = BASE_DIR.parent / "mediafiles"
+MEDIA_ROOT = BASE_DIR.parent / "mediafiles"  # app/mediafiles/
