@@ -11,6 +11,8 @@ services:
     volumes:
       - staticfiles:/staticfiles
       - mediafiles:/mediafiles
+    ports:
+      - "8000:8000"
     depends_on:
       - database
       - redis
