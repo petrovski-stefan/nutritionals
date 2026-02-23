@@ -4,11 +4,17 @@ services:
       context: backend/
       dockerfile: Dockerfile.dev
     ports:
-      - '8000:8000'
+      - "8000:8000"
     env_file:
-      - backend/.env	
+      - backend/.env
     working_dir: /app/src/
     command: sh -c "uv run manage.py migrate && uv run manage.py collectstatic --no-input && uv run manage.py runserver 0.0.0.0:8000"
+    volumes:
+      - ./backend/src:/app/src
+      - ./backend/uv.lock:/app/uv.lock
+      - ./backend/pyproject.toml:/app/pyproject.toml
+      - ./backend/mediafiles:/mediafiles
+      - uv_venv_cache:/app/.venv
 
   redis:
     image: redis:7-alpine
@@ -28,6 +34,12 @@ services:
       - redis
       - database
       - celery_worker
+    volumes:
+      - ./backend/src:/app/src
+      - ./backend/uv.lock:/app/uv.lock
+      - ./backend/pyproject.toml:/app/pyproject.toml
+      - ./backend/mediafiles:/mediafiles
+      - uv_venv_cache:/app/.venv
 
   celery_worker:
     build:
@@ -36,10 +48,16 @@ services:
     env_file:
       - backend/.env
     working_dir: /app/src/
-    command: uv run celery -A core worker -l INFO
+    command: uv run celery -A core worker -l INFO --pool=solo
     depends_on:
       - web
       - redis
+    volumes:
+      - ./backend/src:/app/src
+      - ./backend/uv.lock:/app/uv.lock
+      - ./backend/pyproject.toml:/app/pyproject.toml
+      - ./backend/mediafiles:/mediafiles
+      - uv_venv_cache:/app/.venv
 
   database:
     image: postgres:17
@@ -50,3 +68,4 @@ services:
 
 volumes:
   nutritionals_db_dev:
+  uv_venv_cache:

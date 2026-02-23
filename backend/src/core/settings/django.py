@@ -36,12 +36,16 @@ INSTALLED_APPS = [
     "rest_framework",
     "drf_standardized_errors",
     "django_celery_beat",
+    "django_filters",
 ]
 
 
 INSTALLED_APPS += [
     "common",
     "scrapers",
+    "products",
+    "users",
+    "mylists",
 ]
 
 MIDDLEWARE = [
@@ -115,7 +119,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = "en-us"
 
-TIME_ZONE = "CET"
+TIME_ZONE = "Europe/Berlin"
 
 USE_I18N = True
 
@@ -127,14 +131,9 @@ USE_TZ = True
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
+# OpenAI
 
-# Celery
-
-CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers:DatabaseScheduler"
-
-CELERY_BROKER_URL = env("CELERY_BROKER_URL")
-# CELERY_RESULT_BACKEND = env("CELERY_RESULT_BACKEND")
-
+OPENAI_API_KEY = env("OPENAI_API_KEY")
 
 # DRF
 
@@ -148,3 +147,36 @@ REST_FRAMEWORK = {
         "rest_framework_simplejwt.authentication.JWTAuthentication",
     ),
 }
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "simple": {
+            "format": "{levelname} - {asctime} - {name} - {message}",
+            "style": "{",
+            "datefmt": "%Y-%m-%d %H:%M:%S",
+        },
+    },
+    "handlers": {
+        "console": {
+            "level": "INFO",
+            "class": "logging.StreamHandler",
+            "formatter": "simple",
+        },
+    },
+    "loggers": {
+        "root": {
+            "handlers": ["console"],
+            "level": "INFO",
+            "propagate": True,
+        },
+        "API": {
+            "handlers": ["console"],
+            "level": "INFO",
+            "propagate": False,
+        },
+    },
+}
+
+from .celery import *  # noqa
