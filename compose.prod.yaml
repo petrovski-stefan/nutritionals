@@ -64,11 +64,6 @@ services:
     volumes:
       - nutritionals_db:/var/lib/postgresql/data
     restart: "always"
-    healthcheck:
-      test: ["CMD", "pg_isready", "-U", "$${POSTGRES_USER}"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
 
   nginx:
     container_name: nutritionals_nginx
