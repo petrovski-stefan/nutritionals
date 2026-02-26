@@ -40,6 +40,7 @@ class PharmacyAdmin(admin.ModelAdmin):
     ]
     fields = [
         "name",
+        "homepage",
         "catalogs_display",
         "total_pages_display",
         "created_at",
