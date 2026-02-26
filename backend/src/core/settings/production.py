@@ -6,6 +6,8 @@ DEBUG = False
 ALLOWED_HOSTS = env("DJANGO_ALLOWED_HOSTS", list)
 CORS_ALLOWED_ORIGINS = env("DJANGO_CORS_ALLOWED_ORIGINS", list)
 
+CSRF_TRUSTED_ORIGINS = env("DJANGO_CSRF_TRUSTED_ORIGINS", list)
+
 
 MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
