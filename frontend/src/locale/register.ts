@@ -1,7 +1,7 @@
 const TEXT = {
   form: {
     username: 'Корисничко име',
-    usernamePlaceholder: 'Внесете корисничко име',
+    usernamePlaceholder: 'Внесете корисничко име со мин. 5 карактери',
     password: 'Лозинка',
     passwordPlaceholder: 'Внесете лозинка со мин. 8 карактери',
     repeatPassword: 'Повторете ја лозинката',
@@ -14,9 +14,10 @@ const TEXT = {
     unexpectedError: 'Се случи неочекувана грешка. Обидете се повторно.',
     requiredFieldsEmptyError: 'Сите полиња се задолжителни.',
     passwordsDoNotMatchError: 'Лозинките не се совпаѓаат.',
-    weakPasswordError: 'Лозинката мора да содржи најмалку 8 карактери.',
+    weakPasswordError:
+      'Лозинката треба да содржи најмалку 8 карактери и најмалку еден специјален знак . , ! ? @ #',
     // backend
-    validation_error: 'Корисничкото име е зафатено. Обидете се повторно.',
+    validation_error: 'Корисничкото име не е достапно во моментот.',
   },
   hasAccount: 'Имате отворено корисничка сметка? ',
   loginLink: 'Најавете се',

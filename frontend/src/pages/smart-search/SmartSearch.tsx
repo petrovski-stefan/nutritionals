@@ -10,22 +10,24 @@ import type { BackendPharmacy } from '../../types/pharmacy';
 import type { BackendCategory } from '../../types/category';
 import PharmacyService from '../../api/pharmacy';
 import CategoryService from '../../api/category';
+import type { IsLoading, Error } from './types';
 
-type Error = {
-  search: null | 'unexpectedError' | 'noProductsFoundError';
-  categories: null | 'unexpectedError';
-  pharmacies: null | 'unexpectedError';
-};
 const defaultError: Error = {
   search: null,
+  productToMyList: null,
+  myLists: null,
+  createNewMyList: null,
   categories: null,
   pharmacies: null,
 };
 
-const defaultLoading = {
+const defaultLoading: IsLoading = {
   search: false,
   categories: false,
   pharmacies: false,
+  productToMyList: false,
+  myLists: false,
+  createNewMyList: false,
 };
 
 export default function SmartSearch() {
@@ -43,30 +45,37 @@ export default function SmartSearch() {
 
   const [pharmacyOptions, setPharmacyOptions] = useState<BackendPharmacy[]>([]);
   const [categoryOptions, setCategoryOptions] = useState<BackendCategory[]>([]);
-  console.log(error);
+
+  const handleErrorChange = <K extends keyof Error>(key: K, value: Error[K]) => {
+    setError((prev) => ({ ...prev, [key]: value }));
+  };
+
+  const handleIsLoadingChange = <K extends keyof IsLoading>(key: K, value: IsLoading[K]) => {
+    setIsLoading((prev) => ({ ...prev, [key]: value }));
+  };
+
   useEffect(() => {
     const fetchData = async () => {
-      // handleErrorsChange('productsOnDiscount', null);
-      // handleErrorsChange('pharmacies', null);
-      // handleIsLoadingsChange('pharmacies', true);
-      // handleIsLoadingsChange('productsOnDiscount', true);
-
       try {
+        handleIsLoadingChange('pharmacies', true);
+        handleIsLoadingChange('categories', true);
+
         const pharmaciesResponse = await PharmacyService.getPharmacies();
         const categoriesResponse = await CategoryService.getCategories();
 
-        if (pharmaciesResponse.status) setPharmacyOptions(pharmaciesResponse.data);
-        // else handleErrorsChange('pharmacies', 'unexpectedError');
+        if (pharmaciesResponse.status) {
+          setPharmacyOptions(pharmaciesResponse.data);
+        }
 
-        if (categoriesResponse.status) setCategoryOptions(categoriesResponse.data);
-        // else handleErrorsChange('productsOnDiscount', 'unexpectedError');
+        if (categoriesResponse.status) {
+          setCategoryOptions(categoriesResponse.data);
+        }
       } catch (error) {
-        // handleErrorsChange('pharmacies', 'unexpectedError');
-        // handleErrorsChange('productsOnDiscount', 'unexpectedError');
-        console.log(error);
+        handleErrorChange('pharmacies', 'unexpectedError');
+        handleErrorChange('categories', 'unexpectedError');
       } finally {
-        // handleIsLoadingsChange('pharmacies', false);
-        // handleIsLoadingsChange('productsOnDiscount', false);
+        handleIsLoadingChange('pharmacies', false);
+        handleIsLoadingChange('categories', false);
       }
     };
 
@@ -100,12 +109,14 @@ export default function SmartSearch() {
     }
   };
 
-  const handleModalOnClose = () => {
+  const handleResultsModalOnClose = () => {
     setIsModalOpen(false);
     setInputSearchQuery('');
     setSelectedPharmacies([]);
     setSelectedCategories([]);
     setShowFilters(false);
+    handleErrorChange('createNewMyList', null);
+    handleErrorChange('myLists', null);
   };
 
   const toggleSelection = (value: number, list: number[], setList: (arr: number[]) => void) => {
@@ -115,6 +126,9 @@ export default function SmartSearch() {
       setList([...list, value]);
     }
   };
+
+  const { categories: categoriesError, pharmacies: pharmaciesError } = error;
+  const { categories: categoriesIsLoading, pharmacies: pharmaciesIsLoading } = isLoading;
 
   return (
     <div className="bg-neutral/50 flex flex-col items-center px-4 py-12">
@@ -173,49 +187,65 @@ export default function SmartSearch() {
           </div>
 
           {showFilters && (
-            <div className="mt-3 flex flex-col gap-4 sm:flex-row">
+            <div className="mt-3 flex justify-around gap-4 sm:flex-row">
               <div className="flex flex-col">
                 <span className="mb-1 font-medium text-gray-700">Аптеки:</span>
-                <div className="flex flex-wrap gap-2">
-                  {pharmacyOptions.map((pharmacy) => (
-                    <label
-                      key={pharmacy.id}
-                      className="flex items-center gap-1"
-                    >
-                      <input
-                        type="checkbox"
-                        checked={selectedPharmacies.includes(pharmacy.id)}
-                        onChange={() =>
-                          toggleSelection(pharmacy.id, selectedPharmacies, setSelectedPharmacies)
-                        }
-                        className="accent-accent h-4 w-4 rounded border-gray-300"
-                      />
-                      <span className="text-gray-700">{pharmacy.name}</span>
-                    </label>
-                  ))}
-                </div>
+                {!pharmaciesIsLoading && !pharmaciesError && (
+                  <ul className="flex flex-col flex-wrap gap-2">
+                    {pharmacyOptions.map((pharmacy) => (
+                      <li key={pharmacy.id}>
+                        <label
+                          key={pharmacy.id}
+                          className="flex items-center gap-1"
+                        >
+                          <input
+                            type="checkbox"
+                            checked={selectedPharmacies.includes(pharmacy.id)}
+                            onChange={() =>
+                              toggleSelection(
+                                pharmacy.id,
+                                selectedPharmacies,
+                                setSelectedPharmacies
+                              )
+                            }
+                            className="accent-accent h-4 w-4 rounded border-gray-300"
+                          />
+                          <span className="text-gray-700">{pharmacy.name}</span>
+                        </label>
+                      </li>
+                    ))}
+                  </ul>
+                )}
               </div>
 
               <div className="flex flex-col">
                 <span className="mb-1 font-medium text-gray-700">Категории:</span>
-                <div className="flex flex-wrap gap-2">
-                  {categoryOptions.map((category) => (
-                    <label
-                      key={category.id}
-                      className="flex items-center gap-1"
-                    >
-                      <input
-                        type="checkbox"
-                        checked={selectedCategories.includes(category.id)}
-                        onChange={() =>
-                          toggleSelection(category.id, selectedCategories, setSelectedCategories)
-                        }
-                        className="accent-accent h-4 w-4 rounded border-gray-300"
-                      />
-                      <span className="text-gray-700">{category.name}</span>
-                    </label>
-                  ))}
-                </div>
+                {!categoriesIsLoading && !categoriesError && (
+                  <ul className="flex flex-col flex-wrap gap-2">
+                    {categoryOptions.map((category) => (
+                      <li key={category.id}>
+                        <label
+                          key={category.id}
+                          className="flex items-center gap-1"
+                        >
+                          <input
+                            type="checkbox"
+                            checked={selectedCategories.includes(category.id)}
+                            onChange={() =>
+                              toggleSelection(
+                                category.id,
+                                selectedCategories,
+                                setSelectedCategories
+                              )
+                            }
+                            className="accent-accent h-4 w-4 rounded border-gray-300"
+                          />
+                          <span className="text-gray-700">{category.name}</span>
+                        </label>
+                      </li>
+                    ))}
+                  </ul>
+                )}
               </div>
             </div>
           )}
@@ -232,9 +262,11 @@ export default function SmartSearch() {
         <SmartSearchResultsModal
           query={inputSearchQuery}
           products={productResults}
-          isLoading={isLoading['search']}
-          error={null}
-          onClose={handleModalOnClose}
+          isLoading={isLoading}
+          handleIsLoadingChange={handleIsLoadingChange}
+          error={error}
+          handleErrorChange={handleErrorChange}
+          onClose={handleResultsModalOnClose}
         />
       )}
     </div>

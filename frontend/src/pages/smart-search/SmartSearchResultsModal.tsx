@@ -9,15 +9,16 @@ import Modal from './Modal';
 import { MyListService } from '../../api/mylist';
 import { useAuthContext } from '../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
-
-type Error = 'unexpectedError' | 'noProductsFoundError' | null;
+import type { IsLoading, Error } from './types';
 
 type Props = {
   query: string;
   products: BackendProduct[];
   error: Error;
-  isLoading: boolean;
+  isLoading: IsLoading;
   onClose: () => void;
+  handleErrorChange: <K extends keyof Error>(key: K, value: Error[K]) => void;
+  handleIsLoadingChange: <K extends keyof IsLoading>(key: K, value: IsLoading[K]) => void;
 };
 
 export default function SmartSearchResultsModal({
@@ -25,7 +26,9 @@ export default function SmartSearchResultsModal({
   products,
   onClose,
   error,
+  handleErrorChange,
   isLoading,
+  handleIsLoadingChange,
 }: Props) {
   const [productToMyList, setProductToMyList] = useState<ProductToMyList | null>(null);
   const [myLists, setMyLists] = useState<BackendMyListWithItemsCount[]>([]);
@@ -35,9 +38,16 @@ export default function SmartSearchResultsModal({
 
   useEffect(() => {
     const getMyLists = async () => {
-      const response = await MyListService.getMyLists(accessToken);
-      if (response.status) {
-        setMyLists(response.data);
+      handleIsLoadingChange('myLists', true);
+      try {
+        const response = await MyListService.getMyLists(accessToken);
+        if (response.status) {
+          setMyLists(response.data);
+        }
+      } catch (error) {
+        handleErrorChange('myLists', 'unexpectedError');
+      } finally {
+        handleIsLoadingChange('myLists', false);
       }
     };
     if (isLoggedIn) getMyLists();
@@ -56,23 +66,62 @@ export default function SmartSearchResultsModal({
 
   const handleCloseAddProductToMyList = () => {
     setProductToMyList(null);
+    handleErrorChange('productToMyList', null);
+    handleErrorChange('createNewMyList', null);
   };
 
   const handleAddProductToMyList = async (productId: number, myListId: number) => {
-    const response = await MyListService.addProductToMyList(myListId, productId, accessToken, true);
+    handleErrorChange('productToMyList', null);
+    handleIsLoadingChange('productToMyList', true);
 
-    if (response.status) {
-      setProductToMyList(null);
+    try {
+      const response = await MyListService.addProductToMyList(
+        myListId,
+        productId,
+        accessToken,
+        true
+      );
+
+      if (response.status) {
+        setProductToMyList(null);
+      } else {
+        handleErrorChange('productToMyList', 'client_error');
+      }
+    } catch (error) {
+      handleErrorChange('productToMyList', 'unexpectedError');
+    } finally {
+      handleIsLoadingChange('productToMyList', false);
     }
   };
+
+  const existingMyListNames = new Set(myLists.map(({ name }) => name));
 
   const handleCreateMyList = async (name: string) => {
-    const response = await MyListService.createMyList(name, accessToken);
+    handleIsLoadingChange('createNewMyList', true);
+    handleErrorChange('productToMyList', null);
 
-    if (response.status) {
-      setMyLists((prev) => [...prev, response.data]);
+    if (existingMyListNames.has(name)) {
+      handleErrorChange('createNewMyList', 'myListNameAlreadyUsed');
+      handleIsLoadingChange('createNewMyList', false);
+
+      return;
+    }
+
+    try {
+      const response = await MyListService.createMyList(name, accessToken);
+
+      if (response.status) {
+        setMyLists((prev) => [...prev, response.data]);
+      }
+    } catch (error) {
+      handleErrorChange('myLists', 'unexpectedError');
+    } finally {
+      handleIsLoadingChange('createNewMyList', false);
     }
   };
+
+  const { search: searchError } = error;
+  const { search: searchIsLoading } = isLoading;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
@@ -91,19 +140,19 @@ export default function SmartSearchResultsModal({
           </button>
 
           <h2 className="text-dark mb-4 text-xl font-bold">
-            {!isLoading &&
-              !error &&
+            {!searchIsLoading &&
+              !searchError &&
               hasProducts &&
-              SMART_SEARCH_TEXT['modal']['productsFound'](query, productsLength)}
-            {!isLoading &&
-              !error &&
+              SMART_SEARCH_TEXT['searchResultsModal']['productsFound'](query, productsLength)}
+            {!searchIsLoading &&
+              !searchError &&
               !hasProducts &&
-              SMART_SEARCH_TEXT['modal']['noProductsFound'](query)}
+              SMART_SEARCH_TEXT['searchResultsModal']['noProductsFound'](query)}
 
-            {isLoading && <p>{SMART_SEARCH_TEXT['form']['loading']}</p>}
+            {searchIsLoading && <p>{SMART_SEARCH_TEXT['form']['loading']}</p>}
           </h2>
 
-          {!isLoading && !error && (
+          {!searchIsLoading && !searchError && (
             <div className="grid gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
               {products.map((product) => (
                 <ProductCard
@@ -115,9 +164,7 @@ export default function SmartSearchResultsModal({
             </div>
           )}
 
-          {!isLoading && error && <p>{SMART_SEARCH_TEXT['form'][error]}</p>}
-
-          {isLoading && (
+          {searchIsLoading && (
             <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30">
               <div className="border-t-accent h-16 w-16 animate-spin rounded-full border-4 border-gray-200"></div>
             </div>
@@ -127,11 +174,13 @@ export default function SmartSearchResultsModal({
 
       {productToMyList !== null && (
         <Modal
-          setIsAddModalOpen={handleCloseAddProductToMyList}
           myLists={myLists}
           productToMyList={productToMyList}
           handleCreateMyList={handleCreateMyList}
           handleAddProductToMyList={handleAddProductToMyList}
+          error={error}
+          isLoading={isLoading}
+          handleMyListsModalOnClose={handleCloseAddProductToMyList}
         />
       )}
     </div>

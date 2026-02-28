@@ -36,27 +36,31 @@ export default function Register() {
       return;
     }
 
+    if (credentials['password'].length < 8 || !/[.,!?@#]/.test(credentials['password'])) {
+      setError('weakPasswordError');
+      setIsLoading(false);
+      return;
+    }
+
     if (credentials['password'] !== credentials['confirmPassword']) {
       setError('passwordsDoNotMatchError');
       setIsLoading(false);
       return;
     }
 
-    if (credentials['password'].length < 8) {
-      setError('weakPasswordError');
-      setIsLoading(false);
-      return;
-    }
+    try {
+      const response = await UserService.register(credentials);
 
-    const response = await UserService.register(credentials);
-
-    if (response.status) {
+      if (response.status) {
+        login(response.data.username, response.data.access);
+        navigate('/');
+      } else {
+        setError(response.errors_type as Error);
+      }
+    } catch (error) {
+      setError('unexpectedError');
+    } finally {
       setIsLoading(false);
-      login(response.data.username, response.data.access);
-      navigate('/');
-    } else {
-      setIsLoading(false);
-      setError(response.errors_type as Error);
     }
   };
 

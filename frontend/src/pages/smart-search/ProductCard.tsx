@@ -41,7 +41,7 @@ export default function ProductCard({
         </Tooltip>
       </button>
 
-      <h3 className="text-primary pr-8 text-lg font-semibold break-words">{name}</h3>
+      <h3 className="pr-8 text-lg font-semibold break-words">{name}</h3>
 
       <div className="mt-4 flex items-center">
         {discount_price ? (

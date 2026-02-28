@@ -14,6 +14,19 @@ type Props = {
   handlePaginationClick: (back: boolean) => void;
 };
 
+type ProductToMyListError = null | 'client_error' | 'unexpectedError';
+type MyListError = null | 'unexpectedError';
+
+type Error = {
+  productToMyList: ProductToMyListError;
+  myListError: MyListError;
+};
+
+const defaultError: Error = {
+  productToMyList: null,
+  myListError: null,
+};
+
 export default function ProductsGrid({
   groups,
   totalPages,
@@ -23,6 +36,7 @@ export default function ProductsGrid({
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [productToMyList, setProductToMyList] = useState<ProductToMyList | null>(null);
   const [myLists, setMyLists] = useState<BackendMyListWithItemsCount[]>([]);
+  const [error, setError] = useState(defaultError);
 
   const { accessToken, isLoggedIn } = useAuthContext();
   const navigate = useNavigate();
@@ -49,14 +63,26 @@ export default function ProductsGrid({
     }
     setIsAddModalOpen(true);
     setProductToMyList({ productId, productName, pharmacyName });
+    setError((prev) => ({ ...prev, productToMyList: null }));
   };
 
   const handleAddProductToMyList = async (productId: number, myListId: number) => {
-    const response = await MyListService.addProductToMyList(myListId, productId, accessToken);
+    setError((prev) => ({ ...prev, productToMyList: null }));
 
-    if (response.status) {
-      setIsAddModalOpen(false);
-      setProductToMyList(null);
+    try {
+      const response = await MyListService.addProductToMyList(myListId, productId, accessToken);
+
+      if (response.status) {
+        setIsAddModalOpen(false);
+        setProductToMyList(null);
+      } else {
+        setError((prev) => ({
+          ...prev,
+          productToMyList: response.errors_type as ProductToMyListError,
+        }));
+      }
+    } catch (error) {
+      setError((prev) => ({ ...prev, productToMyList: 'unexpectedError' }));
     }
   };
 
@@ -77,6 +103,7 @@ export default function ProductsGrid({
           handleAddProductToMyList={handleAddProductToMyList}
           handleCreateMyList={handleCreateMyList}
           setIsAddModalOpen={setIsAddModalOpen}
+          error={error['productToMyList']}
         />
       )}
 

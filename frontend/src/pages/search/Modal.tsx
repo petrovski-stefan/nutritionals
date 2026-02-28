@@ -4,12 +4,15 @@ import SEARCH_TEXT from '../../locale/search';
 import Tooltip from '../../components/Tooltip';
 import type { BackendMyListWithItemsCount, ProductToMyList } from '../../types/mylist';
 
+type ProductToMyListError = null | 'client_error' | 'unexpectedError';
+
 type Props = {
   productToMyList: ProductToMyList;
   myLists: BackendMyListWithItemsCount[];
   handleAddProductToMyList: (productId: number, myListId: number) => void;
   handleCreateMyList: (name: string) => void;
   setIsAddModalOpen: (value: boolean) => void;
+  error: ProductToMyListError;
 };
 
 export default function Modal({
@@ -18,6 +21,7 @@ export default function Modal({
   handleAddProductToMyList,
   handleCreateMyList,
   setIsAddModalOpen,
+  error,
 }: Props) {
   const [newMyListName, setNewMyListName] = useState('');
   const [isCreatingNew, setIsCreatingNew] = useState(false);
@@ -43,6 +47,11 @@ export default function Modal({
         </div>
 
         <div className="mb-4 flex max-h-56 flex-col gap-2 overflow-y-auto">
+          {error && (
+            <p className="text-center text-red-600">
+              {SEARCH_TEXT['myListsModal']['errors'][error]}
+            </p>
+          )}
           {myLists.length > 0 ? (
             myLists.map((myList) => (
               <button

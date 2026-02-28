@@ -30,6 +30,12 @@ const TEXT = {
     create: 'Зачувај',
     cancel: 'Откажи',
     myListPlaceholder: 'Моја листа ...',
+
+    errors: {
+      client_error: 'Суплементот веќе е додаден во листата',
+      unexpectedError: 'Се случи неочекувана грешка',
+      myListNameAlreadyUsed: 'Веќе имате креирано листа со внесеното име.',
+    },
   },
 };
 
