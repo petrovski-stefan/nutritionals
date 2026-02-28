@@ -379,7 +379,9 @@ def _get_smart_search_candidates(*, keywords: list[str]) -> QuerySet[Product]:
     from the keywords per product
     """
 
-    similarity_expressions = [TrigramSimilarity("name", kw) for kw in keywords]
+    similarity_expressions = [
+        TrigramSimilarity("normalized_name", kw) for kw in keywords
+    ]
 
     return (
         base_products_qs()
@@ -424,7 +426,7 @@ def get_smart_seached_products(*, validated_data: dict) -> QuerySet[Product]:
         candidates = candidates.filter(categories__in=categories)
 
     qs_values_for_openai = list(
-        candidates.values("id", "name", "form_with_count", "dosage")[:500]
+        candidates.values("id", "name", "form_with_count", "dosage")[:200]
     )
 
     openai_product_ids = _product_ids_from_openai(
