@@ -327,6 +327,8 @@ Rules:
 - Include only supplements that exist in the catalog (do not make up new supplements).
 - If fewer than 7 relevant supplements exist, fill the rest with the most generally
 relevant ones for the health goal or symptom.
+- If the text received makes no sense to health, health goal, medicine or supplements, return
+an empty array.
 - Output must be valid JSON.
 """
 
@@ -416,6 +418,9 @@ def get_smart_seached_products(*, validated_data: dict) -> QuerySet[Product]:
     categories = validated_data.get("categories")
 
     supplement_keywords = _convert_human_query_to_keywords_with_openai(q=query)
+
+    if not supplement_keywords:
+        return Product.objects.none()
 
     candidates = _get_smart_search_candidates(keywords=supplement_keywords)
 
