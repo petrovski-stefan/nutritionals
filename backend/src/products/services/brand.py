@@ -98,13 +98,20 @@ def infer_brand_from_product_name(
 
         return brand
 
-    candidate_to_return_brand = Product.objects.filter(
-        is_reviewed=True, normalized_name=normalized_product_name, brand__isnull=False
-    ).first()
+    candidate_to_return_brand = (
+        Product.objects.select_related("brand")
+        .filter(
+            is_reviewed=True,
+            normalized_name=normalized_product_name,
+            brand__isnull=False,
+        )
+        .first()
+    )
 
     if candidate_to_return_brand:
         logger.info(
-            f"Inferred brand ({brand.pk}) {brand.name} by normalized name from {candidate_to_return_brand.name}"  # noqa
+            f"Inferred brand ({candidate_to_return_brand.brand.pk}) {candidate_to_return_brand.brand.name}"  # noqa
+            f" by normalized name from {candidate_to_return_brand.name}"
         )
         return candidate_to_return_brand.brand
 
