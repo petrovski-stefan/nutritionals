@@ -21,6 +21,13 @@ class UserRegisterSerializer(serializers.ModelSerializer):
 
         return value
 
+    def validate_username(self, value: str) -> str:
+
+        if len(value) < 5:
+            raise serializers.ValidationError("Username must have 5 or more characters")
+
+        return value
+
     def validate(self, attrs) -> dict:
         validated = super().validate(attrs)
 
