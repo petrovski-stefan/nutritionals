@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     "drf_standardized_errors",
     "django_celery_beat",
     "django_filters",
+    "django.contrib.postgres",
 ]
 
 
