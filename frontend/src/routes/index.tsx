@@ -7,6 +7,7 @@ import Register from '../pages/register/Register';
 import type { ReactElement } from 'react';
 import AuthGuard from '../components/AuthGuard';
 import MyLists from '../pages/mylists/MyLists';
+import HowToUse from '../pages/how-to-use/HowToUse';
 
 type Route = {
   linkText: string;
@@ -24,7 +25,7 @@ const routes: Route[] = [
   },
   {
     linkText: 'Спореди цени',
-    path: '/search',
+    path: '/compare',
     element: <Search />,
     showInHeaderMode: 'show',
   },
@@ -35,10 +36,17 @@ const routes: Route[] = [
     showInHeaderMode: 'show',
   },
   {
-    linkText: 'Услови за користење',
+    linkText: 'За нас',
     path: '/about',
     element: <About />,
-    showInHeaderMode: 'show',
+    showInHeaderMode: 'hide',
+  },
+
+  {
+    linkText: 'Упатство за користење',
+    path: '/how-to-use',
+    element: <HowToUse />,
+    showInHeaderMode: 'hide',
   },
   {
     linkText: 'Најави се',

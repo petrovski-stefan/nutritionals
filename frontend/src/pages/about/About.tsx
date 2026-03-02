@@ -3,7 +3,7 @@ export default function About() {
     <main className="bg-neutral min-h-screen px-4 py-12">
       <div className="mx-auto max-w-4xl rounded-2xl bg-white p-8 shadow-md">
         <header className="mb-6">
-          <h1 className="text-dark text-3xl font-bold">Правна изјава и услови за користење</h1>
+          <h1 className="text-dark text-3xl font-bold">За нас и правна изјава</h1>
         </header>
 
         <section className="mb-6">
@@ -58,7 +58,7 @@ export default function About() {
         </section>
 
         <section className="border-t border-neutral-100 pt-4">
-          <p className="text-dark/60 mt-2 text-sm">Последно ажурирање: 15.02.2025</p>
+          <p className="text-dark/60 mt-2 text-sm">Последно ажурирање: 01.03.2026</p>
         </section>
       </div>
     </main>
