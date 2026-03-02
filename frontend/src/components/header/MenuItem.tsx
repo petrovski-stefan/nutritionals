@@ -3,9 +3,10 @@ import { NavLink } from 'react-router-dom';
 type Props = {
   path: string;
   linkText: string;
+  handleLinkClick: () => void;
 };
 
-export default function MenuItem({ path, linkText }: Props) {
+export default function MenuItem({ path, linkText, handleLinkClick }: Props) {
   const activeLinkStyles = 'font-bold text-accent underline decoration-accent';
   const notActiveLinkStyles = 'text-neutral hover:underline decoration-secondary';
 
@@ -15,6 +16,7 @@ export default function MenuItem({ path, linkText }: Props) {
         key={path}
         to={path}
         className={({ isActive }) => (isActive ? activeLinkStyles : notActiveLinkStyles)}
+        onClick={handleLinkClick}
       >
         {linkText}
       </NavLink>
