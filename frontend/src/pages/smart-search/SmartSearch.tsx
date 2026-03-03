@@ -143,7 +143,7 @@ export default function SmartSearch() {
           onSubmit={handleSearchFormSubmit}
           className="relative mx-auto flex w-full max-w-3xl flex-col rounded-3xl bg-white px-4 py-2 shadow-md"
         >
-          <div className="flex w-full items-center">
+          <div className="relative flex w-full items-center">
             <input
               type="text"
               placeholder={SMART_SEARCH_TEXT['form']['placeholder']}
@@ -158,7 +158,7 @@ export default function SmartSearch() {
               <button
                 type="button"
                 onClick={() => setInputSearchQuery('')}
-                className="text-dark/50 hover:text-dark absolute top-1/2 right-20 -translate-y-1/2 cursor-pointer transition"
+                className="text-dark/50 hover:text-dark absolute right-20 cursor-pointer transition md:top-1/2 md:right-32 md:-translate-y-1/3"
               >
                 <Tooltip text="Исчисти пребарување">
                   <XIcon className="h-5 w-5" />
@@ -187,17 +187,18 @@ export default function SmartSearch() {
           </div>
 
           {showFilters && (
-            <div className="mt-3 flex justify-around gap-4 sm:flex-row">
+            <div className="mt-3 flex flex-col gap-3 sm:flex-row sm:justify-between">
               <div className="flex flex-col">
                 <span className="mb-1 font-medium text-gray-700">Аптеки:</span>
                 {!pharmaciesIsLoading && !pharmaciesError && (
-                  <ul className="flex flex-col flex-wrap gap-2">
+                  <ul className="flex flex-col flex-wrap gap-2 md:flex-row">
                     {pharmacyOptions.map((pharmacy) => (
                       <li key={pharmacy.id}>
                         <label
                           key={pharmacy.id}
                           className="flex items-center gap-1"
                         >
+                          <span className="text-gray-700">{pharmacy.name}</span>
                           <input
                             type="checkbox"
                             checked={selectedPharmacies.includes(pharmacy.id)}
@@ -210,7 +211,6 @@ export default function SmartSearch() {
                             }
                             className="accent-accent h-4 w-4 rounded border-gray-300"
                           />
-                          <span className="text-gray-700">{pharmacy.name}</span>
                         </label>
                       </li>
                     ))}
@@ -221,13 +221,14 @@ export default function SmartSearch() {
               <div className="flex flex-col">
                 <span className="mb-1 font-medium text-gray-700">Категории:</span>
                 {!categoriesIsLoading && !categoriesError && (
-                  <ul className="flex flex-col flex-wrap gap-2">
+                  <ul className="flex flex-col flex-wrap gap-2 md:flex-row md:justify-start">
                     {categoryOptions.map((category) => (
                       <li key={category.id}>
                         <label
                           key={category.id}
                           className="flex items-center gap-1"
                         >
+                          <span className="text-gray-700">{category.name}</span>
                           <input
                             type="checkbox"
                             checked={selectedCategories.includes(category.id)}
@@ -240,7 +241,6 @@ export default function SmartSearch() {
                             }
                             className="accent-accent h-4 w-4 rounded border-gray-300"
                           />
-                          <span className="text-gray-700">{category.name}</span>
                         </label>
                       </li>
                     ))}
