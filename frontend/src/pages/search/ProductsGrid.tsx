@@ -1,30 +1,22 @@
 import { useEffect, useState } from 'react';
-import Modal from './Modal';
 import { MyListService } from '../../api/mylist';
 import { useAuthContext } from '../../context/AuthContext';
 import { useLocation, useNavigate } from 'react-router-dom';
 import type { BackendMyListWithItemsCount, ProductToMyList } from '../../types/mylist';
 import type { BackendProductGroup } from '../../types/productgroup';
 import ProductGroupCard from './ProductGroupCard';
+import type { Error, IsLoading } from './types';
+import AddProductToMyListModal from '../../features/add-product-to-mylist/components/AddProductToMyListModal';
 
 type Props = {
   groups: BackendProductGroup[];
   totalPages: number;
   currentPage: number;
   handlePaginationClick: (back: boolean) => void;
-};
-
-type ProductToMyListError = null | 'client_error' | 'unexpectedError';
-type MyListError = null | 'unexpectedError';
-
-type Error = {
-  productToMyList: ProductToMyListError;
-  myListError: MyListError;
-};
-
-const defaultError: Error = {
-  productToMyList: null,
-  myListError: null,
+  error: Error;
+  isLoading: IsLoading;
+  handleErrorChange: <K extends keyof Error>(key: K, value: Error[K]) => void;
+  handleIsLoadingChange: <K extends keyof IsLoading>(key: K, value: IsLoading[K]) => void;
 };
 
 export default function ProductsGrid({
@@ -32,21 +24,36 @@ export default function ProductsGrid({
   totalPages,
   currentPage,
   handlePaginationClick,
+  error,
+  isLoading,
+  handleErrorChange,
+  handleIsLoadingChange,
 }: Props) {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [productToMyList, setProductToMyList] = useState<ProductToMyList | null>(null);
   const [myLists, setMyLists] = useState<BackendMyListWithItemsCount[]>([]);
-  const [error, setError] = useState(defaultError);
 
   const { accessToken, isLoggedIn } = useAuthContext();
+
   const navigate = useNavigate();
   const location = useLocation();
 
+  const { groups: groupsIsLoading } = isLoading;
+  const { groups: groupsError } = error;
+
   useEffect(() => {
     const getMyLists = async () => {
-      const response = await MyListService.getMyLists(accessToken);
-      if (response.status) {
-        setMyLists(response.data);
+      handleErrorChange('myLists', null);
+      handleIsLoadingChange('myLists', true);
+      try {
+        const response = await MyListService.getMyLists(accessToken);
+        if (response.status) {
+          setMyLists(response.data);
+        }
+      } catch (error) {
+        handleErrorChange('myLists', 'unexpectedError');
+      } finally {
+        handleIsLoadingChange('myLists', false);
       }
     };
     if (isLoggedIn) getMyLists();
@@ -63,11 +70,14 @@ export default function ProductsGrid({
     }
     setIsAddModalOpen(true);
     setProductToMyList({ productId, productName, pharmacyName });
-    setError((prev) => ({ ...prev, productToMyList: null }));
+    handleErrorChange('productToMyList', null);
+    handleErrorChange('myLists', null);
+    handleErrorChange('createNewMyList', null);
   };
 
   const handleAddProductToMyList = async (productId: number, myListId: number) => {
-    setError((prev) => ({ ...prev, productToMyList: null }));
+    handleErrorChange('productToMyList', null);
+    handleIsLoadingChange('productToMyList', true);
 
     try {
       const response = await MyListService.addProductToMyList(myListId, productId, accessToken);
@@ -76,46 +86,81 @@ export default function ProductsGrid({
         setIsAddModalOpen(false);
         setProductToMyList(null);
       } else {
-        setError((prev) => ({
-          ...prev,
-          productToMyList: response.errors_type as ProductToMyListError,
-        }));
+        handleErrorChange('productToMyList', 'client_error');
       }
     } catch (error) {
-      setError((prev) => ({ ...prev, productToMyList: 'unexpectedError' }));
+      handleErrorChange('productToMyList', 'unexpectedError');
+    } finally {
+      handleIsLoadingChange('productToMyList', false);
     }
   };
 
-  const handleCreateMyList = async (name: string) => {
-    const response = await MyListService.createMyList(name, accessToken);
+  const alreadyUsedMyListNamesSet = new Set(myLists.map(({ name }) => name));
 
-    if (response.status) {
-      setMyLists((prev) => [...prev, response.data]);
+  const handleCreateMyList = async (name: string) => {
+    handleIsLoadingChange('createNewMyList', true);
+    handleErrorChange('createNewMyList', null);
+
+    if (alreadyUsedMyListNamesSet.has(name)) {
+      handleErrorChange('createNewMyList', 'myListNameAlreadyUsed');
+      handleIsLoadingChange('createNewMyList', false);
+
+      return;
     }
+
+    try {
+      const response = await MyListService.createMyList(name, accessToken);
+
+      if (response.status) {
+        setMyLists((prev) => [response.data, ...prev]);
+      }
+    } catch (error) {
+      handleErrorChange('createNewMyList', 'unexpectedError');
+    } finally {
+      handleIsLoadingChange('createNewMyList', false);
+    }
+  };
+
+  const handleMyListsModalOnClose = () => {
+    setIsAddModalOpen(false);
+    handleErrorChange('createNewMyList', null);
+    handleErrorChange('myLists', null);
+    handleErrorChange('productToMyList', null);
   };
 
   return (
     <div className="flex h-full w-full flex-wrap justify-center gap-10 p-4 md:ml-10 md:w-[75%] md:justify-start">
       {isAddModalOpen && productToMyList && (
-        <Modal
+        <AddProductToMyListModal
           productToMyList={productToMyList}
           myLists={myLists}
           handleAddProductToMyList={handleAddProductToMyList}
           handleCreateMyList={handleCreateMyList}
-          setIsAddModalOpen={setIsAddModalOpen}
-          error={error['productToMyList']}
+          handleMyListsModalOnClose={handleMyListsModalOnClose}
+          error={error}
+          handleErrorChange={handleErrorChange}
+          isLoading={isLoading}
+          handleIsLoadingChange={handleIsLoadingChange}
         />
       )}
 
-      {groups.map((group) => (
-        <ProductGroupCard
-          key={group.id}
-          productGroup={group}
-          handleClickAddProductToMyList={handleClickAddProductToMyList}
-        />
-      ))}
+      {!groupsIsLoading &&
+        !groupsError &&
+        groups.map((group) => (
+          <ProductGroupCard
+            key={group.id}
+            productGroup={group}
+            handleClickAddProductToMyList={handleClickAddProductToMyList}
+          />
+        ))}
 
-      {groups.length > 0 && (
+      {groupsIsLoading && (
+        <div className="ml-10 flex h-full w-[75%] flex-wrap justify-center gap-10 p-4">
+          <div className="border-t-accent h-16 w-16 animate-spin rounded-full border-4 border-gray-200"></div>
+        </div>
+      )}
+
+      {!groupsIsLoading && !groupsError && groups.length > 0 && (
         <div className="flex w-full justify-center">
           <div className="flex w-1/2 justify-around">
             <div>

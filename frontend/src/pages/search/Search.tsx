@@ -8,19 +8,40 @@ import type { BackendCategory } from '../../types/category';
 import CategoryService from '../../api/category';
 import type { BackendProductGroup, GroupFilterValue } from '../../types/productgroup';
 import * as ProductGroupService from '../../api/productgroup';
+import type { IsLoading, Error } from './types';
 
 const filtersDefault = {
   brandIds: [],
   categoryIds: [],
 };
 
+const defaultError: Error = {
+  productToMyList: null,
+  myLists: null,
+  createNewMyList: null,
+  brands: null,
+  categories: null,
+  groups: null,
+};
+
+const defaultIsLoading: IsLoading = {
+  productToMyList: false,
+  myLists: false,
+  createNewMyList: false,
+  brands: false,
+  categories: false,
+  groups: false,
+};
+
+const pageSize = 6;
+
 export default function Search() {
   const [groups, setGroups] = useState<BackendProductGroup[]>([]);
   const [brands, setBrands] = useState<BackendBrandWithGroupCount[]>([]);
   const [categories, setCategories] = useState<BackendCategory[]>([]);
 
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState(defaultError);
+  const [isLoading, setIsLoading] = useState(defaultIsLoading);
 
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [filters, setFilters] = useState<GroupFilterValue>(filtersDefault);
@@ -28,60 +49,83 @@ export default function Search() {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
 
-  const pageSize = 6;
+  const handleErrorChange = <K extends keyof Error>(key: K, value: Error[K]) => {
+    setError((prev) => ({ ...prev, [key]: value }));
+  };
 
-  const fetchProducts = async (blank?: boolean, page?: number) => {
-    setError(null);
-    setIsLoading(true);
+  const handleIsLoadingChange = <K extends keyof IsLoading>(key: K, value: IsLoading[K]) => {
+    setIsLoading((prev) => ({ ...prev, [key]: value }));
+  };
+
+  const fetchGroups = async (blank?: boolean, page?: number) => {
+    handleErrorChange('groups', null);
+    handleIsLoadingChange('groups', true);
 
     const pageForSearch = page || currentPage;
     const queryForSearch = blank ? '' : searchQuery;
 
-    const response = await ProductGroupService.getProductGroups(
-      queryForSearch,
-      filters.categoryIds,
-      filters.brandIds,
-      pageForSearch
-    );
+    try {
+      const response = await ProductGroupService.getProductGroups(
+        queryForSearch,
+        filters.categoryIds,
+        filters.brandIds,
+        pageForSearch
+      );
 
-    if (response.status) {
-      setGroups(response.data.results);
-      setTotalPages(Math.ceil(response.data.count / pageSize));
-    } else {
-      setGroups([]);
-      setError(response.errors_type);
+      if (response.status) {
+        setGroups(response.data.results);
+        setTotalPages(Math.ceil(response.data.count / pageSize));
+      } else {
+        setGroups([]);
+      }
+    } catch (error) {
+      handleErrorChange('groups', 'unexpectedError');
+    } finally {
+      handleIsLoadingChange('groups', false);
     }
-    setIsLoading(false);
   };
 
-  const fetchProductsBrands = async (blank: boolean) => {
-    const params = blank ? '' : searchQuery;
-    const response = await BrandService.getBrandsWithProductCount(params);
+  const fetchBrands = async (blank: boolean) => {
+    handleIsLoadingChange('brands', false);
+    handleErrorChange('brands', null);
 
-    if (response.status) {
-      setBrands(response.data);
-    } else {
-      setBrands([]);
-      setError(response.errors_type);
+    const params = blank ? '' : searchQuery;
+
+    try {
+      const response = await BrandService.getBrandsWithProductCount(params);
+
+      if (response.status) {
+        setBrands(response.data);
+      }
+    } catch (error) {
+      handleErrorChange('brands', 'unexpectedError');
+    } finally {
+      handleIsLoadingChange('brands', false);
     }
   };
 
   useEffect(() => {
     const fetchPharmacies = async () => {
-      const response = await CategoryService.getCategories();
+      handleIsLoadingChange('categories', true);
+      handleErrorChange('categories', null);
 
-      if (response.status) {
-        setCategories(response.data);
-      } else {
-        setCategories([]);
-        setError(response.errors_type);
+      try {
+        const response = await CategoryService.getCategories();
+
+        if (response.status) {
+          setCategories(response.data);
+        }
+      } catch (error) {
+        handleErrorChange('categories', 'unexpectedError');
+      } finally {
+        handleIsLoadingChange('categories', false);
       }
     };
     fetchPharmacies();
   }, []);
 
   const fetchData = async (blank: boolean = false, page?: number) => {
-    await Promise.all([fetchProducts(blank, page), fetchProductsBrands(blank)]);
+    await Promise.all([fetchGroups(blank, page), fetchBrands(blank)]);
   };
 
   useEffect(() => {
@@ -139,6 +183,7 @@ export default function Search() {
       setCurrentPage((prev) => prev + 1);
     }
   };
+
   return (
     <div className="relative flex min-h-screen w-full flex-col justify-around md:flex-row">
       <FiltersSidebar
@@ -152,20 +197,17 @@ export default function Search() {
         filters={filters}
         setFilters={setFilters}
       />
-      {!isLoading && !error && (
-        <ProductsGrid
-          groups={groups}
-          totalPages={totalPages}
-          currentPage={currentPage}
-          handlePaginationClick={handleClickPagination}
-        />
-      )}
-      {!isLoading && error}
-      {isLoading && (
-        <div className="ml-10 flex h-full w-[75%] flex-wrap justify-center gap-10 p-4">
-          <div className="border-t-accent h-16 w-16 animate-spin rounded-full border-4 border-gray-200"></div>
-        </div>
-      )}
+
+      <ProductsGrid
+        groups={groups}
+        totalPages={totalPages}
+        currentPage={currentPage}
+        handlePaginationClick={handleClickPagination}
+        error={error}
+        isLoading={isLoading}
+        handleErrorChange={handleErrorChange}
+        handleIsLoadingChange={handleIsLoadingChange}
+      />
     </div>
   );
 }

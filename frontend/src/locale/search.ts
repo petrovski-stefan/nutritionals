@@ -1,21 +1,26 @@
 const TEXT = {
-  hero: {
-    h1: 'Опишете ја вашата цел, а нашата вештачка интелигенција ќе ги пронајде најдобрите суплементи за вас.',
-  },
-  form: {
-    placeholder: 'Опишете ја вашата цел ... (на пр., подобрување на сонот)',
-    noProductsFoundError: 'Не беа пронајдени суплементи со вашето пребарување.',
-    unexpectedError: 'Се случи неочекувана грешка.',
-    loading: 'Се вчитува ...',
-  },
-
   filters: {
-    searchPlaceholder: 'Пример. Vitamin C',
-    discountFilterTitle: 'Филтрирај по попуст',
-    discountFilterValue: 'Има попуст?',
-    categoryFilterTitle: 'Филтрирај по категорија',
-    brandsFilterTitle: 'Филтрирај по бренд',
+    search: {
+      placeholder: 'Пример. Vitamin C',
+    },
+    categories: {
+      filterTitle: 'Филтрирај по категорија',
+      error: {
+        unexpectedError: 'Се случи неочекувана грешка',
+      },
+    },
+    brands: {
+      filterTitle: 'Филтрирај по бренд',
+      error: {
+        unexpectedError: 'Се случи неочекувана грешка',
+      },
+    },
     clearFilters: '[Избриши ги сите филтери]',
+  },
+  groupsGrid: {
+    error: {
+      unexpectedError: 'Се случи неочекувана грешка',
+    },
   },
   productCard: {
     sale: 'На попуст',
@@ -31,10 +36,18 @@ const TEXT = {
     cancel: 'Откажи',
     myListPlaceholder: 'Моја листа ...',
 
-    errors: {
-      client_error: 'Суплементот веќе е додаден во листата',
-      unexpectedError: 'Се случи неочекувана грешка',
-      myListNameAlreadyUsed: 'Веќе имате креирано листа со внесеното име.',
+    error: {
+      myLists: {
+        unexpectedError: 'Се случи неочекувана грешка',
+      },
+      createNewMyList: {
+        myListNameAlreadyUsed: 'Веќе имате креирано листа со внесеното име.',
+        unexpectedError: 'Се случи неочекувана грешка',
+      },
+      productToMyList: {
+        client_error: 'Суплементот веќе е додаден во листата',
+        unexpectedError: 'Се случи неочекувана грешка',
+      },
     },
   },
 };

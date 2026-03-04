@@ -92,7 +92,7 @@ export default function FiltersSidebar({
           className="focus:ring-primary text-dark w-full rounded-xl border border-neutral-300 bg-white px-4 py-2 text-sm focus:ring-2 focus:outline-none"
           type="text"
           name="query"
-          placeholder={SEARCH_TEXT['filters']['searchPlaceholder']}
+          placeholder={SEARCH_TEXT['filters']['search']['placeholder']}
           value={inputSearchQuery ?? ''}
           onChange={(e) => setInputSearchQuery(e.target.value)}
         />
@@ -128,7 +128,7 @@ export default function FiltersSidebar({
 
       <div className="flex flex-col gap-5">
         <CheckboxesFilter
-          filterTitle={SEARCH_TEXT['filters']['categoryFilterTitle']}
+          filterTitle={SEARCH_TEXT['filters']['categories']['filterTitle']}
           filterType="categories"
           checkboxes={categoryFilterCheckboxes}
           handleFilterDisplayToggle={handleFilterDisplayToggle}
@@ -136,7 +136,7 @@ export default function FiltersSidebar({
         />
 
         <CheckboxesFilter
-          filterTitle={SEARCH_TEXT['filters']['brandsFilterTitle']}
+          filterTitle={SEARCH_TEXT['filters']['brands']['filterTitle']}
           filterType="brands"
           checkboxes={brandFilterCheckboxes}
           handleFilterDisplayToggle={handleFilterDisplayToggle}

@@ -5,11 +5,11 @@ import SMART_SEARCH_TEXT from '../../locale/smart-search';
 import Tooltip from '../../components/Tooltip';
 import { useEffect, useState } from 'react';
 import type { BackendMyListWithItemsCount, ProductToMyList } from '../../types/mylist';
-import Modal from './Modal';
 import { MyListService } from '../../api/mylist';
 import { useAuthContext } from '../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import type { IsLoading, Error } from './types';
+import AddProductToMyListModal from '../../features/add-product-to-mylist/components/AddProductToMyListModal';
 
 type Props = {
   query: string;
@@ -173,7 +173,7 @@ export default function SmartSearchResultsModal({
       )}
 
       {productToMyList !== null && (
-        <Modal
+        <AddProductToMyListModal
           myLists={myLists}
           productToMyList={productToMyList}
           handleCreateMyList={handleCreateMyList}
@@ -181,6 +181,8 @@ export default function SmartSearchResultsModal({
           error={error}
           isLoading={isLoading}
           handleMyListsModalOnClose={handleCloseAddProductToMyList}
+          handleErrorChange={handleErrorChange}
+          handleIsLoadingChange={handleIsLoadingChange}
         />
       )}
     </div>
