@@ -7,7 +7,7 @@ import { useEffect, useState } from 'react';
 import type { BackendMyListWithItemsCount, ProductToMyList } from '../../types/mylist';
 import { MyListService } from '../../api/mylist';
 import { useAuthContext } from '../../context/AuthContext';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import type { IsLoading, Error } from './types';
 import AddProductToMyListModal from '../../features/add-product-to-mylist/components/AddProductToMyListModal';
 
@@ -34,7 +34,9 @@ export default function SmartSearchResultsModal({
   const [myLists, setMyLists] = useState<BackendMyListWithItemsCount[]>([]);
 
   const { accessToken, isLoggedIn } = useAuthContext();
+
   const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     const getMyLists = async () => {
