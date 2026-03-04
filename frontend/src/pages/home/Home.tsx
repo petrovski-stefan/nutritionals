@@ -6,7 +6,7 @@ import SupportedPharmacyCard from './SupportedPharmacyCard';
 import type { BackendDiscountedProduct, BackendProduct } from '../../types/product';
 import SearchDropdown from './SearchDropdown';
 import ProductService from '../../api/product';
-import { SearchIcon, XIcon } from 'lucide-react';
+import { XIcon } from 'lucide-react';
 import PharmacyService from '../../api/pharmacy';
 import type { BackendPharmacy } from '../../types/pharmacy';
 import HOME_TEXT from '../../locale/home';
@@ -137,21 +137,13 @@ export default function Home() {
             <button
               type="button"
               onClick={() => setSearchQuery('')}
-              className="text-dark/50 hover:text-dark absolute top-1/2 right-20 -translate-y-1/2 cursor-pointer"
+              className="text-dark/50 hover:text-dark absolute top-1/2 right-5 -translate-y-1/2 cursor-pointer"
             >
               <Tooltip text="Исчисти пребарување">
                 <XIcon className="h-6 w-6" />
               </Tooltip>
             </button>
           )}
-          <button
-            type="submit"
-            className="bg-accent hover:bg-accent/90 ml-4 flex h-10 w-10 cursor-pointer items-center justify-center rounded-full text-white transition"
-          >
-            <Tooltip text="Пребарувај">
-              <SearchIcon className="h-5 w-5" />
-            </Tooltip>
-          </button>
 
           {isSearchDropdownOpen && (
             <SearchDropdown

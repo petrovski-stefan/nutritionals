@@ -7,9 +7,7 @@ import type { BackendProduct } from '../../types/product';
 import SMART_SEARCH_TEXT from '../../locale/smart-search';
 import Tooltip from '../../components/Tooltip';
 import type { BackendPharmacy } from '../../types/pharmacy';
-import type { BackendCategory } from '../../types/category';
 import PharmacyService from '../../api/pharmacy';
-import CategoryService from '../../api/category';
 import type { IsLoading, Error } from './types';
 
 const defaultError: Error = {
@@ -17,13 +15,11 @@ const defaultError: Error = {
   productToMyList: null,
   myLists: null,
   createNewMyList: null,
-  categories: null,
   pharmacies: null,
 };
 
 const defaultLoading: IsLoading = {
   search: false,
-  categories: false,
   pharmacies: false,
   productToMyList: false,
   myLists: false,
@@ -44,7 +40,6 @@ export default function SmartSearch() {
   const [selectedCategories, setSelectedCategories] = useState<number[]>([]);
 
   const [pharmacyOptions, setPharmacyOptions] = useState<BackendPharmacy[]>([]);
-  const [categoryOptions, setCategoryOptions] = useState<BackendCategory[]>([]);
 
   const handleErrorChange = <K extends keyof Error>(key: K, value: Error[K]) => {
     setError((prev) => ({ ...prev, [key]: value }));
@@ -58,24 +53,16 @@ export default function SmartSearch() {
     const fetchData = async () => {
       try {
         handleIsLoadingChange('pharmacies', true);
-        handleIsLoadingChange('categories', true);
 
         const pharmaciesResponse = await PharmacyService.getPharmacies();
-        const categoriesResponse = await CategoryService.getCategories();
 
         if (pharmaciesResponse.status) {
           setPharmacyOptions(pharmaciesResponse.data);
         }
-
-        if (categoriesResponse.status) {
-          setCategoryOptions(categoriesResponse.data);
-        }
       } catch (error) {
         handleErrorChange('pharmacies', 'unexpectedError');
-        handleErrorChange('categories', 'unexpectedError');
       } finally {
         handleIsLoadingChange('pharmacies', false);
-        handleIsLoadingChange('categories', false);
       }
     };
 
@@ -127,8 +114,8 @@ export default function SmartSearch() {
     }
   };
 
-  const { categories: categoriesError, pharmacies: pharmaciesError } = error;
-  const { categories: categoriesIsLoading, pharmacies: pharmaciesIsLoading } = isLoading;
+  const { pharmacies: pharmaciesError } = error;
+  const { pharmacies: pharmaciesIsLoading } = isLoading;
 
   return (
     <div className="bg-neutral/50 flex flex-col items-center px-4 py-12">
@@ -187,13 +174,16 @@ export default function SmartSearch() {
           </div>
 
           {showFilters && (
-            <div className="mt-3 flex flex-col gap-3 sm:flex-row sm:justify-between">
-              <div className="flex flex-col">
+            <div className="mt-3 flex w-full flex-col items-center gap-3 sm:flex-row sm:justify-between">
+              <div className="flex w-full flex-col items-center">
                 <span className="mb-1 font-medium text-gray-700">Аптеки:</span>
                 {!pharmaciesIsLoading && !pharmaciesError && (
                   <ul className="flex flex-col flex-wrap gap-2 md:flex-row">
                     {pharmacyOptions.map((pharmacy) => (
-                      <li key={pharmacy.id}>
+                      <li
+                        key={pharmacy.id}
+                        className="flex justify-center"
+                      >
                         <label
                           key={pharmacy.id}
                           className="flex items-center gap-1"
@@ -207,36 +197,6 @@ export default function SmartSearch() {
                                 pharmacy.id,
                                 selectedPharmacies,
                                 setSelectedPharmacies
-                              )
-                            }
-                            className="accent-accent h-4 w-4 rounded border-gray-300"
-                          />
-                        </label>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </div>
-
-              <div className="flex flex-col">
-                <span className="mb-1 font-medium text-gray-700">Категории:</span>
-                {!categoriesIsLoading && !categoriesError && (
-                  <ul className="flex flex-col flex-wrap gap-2 md:flex-row md:justify-start">
-                    {categoryOptions.map((category) => (
-                      <li key={category.id}>
-                        <label
-                          key={category.id}
-                          className="flex items-center gap-1"
-                        >
-                          <span className="text-gray-700">{category.name}</span>
-                          <input
-                            type="checkbox"
-                            checked={selectedCategories.includes(category.id)}
-                            onChange={() =>
-                              toggleSelection(
-                                category.id,
-                                selectedCategories,
-                                setSelectedCategories
                               )
                             }
                             className="accent-accent h-4 w-4 rounded border-gray-300"

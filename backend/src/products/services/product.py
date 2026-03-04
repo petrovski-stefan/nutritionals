@@ -4,7 +4,7 @@ from dataclasses import dataclass
 
 from common.utils import transliterate_cyrillic_to_latin
 from django.contrib.postgres.search import TrigramSimilarity
-from django.db.models import F, QuerySet
+from django.db.models import F, Q, QuerySet
 from django.db.models.functions import Greatest, Round
 from django.utils import timezone
 
@@ -289,8 +289,10 @@ def search_products(*, q: str) -> QuerySet[Product]:
 
     base_qs = base_products_qs()
 
-    if q_len < 3:
-        return base_qs.filter(name__icontains=q)[:20]
+    if q_len < 6:
+        return base_qs.filter(Q(name__icontains=q) | Q(normalized_name__icontains=q))[
+            :20
+        ]
 
     return (
         base_qs.annotate(similarity=TrigramSimilarity("name", q))
@@ -415,7 +417,6 @@ def get_smart_seached_products(*, validated_data: dict) -> QuerySet[Product]:
 
     query = validated_data.get("query")
     pharmacies = validated_data.get("pharmacies")
-    categories = validated_data.get("categories")
 
     supplement_keywords = _convert_human_query_to_keywords_with_openai(q=query)
 
@@ -426,9 +427,6 @@ def get_smart_seached_products(*, validated_data: dict) -> QuerySet[Product]:
 
     if pharmacies:
         candidates = candidates.filter(pharmacy__in=pharmacies)
-
-    if categories:
-        candidates = candidates.filter(categories__in=categories)
 
     qs_values_for_openai = list(
         candidates.values("id", "name", "form_with_count", "dosage")[:200]
