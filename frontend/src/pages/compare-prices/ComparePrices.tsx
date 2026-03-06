@@ -35,7 +35,7 @@ const defaultIsLoading: IsLoading = {
 
 const pageSize = 6;
 
-export default function Search() {
+export default function ComparePrices() {
   const [groups, setGroups] = useState<BackendProductGroup[]>([]);
   const [brands, setBrands] = useState<BackendBrandWithGroupCount[]>([]);
   const [categories, setCategories] = useState<BackendCategory[]>([]);

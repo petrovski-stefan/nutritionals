@@ -1,5 +1,5 @@
 import Home from '../pages/home/Home';
-import Search from '../pages/search/Search';
+import ComparePrices from '../pages/compare-prices/ComparePrices';
 import SmartSearch from '../pages/smart-search/SmartSearch';
 import About from '../pages/about/About';
 import Login from '../pages/login/Login';
@@ -26,7 +26,7 @@ const routes: Route[] = [
   {
     linkText: 'Спореди цени',
     path: '/compare',
-    element: <Search />,
+    element: <ComparePrices />,
     showInHeaderMode: 'show',
   },
   {
