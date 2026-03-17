@@ -412,7 +412,7 @@ def _product_ids_from_openai(*, query: str, candidates: list[dict]) -> list[int]
 
 def get_smart_seached_products(*, validated_data: dict) -> QuerySet[Product]:
     """Return smart searched product queryset based on human query and optional filtering
-    by categories and pharmacies
+    by pharmacies
     """
 
     query = validated_data.get("query")
