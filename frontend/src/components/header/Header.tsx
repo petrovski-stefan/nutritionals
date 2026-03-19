@@ -3,13 +3,13 @@ import { Link } from 'react-router-dom';
 import routes from '../../routes';
 import MenuItem from './MenuItem';
 import { useAuthContext } from '../../context/AuthContext';
-import { MenuIcon, XIcon } from 'lucide-react';
+import { LogOutIcon, MenuIcon, XIcon } from 'lucide-react';
 import USER_CARD_TEXT from '../../locale/user-card';
+import Tooltip from '../Tooltip';
 
 export default function Header() {
   const { username, isLoggedIn, logout } = useAuthContext();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [showLogoutButton, setShowLogoutButton] = useState(false);
 
   const showMenuLinkCondition = (
     isLoggedIn: boolean,
@@ -48,38 +48,33 @@ export default function Header() {
 
           <div className="flex-1" />
 
-          <div className="flex shrink-0 items-center gap-3">
+          <div className="ml-10 flex items-center justify-around gap-3">
             {isLoggedIn && (
-              <div className="relative ml-5">
-                <button
-                  onClick={() => setShowLogoutButton((prev) => !prev)}
-                  className="bg-accent hover:bg-accent/90 flex max-w-[160px] items-center rounded-lg px-3 py-2 text-sm font-medium text-white transition-colors sm:max-w-none sm:text-base"
-                >
+              <>
+                <p className="bg-accent hover:bg-accent/90 flex max-w-[160px] items-center rounded-lg px-3 py-2 text-sm font-medium text-white transition-colors sm:max-w-none sm:text-base">
                   <span className="mr-1 hidden sm:inline">{USER_CARD_TEXT['welcome']}</span>
-
                   <span className="truncate">{username}</span>
-                </button>
+                </p>
 
-                {showLogoutButton && (
-                  <div className="absolute right-0 z-50 mt-2 w-36 rounded-lg border bg-white shadow-lg">
-                    <button
-                      className="text-dark hover:bg-accent/10 w-full rounded-lg px-4 py-2 text-sm transition-colors"
-                      onClick={() => {
-                        logout();
-                        setShowLogoutButton(false);
-                      }}
-                    >
-                      {USER_CARD_TEXT['logout']}
-                    </button>
-                  </div>
-                )}
-              </div>
+                <button
+                  className="hover:text-accent cursor-pointer align-middle text-2xl"
+                  onClick={() => {
+                    logout();
+                  }}
+                >
+                  <Tooltip
+                    text="Одјави се"
+                    placement="bottom"
+                  >
+                    <LogOutIcon size={24} />
+                  </Tooltip>
+                </button>
+              </>
             )}
 
             <button
               className="text-accent text-2xl md:hidden"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              aria-label="Toggle menu"
             >
               {mobileMenuOpen ? <XIcon size={24} /> : <MenuIcon size={24} />}
             </button>
