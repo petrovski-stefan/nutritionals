@@ -1,5 +1,7 @@
-import { ExternalLink } from 'lucide-react';
+import { AlertTriangleIcon, ExternalLink } from 'lucide-react';
 import { formatPrice } from '../../utils/prices';
+import Tooltip from '../../components/Tooltip';
+import { checkIsPossiblyUnavailible } from '../../utils/availability';
 
 type Props = {
   name: string;
@@ -9,7 +11,7 @@ type Props = {
   discount_price: number;
   discount_percent: number;
   pharmacy_name: string;
-  last_scraped_at: string | null;
+  last_scraped_at: string;
 };
 
 export default function BestDealsProductCard({
@@ -23,12 +25,13 @@ export default function BestDealsProductCard({
   last_scraped_at,
 }: Props) {
   const hasBrand = brand_name !== null;
-  const lastScrapedAt = last_scraped_at
-    ? new Date(last_scraped_at).toLocaleDateString('en-GB')
-    : '/';
+
+  const lastScrapedAtDate = new Date(last_scraped_at);
+  const isPossiblyUnavailable = checkIsPossiblyUnavailible(lastScrapedAtDate);
+  const lastScrapedAt = new Date(last_scraped_at).toLocaleDateString('en-GB');
 
   return (
-    <div className="flex w-[190px] flex-col items-center rounded-3xl border border-gray-200 bg-white p-4 shadow-md transition-transform hover:scale-105 hover:shadow-xl">
+    <div className="relative flex w-[190px] flex-col items-center rounded-3xl border border-gray-200 bg-white p-4 shadow-md transition-transform hover:scale-105 hover:shadow-xl">
       <div className="mb-2 flex w-full justify-center">
         <span className="bg-accent rounded-full px-3 py-1 text-sm font-bold text-white shadow-sm">
           -{discount_percent}%
@@ -71,6 +74,17 @@ export default function BestDealsProductCard({
       <div className="flex w-full justify-center">
         <p className="text-center text-xs text-gray-400">Ажурирано на: {lastScrapedAt}</p>
       </div>
+
+      {isPossiblyUnavailable && (
+        <span className="font-boldshadow-sm absolute top-4 right-2 rounded-full px-3 py-1 text-sm text-red-500">
+          <Tooltip
+            text="Достапноста е можеби застарена"
+            placement="bottom"
+          >
+            <AlertTriangleIcon size={20} />
+          </Tooltip>
+        </span>
+      )}
     </div>
   );
 }

@@ -1,5 +1,6 @@
 import { ExternalLinkIcon } from 'lucide-react';
 import { formatPrice } from '../../utils/prices';
+import { checkIsPossiblyUnavailible } from '../../utils/availability';
 
 type Props = {
   name: string;
@@ -32,6 +33,10 @@ export default function DropdownProductCard({
     ? 'text-xl font-semibold ml-2 text-accent'
     : 'hidden';
 
+  const lastScrapedAtDate = new Date(last_scraped_at);
+  const isPossiblyUnavailable = checkIsPossiblyUnavailible(lastScrapedAtDate);
+  const lastScrapedAt = new Date(last_scraped_at).toLocaleDateString('en-GB');
+
   return (
     <>
       {/* Big screen */}
@@ -54,17 +59,22 @@ export default function DropdownProductCard({
 
         <div className="relative flex flex-col items-center gap-1">
           {discount_percent && (
-            <span className="bg-accent absolute top-5 left-30 -translate-y-1/2 rounded-full px-2 py-1 text-xs font-bold text-white shadow-sm">
+            <span className="bg-accent absolute top-5 left-28 -translate-y-1/2 rounded-full px-2 py-1 text-xs font-bold text-white shadow-sm">
               -{discount_percent}%
             </span>
           )}
+
           <span className={originalPriceStyles}>{formatPrice(price)}</span>
           <span className={discountPriceStyles}>{formatPrice(discount_price)}</span>
         </div>
 
-        <div className="text-right text-sm text-gray-500">
-          Ажурирано на: {new Date(last_scraped_at).toLocaleDateString('en-GB')}
-        </div>
+        <p
+          className={`text-right text-sm ${
+            isPossiblyUnavailable ? 'text-red-500' : 'text-gray-500'
+          }`}
+        >
+          <span>Ажурирано на {lastScrapedAt}</span>
+        </p>
       </div>
 
       {/* Mobile */}
@@ -81,9 +91,7 @@ export default function DropdownProductCard({
             <ExternalLinkIcon className="h-4 w-4" />
           </a>
 
-          <p className="text-sm text-gray-500">
-            Ажурирано на: {new Date(last_scraped_at).toLocaleDateString('en-GB')}
-          </p>
+          <p className="text-sm text-gray-500">Ажурирано на {lastScrapedAt}</p>
         </div>
 
         <div className="flex h-full w-1/3 flex-col justify-between">

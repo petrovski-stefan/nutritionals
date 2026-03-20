@@ -3,6 +3,7 @@ import type { BackendMyListItem } from '../../types/mylist';
 import MYLISTS_TEXT from '../../locale/mylists';
 import Tooltip from '../../components/Tooltip';
 import { formatPrice } from '../../utils/prices';
+import { checkIsPossiblyUnavailible } from '../../utils/availability';
 
 type Props = BackendMyListItem & {
   arrayIndex: number;
@@ -28,6 +29,10 @@ export default function MyListItem({
   const textColor = isEven ? 'text-white' : 'text-primary';
   const secondaryTextColor = isEven ? 'text-white/70' : 'text-primary/70';
   const scrapedTextColor = isEven ? 'text-amber-300' : 'text-amber-600';
+
+  const lastScrapedAtDate = new Date(product_last_scraped_at);
+  const isPossiblyUnavailable = checkIsPossiblyUnavailible(lastScrapedAtDate);
+  const lastScrapedAt = new Date(product_last_scraped_at).toLocaleDateString('en-GB');
 
   return (
     <li
@@ -127,15 +132,17 @@ export default function MyListItem({
           </Tooltip>
         </div>
 
-        <p className={`${scrapedTextColor} mt-2 text-right text-xs italic`}>
-          {MYLISTS_TEXT.products.productPriceUpdatedAt}{' '}
-          {new Date(product_last_scraped_at).toLocaleDateString('en-GB')}
+        <p
+          className={`${isPossiblyUnavailable ? 'text-red-800' : scrapedTextColor} mt-2 text-right text-xs italic`}
+        >
+          {MYLISTS_TEXT.products.productPriceUpdatedAt} {lastScrapedAt}
         </p>
       </div>
 
-      <p className={`${scrapedTextColor} text-left text-xs italic md:hidden`}>
-        {MYLISTS_TEXT.products.productPriceUpdatedAt}{' '}
-        {new Date(product_last_scraped_at).toLocaleDateString('en-GB')}
+      <p
+        className={`${isPossiblyUnavailable ? 'text-red-800' : scrapedTextColor} text-left text-xs italic md:hidden`}
+      >
+        {MYLISTS_TEXT.products.productPriceUpdatedAt} {lastScrapedAt}
       </p>
     </li>
   );

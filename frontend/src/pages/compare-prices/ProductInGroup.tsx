@@ -3,6 +3,7 @@ import SEARCH_TEXT from '../../locale/search';
 import Tooltip from '../../components/Tooltip';
 import type { BackendProduct } from '../../types/product';
 import { formatPrice } from '../../utils/prices';
+import { checkIsPossiblyUnavailible } from '../../utils/availability';
 
 type Props = BackendProduct & {
   handleClickAddProductToMyList: (
@@ -23,6 +24,10 @@ export default function ProductInGroup({
   url,
   handleClickAddProductToMyList,
 }: Props) {
+  const lastScrapedAtDate = new Date(last_scraped_at);
+  const isPossiblyUnavailable = checkIsPossiblyUnavailible(lastScrapedAtDate);
+  const lastScrapedAt = new Date(last_scraped_at).toLocaleDateString('en-GB');
+
   return (
     <div className="relative flex items-center justify-between border-b border-neutral-200 py-3 transition-colors hover:bg-neutral-50">
       {discount_percent && (
@@ -39,8 +44,8 @@ export default function ProductInGroup({
         >
           {pharmacy_name}
         </a>
-        <p className="text-xs text-gray-500">
-          {`${SEARCH_TEXT['productCard']['updatedAt']} ${new Date(last_scraped_at).toLocaleDateString('en-GB')}`}
+        <p className={`text-sm ${isPossiblyUnavailable ? 'text-red-500' : 'text-gray-500'}`}>
+          {`${SEARCH_TEXT['productCard']['updatedAt']} ${lastScrapedAt}`}
         </p>
       </div>
 

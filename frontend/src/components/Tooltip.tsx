@@ -25,7 +25,7 @@ export default function Tooltip({ children, text, placement = 'top' }: Props) {
 
       {visible && (
         <span
-          className={`absolute rounded bg-black px-2 py-1 text-xs text-white shadow ${positionClasses[placement]}`}
+          className={`absolute rounded bg-black px-2 py-1 text-center text-xs text-white shadow ${positionClasses[placement]}`}
         >
           {text}
           <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent"></div>

@@ -7,12 +7,12 @@ export default function Footer() {
   return (
     <footer className="bg-dark text-neutral flex h-40 flex-col items-center justify-around p-3 text-sm md:h-16 md:flex-row">
       <p>
-        <Link
-          to={'/about'}
+        <a
           className="hover:text-accent hover:underline"
+          href={`mailto:${email}`}
         >
-          Контакт: <a href={`mailto:${email}`}>{email}</a>
-        </Link>
+          Контакт: {email}
+        </a>
       </p>
 
       <p>
