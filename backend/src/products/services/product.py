@@ -53,7 +53,7 @@ CATEGORIES (fixed, do not invent):
 RULES:
 - For each product, output a maximum of 3 categories.
 - Order categories by descending relevance (most precise first).
-- Assign each category a precision score between 0 and 1.
+- Assign each category a confidence score between 0 and 1.
 - Do not include irrelevant categories.
 - Do not force 3 categories if fewer apply.
 - Prefer ingredient-based categorization over marketing claims.
@@ -76,7 +76,7 @@ OUTPUT SCHEMA:
 "categories": [
     {
     "name": "<category_name>",
-    "precision": <0-1>
+    "confidence": <0-1>
     }
 ],
 "status": <true|false>,

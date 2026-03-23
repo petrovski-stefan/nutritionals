@@ -7,7 +7,7 @@ from ..models import Category
 logger = logging.getLogger(__name__)
 
 
-OPENAI_CATEGORY_PRECISION = 0.7
+OPENAI_CATEGORY_CONFIDENCE = 0.8
 
 
 def get_category_by_name(*, name: str | None) -> Category | None:
@@ -29,38 +29,38 @@ def get_category_by_name(*, name: str | None) -> Category | None:
 
 
 def _check_openai_category_structure(category: dict) -> bool:
-    """Return True if name exists as string, and precision as number [0,1], in the category"""
+    """Return True if name exists as string, and confidence as number [0,1], in the category"""
 
     if "name" not in category:
         return False
 
-    if "precision" not in category:
+    if "confidence" not in category:
         return False
 
     if not isinstance(category["name"], str):
         return False
 
-    if not isinstance(category["precision"], (int, float)):
+    if not isinstance(category["confidence"], (int, float)):
         return False
 
-    if category["precision"] < 0 or category["precision"] > 1:
+    if category["confidence"] < 0 or category["confidence"] > 1:
         return False
 
     return True
 
 
 def _validate_openai_categories(*, categories: list[dict]) -> list[dict]:
-    """Return only categories which fit the format {name:str, precision:float}"""
+    """Return only categories which fit the format {name:str, confidence:float}"""
 
     return [c for c in categories if _check_openai_category_structure(category=c)]
 
 
-def _filter_high_precision_openai_categories(*, categories: list[dict]) -> list[dict]:
+def _filter_high_confidence_openai_categories(*, categories: list[dict]) -> list[dict]:
     """
-    Filter category dict from OpenAI if have precision higher than OPENAI_CATEGORY_PRECISION
+    Filter category dict from OpenAI if have confidence higher than OPENAI_CATEGORY_CONFIDENCE
     """
 
-    return [c for c in categories if c["precision"] > OPENAI_CATEGORY_PRECISION]
+    return [c for c in categories if c["confidence"] > OPENAI_CATEGORY_CONFIDENCE]
 
 
 def _normalize_openai_categories(*, categories: list[str]) -> list[str]:
@@ -77,8 +77,8 @@ def _get_categories_names(*, categories: list[dict]) -> list[str]:
 
 def _clean_categories(*, categories: list[dict]) -> list[str]:
     valid = _validate_openai_categories(categories=categories)
-    high_precision = _filter_high_precision_openai_categories(categories=valid)
-    categories_names = _get_categories_names(categories=high_precision)
+    high_confidence = _filter_high_confidence_openai_categories(categories=valid)
+    categories_names = _get_categories_names(categories=high_confidence)
     normalized = _normalize_openai_categories(categories=categories_names)
 
     return normalized
