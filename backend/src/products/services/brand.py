@@ -116,3 +116,18 @@ def infer_brand_from_product_name(
         return candidate_to_return_brand.brand
 
     return None
+
+
+def with_counts(*, queryset: QuerySet[Brand]) -> QuerySet[Brand]:
+    """Enrich the brand queryset with counts of products and groups associated to that brand"""
+
+    return queryset.annotate(
+        total_product_count=Count("product", distinct=True),
+        reviewed_product_count=Count(
+            "product", filter=Q(product__is_reviewed=True), distinct=True
+        ),
+        total_group_count=Count("productgroup", distinct=True),
+        reviewed_group_count=Count(
+            "productgroup", filter=Q(productgroup__is_reviewed=True), distinct=True
+        ),
+    )

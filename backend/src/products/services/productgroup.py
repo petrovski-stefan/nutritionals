@@ -85,3 +85,13 @@ def assign_product_to_group(product: Product) -> None:  # noqa
     productgroupcategory_service.assign_unique_categories_to_group(
         category_ids=product_category_ids, group=best_group
     )
+
+
+def filter_by_category_count(
+    *, queryset: QuerySet[ProductGroup], category_count: int
+) -> QuerySet[ProductGroup]:
+    """Filter by exact number of annotated _category_count"""
+
+    return queryset.annotate(_category_count=Count("categories", distinct=True)).filter(
+        _category_count=category_count
+    )
