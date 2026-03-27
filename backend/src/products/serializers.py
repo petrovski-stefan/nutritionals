@@ -4,11 +4,9 @@ from .models import Brand, Category, Pharmacy, Product, ProductGroup
 
 
 class BrandListSerializer(serializers.ModelSerializer):
-    group_count = serializers.IntegerField(read_only=True)
-
     class Meta:
         model = Brand
-        fields = ["id", "name", "group_count"]
+        fields = ["id", "name"]
         read_only_fields = fields
 
 

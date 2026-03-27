@@ -276,7 +276,7 @@ def base_products_qs() -> QuerySet[Product]:
     )
 
 
-def search_products(*, q: str) -> QuerySet[Product]:
+def search_products(*, q: str, has_limit: bool = True) -> QuerySet[Product]:
     """Return a product queryset looked up by triagram similarity of the search query"""
 
     if not q:
@@ -289,16 +289,22 @@ def search_products(*, q: str) -> QuerySet[Product]:
 
     base_qs = base_products_qs()
 
-    if q_len < 6:
-        return base_qs.filter(Q(name__icontains=q) | Q(normalized_name__icontains=q))[
-            :20
-        ]
+    words_num = len([w for w in q.split(" ") if w])
 
-    return (
-        base_qs.annotate(similarity=TrigramSimilarity("name", q))
-        .filter(similarity__gt=0.2)
-        .order_by("-similarity")[:20]
-    )
+    if words_num < 3:
+        qs = base_qs.filter(Q(name__icontains=q) | Q(normalized_name__icontains=q))
+
+    else:
+        qs = (
+            base_qs.annotate(similarity=TrigramSimilarity("name", q))
+            .filter(similarity__gt=0.2)
+            .order_by("-similarity")[:20]
+        )
+
+    if has_limit:
+        return qs[:20]
+
+    return qs
 
 
 def list_discounted_products() -> QuerySet[Product]:

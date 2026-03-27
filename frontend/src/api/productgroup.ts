@@ -15,7 +15,7 @@ export const getProductGroups = async (
   params.append('page', `${page}`);
 
   if (searchQuery) {
-    params.append('name', searchQuery);
+    params.append('q', searchQuery);
   }
 
   if (categoryIds && categoryIds.length > 0) {

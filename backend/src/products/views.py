@@ -54,9 +54,7 @@ class BrandListAPIView(NoAuthMixin, ListAPIView):
     serializer_class = BrandListSerializer
 
     def get_queryset(self) -> QuerySet:
-        name = self.request.query_params.get("name", "")
-
-        return brand_service.get_brands_with_product_count(name)
+        return brand_service.list_brands()
 
 
 class PharmacyListAPIView(NoAuthMixin, ListAPIView):
@@ -84,4 +82,6 @@ class ProductGroupListAPIView(NoAuthMixin, ListAPIView):
     pagination_class = ProductGroupPagePagination
 
     def get_queryset(self) -> QuerySet:
-        return productgroup_service.list_productgroups()
+        q = self.request.query_params.get("q", None)
+
+        return productgroup_service.list_productgroups(q=q)

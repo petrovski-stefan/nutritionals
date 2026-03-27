@@ -1,7 +1,7 @@
 import logging
 
 from django.contrib.postgres.search import TrigramSimilarity
-from django.db.models import Count, Prefetch, Q, QuerySet
+from django.db.models import Count, Prefetch, Q, QuerySet, Subquery
 
 from ..models import Product, ProductGroup
 from . import product as product_service
@@ -10,13 +10,25 @@ from . import productgroupcategory as productgroupcategory_service
 logger = logging.getLogger(__name__)
 
 
-def list_productgroups() -> QuerySet:
+def list_productgroups(*, q: str | None) -> QuerySet:
+    base_qs = ProductGroup.objects.filter(is_reviewed=True)
+
+    if q:
+        matching_products_qs = product_service.search_products(
+            q=q,
+            has_limit=False,
+        ).values("pk")
+
+        base_qs = base_qs.filter(product__in=Subquery(matching_products_qs)).distinct()
+
     return (
-        ProductGroup.objects.filter(is_reviewed=True)
-        .annotate(product_count=Count("product"))
+        base_qs.annotate(product_count=Count("product", distinct=True))
         .select_related("brand")
         .prefetch_related(
-            Prefetch("product_set", queryset=product_service.base_products_qs())
+            Prefetch(
+                "product_set",
+                queryset=product_service.base_products_qs(),
+            )
         )
         .prefetch_related("categories")
         .order_by("-product_count")

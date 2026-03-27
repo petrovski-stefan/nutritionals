@@ -2,7 +2,7 @@ import { useState, type FormEvent } from 'react';
 import { SearchIcon, XIcon } from 'lucide-react';
 import type { GroupFilterDisplay, GroupFilterValue } from '../../types/productgroup';
 import CheckboxesFilter from './CheckboxesFilter';
-import type { BackendBrandWithGroupCount } from '../../types/brand';
+import type { BackendBrand } from '../../types/brand';
 import SEARCH_TEXT from '../../locale/search';
 import Tooltip from '../../components/Tooltip';
 import type { BackendCategory } from '../../types/category';
@@ -11,7 +11,7 @@ type Props = {
   inputSearchQuery: string;
   setInputSearchQuery: (value: string) => void;
   handleSearchFormSubmit: (e: FormEvent) => void;
-  brands: Array<BackendBrandWithGroupCount>;
+  brands: Array<BackendBrand>;
   categories: BackendCategory[];
   handleFilterValueChange: (key: keyof GroupFilterValue, value: number, isChecked: boolean) => void;
   handleClearInputSearchQuery: () => void;
@@ -37,7 +37,7 @@ export default function FiltersSidebar({
 }: Props) {
   const [isFilterDisplayed, setIsFilterDisplayed] = useState(filterDisplayedInitialValue);
 
-  const brandFilterCheckboxes = brands.map(({ id, name, group_count }) => (
+  const brandFilterCheckboxes = brands.map(({ id, name }) => (
     <label
       key={name}
       className="text-dark/80 hover:text-primary flex cursor-pointer items-center gap-2 text-sm"
@@ -49,9 +49,7 @@ export default function FiltersSidebar({
         checked={filters['brandIds'].includes(id)}
         className="accent-primary h-4 w-4 rounded border-neutral-300"
       />
-      <span className={group_count === 0 ? 'text-dark/40' : ''}>
-        {name} ({group_count})
-      </span>
+      <span>{name}</span>
     </label>
   ));
 

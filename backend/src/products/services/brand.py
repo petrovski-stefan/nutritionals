@@ -10,21 +10,19 @@ from ..models import Brand, Product
 logger = logging.getLogger(__name__)
 
 
-def get_brands_with_product_count(name: str) -> QuerySet[Brand]:
+def list_brands() -> QuerySet[Brand]:
     """
-    Return a queryset of brands annotated with the number of product groups
-    matching the given name.
+    Return a queryset of brands
     """
-
-    group_filter = Q()
-    if name:
-        group_filter = Q(productgroup__name__icontains=name)
 
     return (
-        Brand.objects.annotate(product_count=Count("product", distinct=True))
+        Brand.objects.annotate(
+            product_count=Count(
+                "product", filter=Q(product__is_reviewed=True), distinct=True
+            )
+        )
         .filter(product_count__gt=0)
-        .annotate(group_count=Count("productgroup", filter=group_filter, distinct=True))
-        .values("id", "name", "group_count")
+        .values("id", "name")
         .order_by("name")
     )
 

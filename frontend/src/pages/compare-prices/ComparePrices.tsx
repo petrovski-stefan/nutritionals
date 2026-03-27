@@ -3,7 +3,7 @@ import { useEffect, useState, type FormEvent } from 'react';
 import FiltersSidebar from './FiltersSidebar';
 import ProductsGrid from './ProductsGrid';
 import BrandService from '../../api/brand';
-import type { BackendBrandWithGroupCount } from '../../types/brand';
+import type { BackendBrand } from '../../types/brand';
 import type { BackendCategory } from '../../types/category';
 import CategoryService from '../../api/category';
 import type { BackendProductGroup, GroupFilterValue } from '../../types/productgroup';
@@ -37,7 +37,7 @@ const pageSize = 6;
 
 export default function ComparePrices() {
   const [groups, setGroups] = useState<BackendProductGroup[]>([]);
-  const [brands, setBrands] = useState<BackendBrandWithGroupCount[]>([]);
+  const [brands, setBrands] = useState<BackendBrand[]>([]);
   const [categories, setCategories] = useState<BackendCategory[]>([]);
 
   const [error, setError] = useState(defaultError);
