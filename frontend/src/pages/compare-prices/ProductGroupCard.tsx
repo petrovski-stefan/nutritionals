@@ -16,7 +16,7 @@ export default function ProductGroupCard({ productGroup, handleClickAddProductTo
     return productGroup.products.length;
   }, [productGroup]);
 
-  const shouldOverflowY = productsLength > 2;
+  const shouldOverflowY = productsLength > 1;
 
   return (
     <div
