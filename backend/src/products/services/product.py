@@ -4,7 +4,7 @@ from dataclasses import dataclass
 
 from common.utils import transliterate_cyrillic_to_latin
 from django.contrib.postgres.search import TrigramSimilarity
-from django.db.models import F, Q, QuerySet
+from django.db.models import Case, F, FloatField, Q, QuerySet, Value, When
 from django.db.models.functions import Greatest, Round
 from django.utils import timezone
 
@@ -277,28 +277,43 @@ def base_products_qs() -> QuerySet[Product]:
 
 
 def search_products(*, q: str, has_limit: bool = True) -> QuerySet[Product]:
-    """Return a product queryset looked up by triagram similarity of the search query"""
-
     if not q:
         raise exceptions.ProductSearchQueryEmptyAPIError
 
-    q_len = len(q)
+    latin_q = transliterate_cyrillic_to_latin(q.strip())
 
-    if q_len < 2:
+    if len(latin_q) < 2:
         raise exceptions.ProductSearchQueryShortAPIError
 
     base_qs = base_products_qs()
+    q_len = len(latin_q)
 
-    words_num = len([w for w in q.split(" ") if w])
+    if q_len <= 4:
+        qs = base_qs.filter(normalized_name__icontains=latin_q)
 
-    if words_num < 3:
-        qs = base_qs.filter(Q(name__icontains=q) | Q(normalized_name__icontains=q))
+    elif q_len <= 15:
+        qs = (
+            base_qs.annotate(
+                similarity=TrigramSimilarity("normalized_name", latin_q),
+                contains_boost=Case(
+                    When(
+                        Q(normalized_name__icontains=latin_q),
+                        then=Value(0.3),
+                    ),
+                    default=Value(0.0),
+                    output_field=FloatField(),
+                ),
+            )
+            .filter(Q(similarity__gt=0.1) | Q(normalized_name__icontains=latin_q))
+            .order_by(-(F("similarity") + F("contains_boost")))
+        )
 
     else:
+        # Long query
         qs = (
-            base_qs.annotate(similarity=TrigramSimilarity("name", q))
-            .filter(similarity__gt=0.2)
-            .order_by("-similarity")[:20]
+            base_qs.annotate(similarity=TrigramSimilarity("normalized_name", latin_q))
+            .filter(similarity__gt=0.1)
+            .order_by("-similarity")
         )
 
     if has_limit:
@@ -317,67 +332,95 @@ def list_discounted_products() -> QuerySet[Product]:
     )
 
 
-HUMAN_QUERY_TO_SUPPLEMENTS_SYSTEM_PROMPT = """
-You are a supplement recommendation engine.
+HUMAN_QUERY_TO_KEYWORDS_SYSTEM_PROMPT = """
+You are a supplement search keyword generator for a pharmacy catalog search engine.
 
 Your task:
-Given a natural language query from a user describing a health goal, symptom, or specific supplement
-(e.g., "improve sleep", "I need magnesium 400mg for sleep"):
-
-Return:
-- Exactly 7 relevant supplement names from a catalog.
-- Prioritize supplements explicitly mentioned in the user query.
-- Only output a JSON array of strings.
-- Do NOT include any explanation, text, markdown, or formatting.
-- Example: ["melatonin", "magnesium", "valerian", "chamomile", "L-theanine", "5-HTP", "vitamin D3"]
+Given a natural language query describing a health goal, symptom, or specific supplement,
+generate a list of supplement name strings that will be used for fuzzy text matching
+against a product catalog.
 
 Rules:
-- Include only supplements that exist in the catalog (do not make up new supplements).
-- If fewer than 7 relevant supplements exist, fill the rest with the most generally
-relevant ones for the health goal or symptom.
-- If the text received makes no sense to health, health goal, medicine or supplements, return
-an empty array.
-- Output must be valid JSON.
+1. Output ONLY a valid JSON array of strings — no explanation, markdown, or extra text.
+2. Each string should be a supplement name or common alias/abbreviation as it would
+   typically appear on a product label or in a pharmacy catalog.
+3. The query may be written in English OR in transliterated Macedonian
+   (Macedonian words written with Latin letters, e.g. "za spienie", "zglobovi", "imunitet").
+   Understand the intent regardless of language and always output keywords in English.
+4. Always prioritize supplements explicitly named in the query — include them first
+   and add common spelling variants or abbreviations for them
+   (e.g. "coenzyme q10", "coq10", "ubiquinol").
+5. Add other supplements commonly associated with the health goal or symptom.
+6. Include both generic names and widely-used branded ingredient names where relevant
+   (e.g. "curcumin", "turmeric", "meriva").
+7. Aim for 7–10 strings. Do NOT pad with loosely related supplements just to hit a count.
+8. If the query is entirely unrelated to health, medicine, or supplements, return [].
+
+Examples:
+- Query: "I need magnesium 400mg for sleep"
+  → ["magnesium", "magnesium glycinate", "magnesium citrate", "magnesium oxide",
+     "melatonin", "l-theanine", "5-htp"]
+
+- Query: "za spienie" (Macedonian transliteration of "for sleep")
+  → ["melatonin", "magnesium", "magnesium glycinate", "l-theanine", "5-htp",
+     "valerian", "chamomile"]
+
+- Query: "bolki vo zglobovite" (Macedonian transliteration of "joint pain")
+  → ["glucosamine", "chondroitin", "msm", "collagen", "turmeric", "curcumin", "boswellia"]
+
+- Query: "coq10"
+  → ["coq10", "coenzyme q10", "ubiquinol", "ubiquinone"]
 """
 
 
 SMART_SEARCH_SYSTEM_PROMPT = """
-You are a product search ranking engine.
+You are a product search ranking engine for a pharmacy supplement catalog.
 
 Your task:
-Given:
-- A natural language search query
-- A list of products (each product has: id, name, form_with_count, dosage)
+Given a natural language search query and a list of candidate products,
+return the IDs of the products that are relevant to the query, ranked best match first.
 
-Return a JSON array containing ONLY the IDs of the products that best match the query.
+Each product has: id, name, form_with_count, dosage.
 
-Strict rules:
-- Output MUST be a valid JSON array of integers.
-- Do NOT include any explanation, text, markdown, or formatting.
-- Do NOT include any keys (no {"results": ...}).
-- Return only: [1, 5, 23]
-- If no products match, return: []
+Output rules:
+- Output ONLY a valid JSON array of integers — no explanation, markdown, or extra text.
+- Example output: [12, 4, 87]
+- Never output keys or wrappers like {"results": [...]}.
+- Return AT MOST 30 product IDs.
+- Rank IDs by relevance — most relevant first, least relevant last.
+- If you have more than 30 relevant products, return only the 30 best matches.
+
+Language rules:
+- The query will be written in one of two ways:
+  1. English (e.g. "magnesium for sleep", "joint pain relief")
+  2. Transliterated Macedonian — Macedonian written with Latin letters
+     (e.g. "za spienie", "bolki vo zglobovite", "za imunitet")
+- Understand the intent of the query regardless of which language it is in,
+  and match products accordingly.
 
 Matching rules:
-- Use semantic understanding, not only keyword matching.
-- Consider synonyms and common medical terminology.
-- Match dosage strength if mentioned (e.g., 500mg).
-- Match form if mentioned (tablet, syrup, capsule, etc.).
-- If the query is vague, return the most relevant products.
-- If multiple products match, rank by relevance and return them in order of best match first.
-- Do not hallucinate products — only use provided IDs.
-
-Never output anything except a JSON array of integers.
+- Be INCLUSIVE rather than exclusive — when in doubt, include the product.
+- Use semantic understanding: recognize synonyms, aliases, and related terms
+  (e.g. "coq10" matches "coenzyme q10", "magnesium" matches "magnesium glycinate").
+- If a specific dosage is mentioned (e.g. "400mg"), prefer products with that dosage
+  but still include other dosages of the same supplement.
+- If a specific form is mentioned (e.g. "syrup", "capsule"), prefer that form
+  but do not exclude other forms of the same supplement.
+- If the query is vague or general, return ALL products that are plausibly relevant.
+- Only omit a product if it is clearly unrelated to the query.
+- Never invent or hallucinate product IDs — only use IDs from the provided list.
 """
 
 
 def _convert_human_query_to_keywords_with_openai(*, q: str) -> list[str]:
     """Return list of strings keywords by transforming the human query with openai"""
 
-    data = {"query": q}
+    latin_q = transliterate_cyrillic_to_latin(q)
+
+    data = {"query": latin_q}
 
     results = openai_service.get_openai_response(
-        system_prompt=HUMAN_QUERY_TO_SUPPLEMENTS_SYSTEM_PROMPT, input=data
+        system_prompt=HUMAN_QUERY_TO_KEYWORDS_SYSTEM_PROMPT, input=data
     )
 
     return [r.strip() for r in results]
@@ -396,7 +439,7 @@ def _get_smart_search_candidates(*, keywords: list[str]) -> QuerySet[Product]:
     return (
         base_products_qs()
         .annotate(similarity=Greatest(*similarity_expressions))
-        .filter(similarity__gt=0.2)
+        .filter(similarity__gt=0.15)
         .order_by("-similarity")
     )
 
@@ -404,8 +447,10 @@ def _get_smart_search_candidates(*, keywords: list[str]) -> QuerySet[Product]:
 def _product_ids_from_openai(*, query: str, candidates: list[dict]) -> list[int]:
     """Return product ids from openai which match the smart search query"""
 
+    latin_q = transliterate_cyrillic_to_latin(query)
+
     data = {
-        "query": query,
+        "query": latin_q,
         "products": candidates,
     }
 
