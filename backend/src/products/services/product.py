@@ -436,6 +436,10 @@ def _get_smart_search_candidates(*, keywords: list[str]) -> QuerySet[Product]:
         TrigramSimilarity("normalized_name", kw) for kw in keywords
     ]
 
+    # Greatest requires at least 2 expressions
+    if len(similarity_expressions) == 1:
+        similarity_expressions.append(TrigramSimilarity("normalized_name", keywords[0]))
+
     return (
         base_products_qs()
         .annotate(similarity=Greatest(*similarity_expressions))
