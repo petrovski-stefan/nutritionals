@@ -207,7 +207,7 @@ class ProductIsGroupedFilter(admin.filters.SimpleListFilter):
         value = self.value()
 
         if value is not None:
-            value_bool = value == "true"
+            value_bool = value != "true"
 
             return Product.objects.filter(group__isnull=value_bool)
 
@@ -294,7 +294,7 @@ class ProductAdmin(admin.ModelAdmin):
 
     @admin.display(description="Is Grouped", boolean=True)
     def is_grouped(self, obj) -> bool:
-        return obj.group is None
+        return obj.group is not None
 
     @admin.display(description="Categories")
     def categories_display(self, obj) -> str:
