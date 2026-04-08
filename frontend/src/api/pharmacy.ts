@@ -1,6 +1,6 @@
 import type { APIResponse } from '../types/api';
 import type { BackendPharmacy } from '../types/pharmacy';
-import axiosInstance from './axios';
+import axiosInstance from '../lib/axios';
 
 const PHARMACIES_BASE_URL = 'api/v1/pharmacies/';
 

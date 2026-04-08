@@ -1,4 +1,4 @@
-import axiosInstance from './axios';
+import axiosInstance from '../lib/axios';
 import type { APIPaginatedResponse } from '../types/api';
 import type { BackendProductGroup } from '../types/productgroup';
 

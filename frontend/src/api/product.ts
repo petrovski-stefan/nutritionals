@@ -1,5 +1,5 @@
 import type { BackendDiscountedProduct, BackendProduct } from '../types/product';
-import axiosInstance from './axios';
+import axiosInstance from '../lib/axios';
 import type { APIResponse } from '../types/api';
 
 const PRODUCTS_BASE_PATH = 'api/v1/products/';

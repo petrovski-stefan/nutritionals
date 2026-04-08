@@ -1,4 +1,4 @@
-import axiosInstance from './axios';
+import axiosInstance from '../lib/axios';
 import type { APIResponse, APIResponseFail } from '../types/api';
 import type { BackendMyListWithItems, BackendMyListWithItemsCount } from '../types/mylist';
 

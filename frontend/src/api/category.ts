@@ -1,6 +1,6 @@
 import type { APIResponse } from '../types/api';
 import type { BackendCategory } from '../types/category';
-import axiosInstance from './axios';
+import axiosInstance from '../lib/axios';
 
 const CATEGORIES_BASE_URL = 'api/v1/categories/';
 
