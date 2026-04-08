@@ -4,7 +4,7 @@ import type { GroupFilterDisplay, GroupFilterValue } from '../../types/productgr
 import CheckboxesFilter from './CheckboxesFilter';
 import type { BackendBrand } from '../../types/brand';
 import SEARCH_TEXT from '../../locale/search';
-import Tooltip from '../../components/Tooltip';
+import Tooltip from '../../components/ui/Tooltip';
 import type { BackendCategory } from '../../types/category';
 
 type Props = {

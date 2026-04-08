@@ -10,7 +10,7 @@ import { XIcon } from 'lucide-react';
 import PharmacyService from '../../api/pharmacy';
 import type { BackendPharmacy } from '../../types/pharmacy';
 import HOME_TEXT from '../../locale/home';
-import Tooltip from '../../components/Tooltip';
+import Tooltip from '../../components/ui/Tooltip';
 
 const defaultErrors = {
   search: null,

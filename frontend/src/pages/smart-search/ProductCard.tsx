@@ -1,7 +1,7 @@
 import { ExternalLink, StarIcon } from 'lucide-react';
 import type { BackendProduct } from '../../types/product';
 import type { ProductToMyList } from '../../types/mylist';
-import Tooltip from '../../components/Tooltip';
+import Tooltip from '../../components/ui/Tooltip';
 import { formatPrice } from '../../utils/prices';
 
 type Props = BackendProduct & {

@@ -1,7 +1,7 @@
 import { BrainIcon, XIcon } from 'lucide-react';
 import type { BackendMyListItem } from '../../types/mylist';
 import MYLISTS_TEXT from '../../locale/mylists';
-import Tooltip from '../../components/Tooltip';
+import Tooltip from '../../components/ui/Tooltip';
 import { formatPrice } from '../../utils/prices';
 import { checkIsPossiblyUnavailible } from '../../utils/availability';
 

@@ -3,7 +3,7 @@ import { XIcon, FolderPlusIcon } from 'lucide-react';
 
 import type { BackendMyListWithItemsCount, ProductToMyList } from '../../../types/mylist';
 import type { RequiredMyListsModalError, RequiredMyListsModalIsLoading } from '../types';
-import Tooltip from '../../../components/Tooltip';
+import Tooltip from '../../../components/ui/Tooltip';
 import { CREATE_NEW_MYLIST_ERROR, MYLISTS_ERROR, PRODUCT_TO_MYLIST_ERROR } from '../locale/error';
 import {
   ADD,

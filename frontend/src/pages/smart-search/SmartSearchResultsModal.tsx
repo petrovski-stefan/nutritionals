@@ -2,7 +2,7 @@ import { XIcon } from 'lucide-react';
 import type { BackendProduct } from '../../types/product';
 import ProductCard from './ProductCard';
 import SMART_SEARCH_TEXT from '../../locale/smart-search';
-import Tooltip from '../../components/Tooltip';
+import Tooltip from '../../components/ui/Tooltip';
 import { useEffect, useState } from 'react';
 import type { BackendMyListWithItemsCount, ProductToMyList } from '../../types/mylist';
 import { MyListService } from '../../api/mylist';

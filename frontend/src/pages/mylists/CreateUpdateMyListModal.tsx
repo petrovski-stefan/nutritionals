@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { XIcon } from 'lucide-react';
 import MYLISTS_TEXT from '../../locale/mylists';
-import Tooltip from '../../components/Tooltip';
+import Tooltip from '../../components/ui/Tooltip';
 
 type Error = 'unexpectedError' | 'myListNameAlreadyUsed' | null;
 

@@ -1,6 +1,6 @@
 import { AlertTriangleIcon, ExternalLink } from 'lucide-react';
 import { formatPrice } from '../../utils/prices';
-import Tooltip from '../../components/Tooltip';
+import Tooltip from '../../components/ui/Tooltip';
 import { checkIsPossiblyUnavailible } from '../../utils/availability';
 
 type Props = {

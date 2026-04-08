@@ -1,6 +1,6 @@
 import { StarIcon } from 'lucide-react';
 import SEARCH_TEXT from '../../locale/search';
-import Tooltip from '../../components/Tooltip';
+import Tooltip from '../../components/ui/Tooltip';
 import type { BackendProduct } from '../../types/product';
 import { formatPrice } from '../../utils/prices';
 import { checkIsPossiblyUnavailible } from '../../utils/availability';

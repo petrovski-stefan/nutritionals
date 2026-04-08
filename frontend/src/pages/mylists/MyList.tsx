@@ -2,7 +2,7 @@ import type { BackendMyListWithItemsCount } from '../../types/mylist';
 import { EyeIcon, Edit2Icon, TrashIcon } from 'lucide-react';
 import MYLISTS_TEXT from '../../locale/mylists';
 import { useAuthContext } from '../../context/AuthContext';
-import Tooltip from '../../components/Tooltip';
+import Tooltip from '../../components/ui/Tooltip';
 
 type Props = BackendMyListWithItemsCount & {
   arrayIndex: number;
