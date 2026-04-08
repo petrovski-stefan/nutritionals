@@ -2,7 +2,7 @@ import { useEffect, useState, type FormEvent } from 'react';
 
 import FiltersSidebar from './FiltersSidebar';
 import ProductsGrid from './ProductsGrid';
-import BrandService from '../../api/brand';
+import * as BrandService from '../../api/brand';
 import type { BackendBrand } from '../../types/brand';
 import type { BackendCategory } from '../../types/category';
 import CategoryService from '../../api/category';
@@ -92,7 +92,7 @@ export default function ComparePrices() {
     const params = blank ? '' : searchQuery;
 
     try {
-      const response = await BrandService.getBrandsWithProductCount(params);
+      const response = await BrandService.getBrands(params);
 
       if (response.status) {
         setBrands(response.data);
