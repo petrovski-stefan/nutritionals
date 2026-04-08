@@ -1,7 +1,7 @@
 import { useEffect, useState, type FormEvent } from 'react';
 import { Link } from 'react-router-dom';
 import BestDealsProductCard from './BestDealProductCard';
-import Section from '../../components/Section';
+import Section from '../../components/layout/Section';
 import SupportedPharmacyCard from './SupportedPharmacyCard';
 import type { BackendDiscountedProduct, BackendProduct } from '../../types/product';
 import SearchDropdown from './SearchDropdown';

@@ -1,5 +1,5 @@
 import { SearchIcon, XIcon, FilterIcon } from 'lucide-react';
-import Section from '../../components/Section';
+import Section from '../../components/layout/Section';
 import SmartSearchResultsModal from './SmartSearchResultsModal';
 import ProductService from '../../api/product';
 import { useEffect, useState, type FormEvent } from 'react';
