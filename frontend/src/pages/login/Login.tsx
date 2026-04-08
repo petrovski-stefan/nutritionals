@@ -1,7 +1,7 @@
 import { useEffect, useState, type FormEvent } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import type { LoginCredentials } from '../../types/user';
-import { UserService } from '../../api/user';
+import * as UserService from '../../api/user';
 import { useAuthContext } from '../../context/AuthContext';
 import LOGIN_TEXT from '../../locale/login';
 
@@ -46,7 +46,7 @@ export default function Login() {
     }
 
     try {
-      const response = await UserService.login(credentials);
+      const response = await UserService.loginUser(credentials);
 
       if (response.status) {
         login(credentials.username, response.data.access);

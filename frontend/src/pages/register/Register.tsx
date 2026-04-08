@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from 'react';
 import type { RegisterCredentials } from '../../types/user';
-import { UserService } from '../../api/user';
+import * as UserService from '../../api/user';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuthContext } from '../../context/AuthContext';
 import REGISTER_TEXT from '../../locale/register';
@@ -49,7 +49,7 @@ export default function Register() {
     }
 
     try {
-      const response = await UserService.register(credentials);
+      const response = await UserService.registerUser(credentials);
 
       if (response.status) {
         login(response.data.username, response.data.access);

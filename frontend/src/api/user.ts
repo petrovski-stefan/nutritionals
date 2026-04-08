@@ -18,19 +18,17 @@ const toBackendRegisterCredentials = (registerCredentials: RegisterCredentials) 
   };
 };
 
-export class UserService {
-  static readonly login = async (loginCredentials: LoginCredentials) => {
-    const response = await axiosInstance.post(`${USERS_BASE_URL}login/`, loginCredentials);
+export const loginUser = async (loginCredentials: LoginCredentials) => {
+  const response = await axiosInstance.post(`${USERS_BASE_URL}login/`, loginCredentials);
 
-    return response.data as APIResponse<BackendTokenPair>;
-  };
+  return response.data as APIResponse<BackendTokenPair>;
+};
 
-  public static readonly register = async (registerCredentials: RegisterCredentials) => {
-    const response = await axiosInstance.post(
-      `${USERS_BASE_URL}register/`,
-      toBackendRegisterCredentials(registerCredentials)
-    );
+export const registerUser = async (registerCredentials: RegisterCredentials) => {
+  const response = await axiosInstance.post(
+    `${USERS_BASE_URL}register/`,
+    toBackendRegisterCredentials(registerCredentials)
+  );
 
-    return response.data as APIResponse<BackendRegisterResponse>;
-  };
-}
+  return response.data as APIResponse<BackendRegisterResponse>;
+};
