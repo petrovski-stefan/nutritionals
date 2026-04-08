@@ -4,12 +4,8 @@ import axiosInstance from '../lib/axios';
 
 const PHARMACIES_BASE_URL = 'api/v1/pharmacies/';
 
-class PharmacyService {
-  static readonly getPharmacies = async () => {
-    const response = await axiosInstance.get(PHARMACIES_BASE_URL);
+export const getPharmacies = async () => {
+  const response = await axiosInstance.get(PHARMACIES_BASE_URL);
 
-    return response.data as APIResponse<Array<BackendPharmacy>>;
-  };
-}
-
-export default PharmacyService;
+  return response.data as APIResponse<BackendPharmacy[]>;
+};
