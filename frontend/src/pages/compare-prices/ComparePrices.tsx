@@ -5,7 +5,7 @@ import ProductsGrid from './ProductsGrid';
 import * as BrandService from '../../api/brand';
 import type { BackendBrand } from '../../types/brand';
 import type { BackendCategory } from '../../types/category';
-import CategoryService from '../../api/category';
+import * as CategoryService from '../../api/category';
 import type { BackendProductGroup, GroupFilterValue } from '../../types/productgroup';
 import * as ProductGroupService from '../../api/productgroup';
 import type { IsLoading, Error } from './types';

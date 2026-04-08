@@ -4,12 +4,8 @@ import axiosInstance from '../lib/axios';
 
 const CATEGORIES_BASE_URL = 'api/v1/categories/';
 
-class CategoryService {
-  static readonly getCategories = async () => {
-    const response = await axiosInstance.get(CATEGORIES_BASE_URL);
+export const getCategories = async () => {
+  const response = await axiosInstance.get(CATEGORIES_BASE_URL);
 
-    return response.data as APIResponse<Array<BackendCategory>>;
-  };
-}
-
-export default CategoryService;
+  return response.data as APIResponse<Array<BackendCategory>>;
+};
