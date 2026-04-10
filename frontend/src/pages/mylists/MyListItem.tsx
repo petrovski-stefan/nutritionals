@@ -1,9 +1,10 @@
 import { BrainIcon, XIcon } from 'lucide-react';
-import type { BackendMyListItem } from '../../types/mylist';
-import MYLISTS_TEXT from '../../locale/mylists';
+
 import Tooltip from '../../components/ui/Tooltip';
-import { formatPrice } from '../../utils/prices';
+import MYLISTS_TEXT from '../../locale/mylists';
+import type { BackendMyListItem } from '../../types/mylist';
 import { checkIsPossiblyUnavailible } from '../../utils/availability';
+import { formatPrice } from '../../utils/prices';
 
 type Props = BackendMyListItem & {
   arrayIndex: number;

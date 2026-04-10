@@ -1,6 +1,6 @@
+import HOME_TEXT from '../../locale/home';
 import type { BackendProduct } from '../../types/product';
 import DropdownProductCard from './DropdownProduct';
-import HOME_TEXT from '../../locale/home';
 
 type Props = {
   products: BackendProduct[];

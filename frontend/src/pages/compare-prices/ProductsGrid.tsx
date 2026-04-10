@@ -1,12 +1,13 @@
 import { useEffect, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
+
 import * as MyListService from '../../api/mylist';
 import { useAuthContext } from '../../context/AuthContext';
-import { useLocation, useNavigate } from 'react-router-dom';
+import AddProductToMyListModal from '../../features/add-product-to-mylist/components/AddProductToMyListModal';
 import type { BackendMyListWithItemsCount, ProductToMyList } from '../../types/mylist';
 import type { BackendProductGroup } from '../../types/productgroup';
 import ProductGroupCard from './ProductGroupCard';
 import type { Error, IsLoading } from './types';
-import AddProductToMyListModal from '../../features/add-product-to-mylist/components/AddProductToMyListModal';
 
 type Props = {
   groups: BackendProductGroup[];

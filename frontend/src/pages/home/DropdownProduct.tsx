@@ -1,6 +1,7 @@
 import { ExternalLinkIcon } from 'lucide-react';
-import { formatPrice } from '../../utils/prices';
+
 import { checkIsPossiblyUnavailible } from '../../utils/availability';
+import { formatPrice } from '../../utils/prices';
 
 type Props = {
   name: string;

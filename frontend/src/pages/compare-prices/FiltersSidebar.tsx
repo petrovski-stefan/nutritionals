@@ -1,11 +1,12 @@
-import { useState, type FormEvent } from 'react';
 import { SearchIcon, XIcon } from 'lucide-react';
+import { type FormEvent,useState } from 'react';
+
+import Tooltip from '../../components/ui/Tooltip';
+import SEARCH_TEXT from '../../locale/search';
+import type { BackendBrand } from '../../types/brand';
+import type { BackendCategory } from '../../types/category';
 import type { GroupFilterDisplay, GroupFilterValue } from '../../types/productgroup';
 import CheckboxesFilter from './CheckboxesFilter';
-import type { BackendBrand } from '../../types/brand';
-import SEARCH_TEXT from '../../locale/search';
-import Tooltip from '../../components/ui/Tooltip';
-import type { BackendCategory } from '../../types/category';
 
 type Props = {
   inputSearchQuery: string;

@@ -1,14 +1,14 @@
-import { useEffect, useState, type FormEvent } from 'react';
+import { type FormEvent,useEffect, useState } from 'react';
 
-import FiltersSidebar from './FiltersSidebar';
-import ProductsGrid from './ProductsGrid';
 import * as BrandService from '../../api/brand';
+import * as CategoryService from '../../api/category';
+import * as ProductGroupService from '../../api/productgroup';
 import type { BackendBrand } from '../../types/brand';
 import type { BackendCategory } from '../../types/category';
-import * as CategoryService from '../../api/category';
 import type { BackendProductGroup, GroupFilterValue } from '../../types/productgroup';
-import * as ProductGroupService from '../../api/productgroup';
-import type { IsLoading, Error } from './types';
+import FiltersSidebar from './FiltersSidebar';
+import ProductsGrid from './ProductsGrid';
+import type { Error,IsLoading } from './types';
 
 const filtersDefault = {
   brandIds: [],

@@ -1,15 +1,16 @@
 import { XIcon } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
+
+import * as MyListService from '../../api/mylist';
+import Tooltip from '../../components/ui/Tooltip';
+import { useAuthContext } from '../../context/AuthContext';
+import AddProductToMyListModal from '../../features/add-product-to-mylist/components/AddProductToMyListModal';
+import SMART_SEARCH_TEXT from '../../locale/smart-search';
+import type { BackendMyListWithItemsCount, ProductToMyList } from '../../types/mylist';
 import type { BackendProduct } from '../../types/product';
 import ProductCard from './ProductCard';
-import SMART_SEARCH_TEXT from '../../locale/smart-search';
-import Tooltip from '../../components/ui/Tooltip';
-import { useEffect, useState } from 'react';
-import type { BackendMyListWithItemsCount, ProductToMyList } from '../../types/mylist';
-import * as MyListService from '../../api/mylist';
-import { useAuthContext } from '../../context/AuthContext';
-import { useLocation, useNavigate } from 'react-router-dom';
-import type { IsLoading, Error } from './types';
-import AddProductToMyListModal from '../../features/add-product-to-mylist/components/AddProductToMyListModal';
+import type { Error,IsLoading } from './types';
 
 type Props = {
   query: string;

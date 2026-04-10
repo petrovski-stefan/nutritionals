@@ -1,7 +1,8 @@
 import { ChevronDownCircleIcon, ChevronUpCircleIcon } from 'lucide-react';
 import type { ReactNode } from 'react';
-import type { GroupFilterDisplay } from '../../types/productgroup';
+
 import Tooltip from '../../components/ui/Tooltip';
+import type { GroupFilterDisplay } from '../../types/productgroup';
 
 type Props = {
   filterTitle: string;

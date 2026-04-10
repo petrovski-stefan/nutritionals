@@ -1,8 +1,9 @@
-import type { BackendMyListWithItemsCount } from '../../types/mylist';
-import { EyeIcon, Edit2Icon, TrashIcon } from 'lucide-react';
-import MYLISTS_TEXT from '../../locale/mylists';
-import { useAuthContext } from '../../context/AuthContext';
+import { Edit2Icon, EyeIcon, TrashIcon } from 'lucide-react';
+
 import Tooltip from '../../components/ui/Tooltip';
+import { useAuthContext } from '../../context/AuthContext';
+import MYLISTS_TEXT from '../../locale/mylists';
+import type { BackendMyListWithItemsCount } from '../../types/mylist';
 
 type Props = BackendMyListWithItemsCount & {
   arrayIndex: number;

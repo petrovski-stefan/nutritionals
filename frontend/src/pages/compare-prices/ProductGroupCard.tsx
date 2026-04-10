@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+
 import type { BackendProductGroup } from '../../types/productgroup';
 import ProductInGroup from './ProductInGroup';
 

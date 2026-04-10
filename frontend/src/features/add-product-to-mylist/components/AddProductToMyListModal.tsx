@@ -1,10 +1,8 @@
+import { FolderPlusIcon,XIcon } from 'lucide-react';
 import { useState } from 'react';
-import { XIcon, FolderPlusIcon } from 'lucide-react';
 
-import type { BackendMyListWithItemsCount, ProductToMyList } from '../../../types/mylist';
-import type { RequiredMyListsModalError, RequiredMyListsModalIsLoading } from '../types';
 import Tooltip from '../../../components/ui/Tooltip';
-import { CREATE_NEW_MYLIST_ERROR, MYLISTS_ERROR, PRODUCT_TO_MYLIST_ERROR } from '../locale/error';
+import type { BackendMyListWithItemsCount, ProductToMyList } from '../../../types/mylist';
 import {
   ADD,
   CANCEL,
@@ -14,6 +12,8 @@ import {
   SAVE,
   TO_MYLIST,
 } from '../locale/add-product-to-mylist-modal';
+import { CREATE_NEW_MYLIST_ERROR, MYLISTS_ERROR, PRODUCT_TO_MYLIST_ERROR } from '../locale/error';
+import type { RequiredMyListsModalError, RequiredMyListsModalIsLoading } from '../types';
 
 type Props<E extends RequiredMyListsModalError, IL extends RequiredMyListsModalIsLoading> = {
   productToMyList: ProductToMyList;

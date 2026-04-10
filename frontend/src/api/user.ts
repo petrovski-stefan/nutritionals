@@ -1,5 +1,4 @@
 import axiosInstance from '../lib/axios';
-
 import type { APIResponse } from '../types/api';
 import type {
   BackendRegisterResponse,

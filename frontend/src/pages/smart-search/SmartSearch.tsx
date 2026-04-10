@@ -1,14 +1,15 @@
-import { SearchIcon, XIcon, FilterIcon } from 'lucide-react';
-import Section from '../../components/layout/Section';
-import SmartSearchResultsModal from './SmartSearchResultsModal';
-import * as ProductService from '../../api/product';
-import { useEffect, useState, type FormEvent } from 'react';
-import type { BackendProduct } from '../../types/product';
-import SMART_SEARCH_TEXT from '../../locale/smart-search';
-import Tooltip from '../../components/ui/Tooltip';
-import type { BackendPharmacy } from '../../types/pharmacy';
+import { FilterIcon,SearchIcon, XIcon } from 'lucide-react';
+import { type FormEvent,useEffect, useState } from 'react';
+
 import * as PharmacyService from '../../api/pharmacy';
-import type { IsLoading, Error } from './types';
+import * as ProductService from '../../api/product';
+import Section from '../../components/layout/Section';
+import Tooltip from '../../components/ui/Tooltip';
+import SMART_SEARCH_TEXT from '../../locale/smart-search';
+import type { BackendPharmacy } from '../../types/pharmacy';
+import type { BackendProduct } from '../../types/product';
+import SmartSearchResultsModal from './SmartSearchResultsModal';
+import type { Error,IsLoading } from './types';
 
 const defaultError: Error = {
   search: null,

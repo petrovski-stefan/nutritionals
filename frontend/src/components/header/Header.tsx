@@ -1,11 +1,12 @@
+import { LogOutIcon, MenuIcon, XIcon } from 'lucide-react';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import routes from '../../routes';
-import MenuItem from './MenuItem';
+
 import { useAuthContext } from '../../context/AuthContext';
-import { LogOutIcon, MenuIcon, XIcon } from 'lucide-react';
 import USER_CARD_TEXT from '../../locale/user-card';
+import routes from '../../routes';
 import Tooltip from '../ui/Tooltip';
+import MenuItem from './MenuItem';
 
 export default function Header() {
   const { username, isLoggedIn, logout } = useAuthContext();

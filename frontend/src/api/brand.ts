@@ -1,6 +1,6 @@
+import axiosInstance from '../lib/axios';
 import type { APIResponse } from '../types/api';
 import type { BackendBrand } from '../types/brand';
-import axiosInstance from '../lib/axios';
 
 const BRANDS_BASE_URL = 'api/v1/brands/';
 

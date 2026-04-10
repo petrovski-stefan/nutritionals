@@ -1,16 +1,17 @@
-import { useEffect, useState, type FormEvent } from 'react';
-import { Link } from 'react-router-dom';
-import BestDealsProductCard from './BestDealProductCard';
-import Section from '../../components/layout/Section';
-import SupportedPharmacyCard from './SupportedPharmacyCard';
-import type { BackendDiscountedProduct, BackendProduct } from '../../types/product';
-import SearchDropdown from './SearchDropdown';
-import * as ProductService from '../../api/product';
 import { XIcon } from 'lucide-react';
+import { type FormEvent,useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
+
 import * as PharmacyService from '../../api/pharmacy';
-import type { BackendPharmacy } from '../../types/pharmacy';
-import HOME_TEXT from '../../locale/home';
+import * as ProductService from '../../api/product';
+import Section from '../../components/layout/Section';
 import Tooltip from '../../components/ui/Tooltip';
+import HOME_TEXT from '../../locale/home';
+import type { BackendPharmacy } from '../../types/pharmacy';
+import type { BackendDiscountedProduct, BackendProduct } from '../../types/product';
+import BestDealsProductCard from './BestDealProductCard';
+import SearchDropdown from './SearchDropdown';
+import SupportedPharmacyCard from './SupportedPharmacyCard';
 
 const defaultErrors = {
   search: null,

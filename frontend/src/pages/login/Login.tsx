@@ -1,9 +1,10 @@
-import { useEffect, useState, type FormEvent } from 'react';
+import { type FormEvent,useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import type { LoginCredentials } from '../../types/user';
+
 import * as UserService from '../../api/user';
 import { useAuthContext } from '../../context/AuthContext';
 import LOGIN_TEXT from '../../locale/login';
+import type { LoginCredentials } from '../../types/user';
 
 const defaultCredentials = {
   username: '',

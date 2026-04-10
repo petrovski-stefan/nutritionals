@@ -1,16 +1,17 @@
+import { PlusIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
+
+import * as MyListService from '../../api/mylist';
+import { useAuthContext } from '../../context/AuthContext';
+import MYLISTS_TEXT from '../../locale/mylists';
 import type {
   BackendMyListItem,
   BackendMyListWithItems,
   BackendMyListWithItemsCount,
 } from '../../types/mylist';
-import * as MyListService from '../../api/mylist';
-import { useAuthContext } from '../../context/AuthContext';
+import CreateUpdateMyListModal from './CreateUpdateMyListModal';
 import MyList from './MyList';
 import MyListItem from './MyListItem';
-import MYLISTS_TEXT from '../../locale/mylists';
-import CreateUpdateMyListModal from './CreateUpdateMyListModal';
-import { PlusIcon } from 'lucide-react';
 
 type Loading = {
   myLists: boolean;
