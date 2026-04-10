@@ -4,85 +4,83 @@ import type { BackendMyListWithItems, BackendMyListWithItemsCount } from '../typ
 
 const BASE_PATH = 'api/v1/mylists/';
 
-export class MyListService {
-  static readonly getMyLists = async (accessToken: string) => {
-    const response = await axiosInstance.get(`${BASE_PATH}`, {
+export const getMyLists = async (accessToken: string) => {
+  const response = await axiosInstance.get(`${BASE_PATH}`, {
+    headers: { Authorization: `Bearer ${accessToken}` },
+  });
+
+  return response.data as APIResponse<Array<BackendMyListWithItemsCount>>;
+};
+
+export const getMyListById = async (myListId: number, accessToken: string) => {
+  const response = await axiosInstance.get(`${BASE_PATH}${myListId}/`, {
+    headers: { Authorization: `Bearer ${accessToken}` },
+  });
+
+  return response.data as APIResponse<BackendMyListWithItems>;
+};
+
+export const createMyList = async (name: string, accessToken: string) => {
+  const response = await axiosInstance.post(
+    `${BASE_PATH}`,
+    { name },
+    {
       headers: { Authorization: `Bearer ${accessToken}` },
-    });
-
-    return response.data as APIResponse<Array<BackendMyListWithItemsCount>>;
-  };
-
-  static readonly getMyListById = async (myListId: number, accessToken: string) => {
-    const response = await axiosInstance.get(`${BASE_PATH}${myListId}/`, {
-      headers: { Authorization: `Bearer ${accessToken}` },
-    });
-
-    return response.data as APIResponse<BackendMyListWithItems>;
-  };
-
-  static readonly createMyList = async (name: string, accessToken: string) => {
-    const response = await axiosInstance.post(
-      `${BASE_PATH}`,
-      { name },
-      {
-        headers: { Authorization: `Bearer ${accessToken}` },
-      }
-    );
-
-    return response.data as APIResponse<BackendMyListWithItemsCount>;
-  };
-
-  static readonly updateMyList = async (myListId: number, name: string, accessToken: string) => {
-    const response = await axiosInstance.put(
-      `${BASE_PATH}${myListId}/`,
-      { name },
-      {
-        headers: { Authorization: `Bearer ${accessToken}` },
-      }
-    );
-
-    return response.data as APIResponse<BackendMyListWithItemsCount>;
-  };
-
-  static readonly deleteMyList = async (myListId: number, accessToken: string) => {
-    const response = await axiosInstance.delete(`${BASE_PATH}${myListId}/`, {
-      headers: { Authorization: `Bearer ${accessToken}` },
-    });
-
-    if (response.status > 400) {
-      return response.data as APIResponseFail;
     }
+  );
 
-    return null;
-  };
+  return response.data as APIResponse<BackendMyListWithItemsCount>;
+};
 
-  static readonly addProductToMyList = async (
-    myListId: number,
-    productId: number,
-    accessToken: string,
-    isProductAddedBySmartSearch: boolean = false
-  ) => {
-    const response = await axiosInstance.post(
-      `${BASE_PATH}${myListId}/products/`,
-      { product_id: productId, is_added_through_smart_search: isProductAddedBySmartSearch },
-      {
-        headers: { Authorization: `Bearer ${accessToken}` },
-      }
-    );
-
-    return response.data as APIResponse<BackendMyListWithItemsCount>;
-  };
-
-  static readonly removeProductFromMyList = async (
-    myListId: number,
-    productId: number,
-    accessToken: string
-  ) => {
-    const response = await axiosInstance.delete(`${BASE_PATH}${myListId}/products/${productId}/`, {
+export const updateMyList = async (myListId: number, name: string, accessToken: string) => {
+  const response = await axiosInstance.put(
+    `${BASE_PATH}${myListId}/`,
+    { name },
+    {
       headers: { Authorization: `Bearer ${accessToken}` },
-    });
+    }
+  );
 
-    return response.data as APIResponse<null>;
-  };
-}
+  return response.data as APIResponse<BackendMyListWithItemsCount>;
+};
+
+export const deleteMyList = async (myListId: number, accessToken: string) => {
+  const response = await axiosInstance.delete(`${BASE_PATH}${myListId}/`, {
+    headers: { Authorization: `Bearer ${accessToken}` },
+  });
+
+  if (response.status > 400) {
+    return response.data as APIResponseFail;
+  }
+
+  return null;
+};
+
+export const addProductToMyList = async (
+  myListId: number,
+  productId: number,
+  accessToken: string,
+  isProductAddedBySmartSearch: boolean = false
+) => {
+  const response = await axiosInstance.post(
+    `${BASE_PATH}${myListId}/products/`,
+    { product_id: productId, is_added_through_smart_search: isProductAddedBySmartSearch },
+    {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    }
+  );
+
+  return response.data as APIResponse<BackendMyListWithItemsCount>;
+};
+
+export const removeProductFromMyList = async (
+  myListId: number,
+  productId: number,
+  accessToken: string
+) => {
+  const response = await axiosInstance.delete(`${BASE_PATH}${myListId}/products/${productId}/`, {
+    headers: { Authorization: `Bearer ${accessToken}` },
+  });
+
+  return response.data as APIResponse<null>;
+};

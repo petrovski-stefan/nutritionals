@@ -4,7 +4,7 @@ import type {
   BackendMyListWithItems,
   BackendMyListWithItemsCount,
 } from '../../types/mylist';
-import { MyListService } from '../../api/mylist';
+import * as MyListService from '../../api/mylist';
 import { useAuthContext } from '../../context/AuthContext';
 import MyList from './MyList';
 import MyListItem from './MyListItem';

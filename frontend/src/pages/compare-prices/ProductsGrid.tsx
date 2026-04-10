@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { MyListService } from '../../api/mylist';
+import * as MyListService from '../../api/mylist';
 import { useAuthContext } from '../../context/AuthContext';
 import { useLocation, useNavigate } from 'react-router-dom';
 import type { BackendMyListWithItemsCount, ProductToMyList } from '../../types/mylist';

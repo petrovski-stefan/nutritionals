@@ -5,7 +5,7 @@ import SMART_SEARCH_TEXT from '../../locale/smart-search';
 import Tooltip from '../../components/ui/Tooltip';
 import { useEffect, useState } from 'react';
 import type { BackendMyListWithItemsCount, ProductToMyList } from '../../types/mylist';
-import { MyListService } from '../../api/mylist';
+import * as MyListService from '../../api/mylist';
 import { useAuthContext } from '../../context/AuthContext';
 import { useLocation, useNavigate } from 'react-router-dom';
 import type { IsLoading, Error } from './types';
