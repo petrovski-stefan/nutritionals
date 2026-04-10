@@ -1,43 +1,32 @@
-from django.contrib.auth import get_user_model, password_validation
+from django.contrib.auth import get_user_model
+from django.contrib.auth import password_validation as django_password_validation
 from rest_framework import serializers
 from rest_framework_simplejwt.serializers import PasswordField
 
 User = get_user_model()
 
 
-class UserRegisterSerializer(serializers.ModelSerializer):
-    password = PasswordField()
+class UserRegisterInputSerializer(serializers.Serializer):
+    username = serializers.CharField(min_length=5)
+    password = PasswordField(validators=[django_password_validation.validate_password])
     confirm_password = PasswordField()
-    access = serializers.SerializerMethodField()
-    refresh = serializers.SerializerMethodField()
-
-    class Meta:
-        model = User
-        fields = ["username", "password", "confirm_password", "access", "refresh"]
-        read_only_fields = ["access", "refresh"]
-
-    def validate_password(self, value: str) -> str:
-        password_validation.validate_password(value)
-
-        return value
 
     def validate_username(self, value: str) -> str:
 
-        if len(value) < 5:
-            raise serializers.ValidationError("Username must have 5 or more characters")
+        # NOTE: Possible race condition
+        if User.objects.filter(username=value).exists():
+            raise serializers.ValidationError("The username is currently unavailable")
 
         return value
 
     def validate(self, attrs) -> dict:
-        validated = super().validate(attrs)
+        validated: dict = super().validate(attrs)
 
-        if attrs.get("password") != attrs.get("confirm_password"):
-            raise serializers.ValidationError("Passwords do not match.")
+        if validated.get("password") != validated.get("confirm_password"):
+            raise serializers.ValidationError(
+                "Passwords do not match.", code="passwords_do_not_match"
+            )
+
+        validated.pop("confirm_password")
 
         return validated
-
-    def get_access(self, instance) -> str:
-        return self.context.get("token_pair", {}).get("access")
-
-    def get_refresh(self, instance) -> str:
-        return self.context.get("token_pair", {}).get("refresh")
