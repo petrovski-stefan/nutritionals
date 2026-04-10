@@ -40,7 +40,7 @@ export default function Header() {
             to="/"
             className="text-accent hover:text-accent/80 text-2xl font-bold italic transition-colors sm:text-3xl"
           >
-            Nutritionals
+            Nutriceni
           </Link>
         </div>
 
