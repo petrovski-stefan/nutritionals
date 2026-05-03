@@ -1,4 +1,4 @@
-import { type FormEvent,useEffect, useState } from 'react';
+import { type FormEvent, useEffect, useState } from 'react';
 
 import * as BrandService from '../../api/brand';
 import * as CategoryService from '../../api/category';
@@ -8,7 +8,7 @@ import type { BackendCategory } from '../../types/category';
 import type { BackendProductGroup, GroupFilterValue } from '../../types/productgroup';
 import FiltersSidebar from './FiltersSidebar';
 import ProductsGrid from './ProductsGrid';
-import type { Error,IsLoading } from './types';
+import type { Error, IsLoading } from './types';
 
 const filtersDefault = {
   brandIds: [],
@@ -78,6 +78,7 @@ export default function ComparePrices() {
       } else {
         setGroups([]);
       }
+      // eslint-disable-next-line  @typescript-eslint/no-unused-vars, sonarjs/no-ignored-exceptions
     } catch (error) {
       handleErrorChange('groups', 'unexpectedError');
     } finally {
@@ -85,18 +86,17 @@ export default function ComparePrices() {
     }
   };
 
-  const fetchBrands = async (blank: boolean) => {
+  const fetchBrands = async () => {
     handleIsLoadingChange('brands', false);
     handleErrorChange('brands', null);
 
-    const params = blank ? '' : searchQuery;
-
     try {
-      const response = await BrandService.getBrands(params);
+      const response = await BrandService.getBrands();
 
       if (response.status) {
         setBrands(response.data);
       }
+      // eslint-disable-next-line  @typescript-eslint/no-unused-vars, sonarjs/no-ignored-exceptions
     } catch (error) {
       handleErrorChange('brands', 'unexpectedError');
     } finally {
@@ -115,21 +115,22 @@ export default function ComparePrices() {
         if (response.status) {
           setCategories(response.data);
         }
+        // eslint-disable-next-line  @typescript-eslint/no-unused-vars, sonarjs/no-ignored-exceptions
       } catch (error) {
         handleErrorChange('categories', 'unexpectedError');
       } finally {
         handleIsLoadingChange('categories', false);
       }
     };
-    fetchPharmacies();
+    void fetchPharmacies();
   }, []);
 
   const fetchData = async (blank: boolean = false, page?: number) => {
-    await Promise.all([fetchGroups(blank, page), fetchBrands(blank)]);
+    await Promise.all([fetchGroups(blank, page), fetchBrands()]);
   };
 
   useEffect(() => {
-    fetchData();
+    void fetchData();
   }, [JSON.stringify(filters), currentPage]);
 
   const handleFilterChange = (key: keyof GroupFilterValue, value: number, isChecked: boolean) => {
@@ -156,7 +157,7 @@ export default function ComparePrices() {
     }
 
     setCurrentPage(1);
-    fetchData(false, 1);
+    await fetchData(false, 1);
   };
 
   const handleClearInputSearchQuery = async () => {
@@ -170,6 +171,7 @@ export default function ComparePrices() {
   };
 
   const handleClickPagination = (back: boolean) => {
+    // eslint-disable-next-line  sonarjs/no-selector-parameter
     if (back) {
       if (currentPage === 1) {
         return;
@@ -187,13 +189,13 @@ export default function ComparePrices() {
   return (
     <div className="relative flex min-h-screen w-full flex-col justify-around md:flex-row">
       <FiltersSidebar
-        handleSearchFormSubmit={handleSearchFormSubmit}
+        handleSearchFormSubmit={(e) => void handleSearchFormSubmit(e)}
         inputSearchQuery={searchQuery}
         setInputSearchQuery={setSearchQuery}
         brands={brands}
         categories={categories}
         handleFilterValueChange={handleFilterChange}
-        handleClearInputSearchQuery={handleClearInputSearchQuery}
+        handleClearInputSearchQuery={() => void handleClearInputSearchQuery()}
         filters={filters}
         setFilters={setFilters}
       />

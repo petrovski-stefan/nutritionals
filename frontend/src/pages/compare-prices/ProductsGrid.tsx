@@ -9,7 +9,7 @@ import type { BackendProductGroup } from '../../types/productgroup';
 import ProductGroupCard from './ProductGroupCard';
 import type { Error, IsLoading } from './types';
 
-type Props = {
+type Props = Readonly<{
   groups: BackendProductGroup[];
   totalPages: number;
   currentPage: number;
@@ -18,7 +18,7 @@ type Props = {
   isLoading: IsLoading;
   handleErrorChange: <K extends keyof Error>(key: K, value: Error[K]) => void;
   handleIsLoadingChange: <K extends keyof IsLoading>(key: K, value: IsLoading[K]) => void;
-};
+}>;
 
 export default function ProductsGrid({
   groups,
@@ -51,13 +51,14 @@ export default function ProductsGrid({
         if (response.status) {
           setMyLists(response.data);
         }
+        // eslint-disable-next-line  @typescript-eslint/no-unused-vars, sonarjs/no-ignored-exceptions
       } catch (error) {
         handleErrorChange('myLists', 'unexpectedError');
       } finally {
         handleIsLoadingChange('myLists', false);
       }
     };
-    if (isLoggedIn) getMyLists();
+    if (isLoggedIn) void getMyLists();
   }, [isLoggedIn]);
 
   const handleClickAddProductToMyList = (
@@ -66,7 +67,7 @@ export default function ProductsGrid({
     pharmacyName: string
   ) => {
     if (!isLoggedIn) {
-      navigate('/login', { state: { from: location } });
+      void navigate('/login', { state: { from: location } });
       return;
     }
     setIsAddModalOpen(true);
@@ -89,6 +90,7 @@ export default function ProductsGrid({
       } else {
         handleErrorChange('productToMyList', 'client_error');
       }
+      // eslint-disable-next-line  @typescript-eslint/no-unused-vars, sonarjs/no-ignored-exceptions
     } catch (error) {
       handleErrorChange('productToMyList', 'unexpectedError');
     } finally {
@@ -115,6 +117,7 @@ export default function ProductsGrid({
       if (response.status) {
         setMyLists((prev) => [response.data, ...prev]);
       }
+      // eslint-disable-next-line  @typescript-eslint/no-unused-vars, sonarjs/no-ignored-exceptions
     } catch (error) {
       handleErrorChange('createNewMyList', 'unexpectedError');
     } finally {
@@ -168,7 +171,9 @@ export default function ProductsGrid({
               <button
                 className="bg-accent cursor-pointer rounded-2xl p-2 font-bold text-white"
                 disabled={currentPage === 1}
-                onClick={() => handlePaginationClick(true)}
+                onClick={() => {
+                  handlePaginationClick(true);
+                }}
               >
                 Претходна
               </button>
@@ -180,7 +185,9 @@ export default function ProductsGrid({
               <button
                 className="bg-primary cursor-pointer rounded-2xl p-2 font-bold text-white"
                 disabled={currentPage === totalPages}
-                onClick={() => handlePaginationClick(false)}
+                onClick={() => {
+                  handlePaginationClick(false);
+                }}
               >
                 Следна
               </button>

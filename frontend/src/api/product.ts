@@ -8,7 +8,8 @@ export const searchProducts = async (searchQuery: string) => {
   const params = new URLSearchParams();
   params.append('q', searchQuery);
 
-  const response = await axiosInstance.get(`${PRODUCTS_BASE_PATH}search/`, { params });
+  const url = `${PRODUCTS_BASE_PATH}search/`;
+  const response = await axiosInstance.get(url, { params });
 
   return response.data as APIResponse<Array<BackendProduct>>;
 };
@@ -18,7 +19,8 @@ export const smartSearchProducts = async (
   pharmacyIds: number[],
   categoryIds: number[]
 ) => {
-  const response = await axiosInstance.post(`${PRODUCTS_BASE_PATH}smart-search/`, {
+  const url = `${PRODUCTS_BASE_PATH}smart-search/`;
+  const response = await axiosInstance.post(url, {
     query: searchQuery,
     pharmacy_ids: pharmacyIds,
     category_ids: categoryIds,
@@ -28,7 +30,8 @@ export const smartSearchProducts = async (
 };
 
 export const getProductsOnDiscount = async () => {
-  const response = await axiosInstance.get(`${PRODUCTS_BASE_PATH}discounted/`);
+  const url = `${PRODUCTS_BASE_PATH}discounted/`;
+  const response = await axiosInstance.get(url);
 
   return response.data as APIResponse<Array<BackendDiscountedProduct>>;
 };

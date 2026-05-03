@@ -1,4 +1,4 @@
-import { FolderPlusIcon,XIcon } from 'lucide-react';
+import { FolderPlusIcon, XIcon } from 'lucide-react';
 import { useState } from 'react';
 
 import Tooltip from '../../../components/ui/Tooltip';
@@ -15,17 +15,20 @@ import {
 import { CREATE_NEW_MYLIST_ERROR, MYLISTS_ERROR, PRODUCT_TO_MYLIST_ERROR } from '../locale/error';
 import type { RequiredMyListsModalError, RequiredMyListsModalIsLoading } from '../types';
 
-type Props<E extends RequiredMyListsModalError, IL extends RequiredMyListsModalIsLoading> = {
+type Props<
+  E extends RequiredMyListsModalError,
+  IL extends RequiredMyListsModalIsLoading,
+> = Readonly<{
   productToMyList: ProductToMyList;
   myLists: BackendMyListWithItemsCount[];
-  handleAddProductToMyList: (productId: number, myListId: number) => void;
-  handleCreateMyList: (name: string) => void;
+  handleAddProductToMyList: (productId: number, myListId: number) => Promise<void>;
+  handleCreateMyList: (name: string) => Promise<void>;
   handleMyListsModalOnClose: () => void;
   error: E;
   isLoading: IL;
   handleErrorChange: <K extends keyof E>(key: K, value: E[K]) => void;
   handleIsLoadingChange: <K extends keyof IL>(key: K, value: IL[K]) => void;
-};
+}>;
 
 export default function AddProductToMyListModal<
   E extends RequiredMyListsModalError,
@@ -117,7 +120,9 @@ export default function AddProductToMyListModal<
             myLists.map((myList) => (
               <button
                 key={myList.id}
-                onClick={() => handleAddProductToMyList(productToMyList.productId, myList.id)}
+                onClick={() => {
+                  void handleAddProductToMyList(productToMyList.productId, myList.id);
+                }}
                 className="hover:border-primary hover:bg-primary/10 w-full cursor-pointer rounded-lg border border-neutral-300 px-4 py-2 text-left transition-all duration-200"
               >
                 {myList.name}
@@ -134,14 +139,16 @@ export default function AddProductToMyListModal<
             <input
               type="text"
               value={newMyListName}
-              onChange={(e) => setNewMyListName(e.target.value)}
+              onChange={(e) => {
+                setNewMyListName(e.target.value);
+              }}
               placeholder={MYLIST_PLACEHOLDER}
               className="focus:ring-primary flex-1 rounded-lg border border-neutral-300 px-3 py-2 focus:ring-2 focus:outline-none"
             />
             <button
               onClick={() => {
                 if (newMyListName.trim()) {
-                  handleCreateMyList(newMyListName);
+                  void handleCreateMyList(newMyListName);
                   setNewMyListName('');
                   setIsCreatingNew(false);
                 }

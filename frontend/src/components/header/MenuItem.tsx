@@ -1,10 +1,10 @@
 import { NavLink } from 'react-router-dom';
 
-type Props = {
+type Props = Readonly<{
   path: string;
   linkText: string;
   handleLinkClick: () => void;
-};
+}>;
 
 export default function MenuItem({ path, linkText, handleLinkClick }: Props) {
   const activeLinkStyles = 'font-bold text-accent underline decoration-accent';

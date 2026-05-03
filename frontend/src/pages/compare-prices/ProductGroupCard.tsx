@@ -3,14 +3,14 @@ import { useMemo } from 'react';
 import type { BackendProductGroup } from '../../types/productgroup';
 import ProductInGroup from './ProductInGroup';
 
-type Props = {
+type Props = Readonly<{
   productGroup: BackendProductGroup;
   handleClickAddProductToMyList: (
     productId: number,
     productName: string,
     pharmacyName: string
   ) => void;
-};
+}>;
 
 export default function ProductGroupCard({ productGroup, handleClickAddProductToMyList }: Props) {
   const productsLength = useMemo(() => {

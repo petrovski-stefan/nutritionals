@@ -67,6 +67,7 @@ export default function MyLists() {
         if (response.status) {
           setMyLists(response.data);
         }
+        // eslint-disable-next-line  @typescript-eslint/no-unused-vars, sonarjs/no-ignored-exceptions
       } catch (err) {
         setError({ ...error, myLists: 'unexpectedError' });
       } finally {
@@ -74,7 +75,7 @@ export default function MyLists() {
       }
     };
 
-    getMyLists();
+    void getMyLists();
   }, []);
 
   useEffect(() => {
@@ -90,6 +91,7 @@ export default function MyLists() {
         } else {
           setError({ ...error, products: 'client_error' });
         }
+        // eslint-disable-next-line  @typescript-eslint/no-unused-vars, sonarjs/no-ignored-exceptions
       } catch (err) {
         setError({ ...error, products: 'unexpectedError' });
       } finally {
@@ -97,7 +99,7 @@ export default function MyLists() {
       }
     };
 
-    getMyListById();
+    void getMyListById();
   }, [myListIdToView]);
 
   const handleViewMyList = (myListId: number) => {
@@ -170,6 +172,7 @@ export default function MyLists() {
           createUpdateMyList: response.errors_type as CreateUpdateMyListError,
         }));
       }
+      // eslint-disable-next-line  @typescript-eslint/no-unused-vars, sonarjs/no-ignored-exceptions
     } catch (err) {
       setError((prev) => ({
         ...prev,
@@ -264,7 +267,7 @@ export default function MyLists() {
                 key={item.id}
                 arrayIndex={i}
                 handleDeleteProductMyList={() =>
-                  handleRemoveProductFromMyList(myListIdToView, item.product_id)
+                  void handleRemoveProductFromMyList(myListIdToView, item.product_id)
                 }
                 {...item}
               />

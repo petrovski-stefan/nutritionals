@@ -6,13 +6,15 @@ import type { BackendProduct } from '../../types/product';
 import { checkIsPossiblyUnavailible } from '../../utils/availability';
 import { formatPrice } from '../../utils/prices';
 
-type Props = BackendProduct & {
-  handleClickAddProductToMyList: (
-    productId: number,
-    productName: string,
-    pharmacyName: string
-  ) => void;
-};
+type Props = Readonly<
+  BackendProduct & {
+    handleClickAddProductToMyList: (
+      productId: number,
+      productName: string,
+      pharmacyName: string
+    ) => void;
+  }
+>;
 
 export default function ProductInGroup({
   id,
@@ -61,7 +63,9 @@ export default function ProductInGroup({
         )}
 
         <button
-          onClick={() => handleClickAddProductToMyList(id, name, pharmacy_name)}
+          onClick={() => {
+            handleClickAddProductToMyList(id, name, pharmacy_name);
+          }}
           className="text-gray-400 transition-colors hover:text-yellow-500"
         >
           <Tooltip

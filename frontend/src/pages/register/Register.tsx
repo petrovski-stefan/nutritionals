@@ -1,4 +1,4 @@
-import { type FormEvent,useState } from 'react';
+import { type FormEvent, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
 import * as UserService from '../../api/user';
@@ -54,11 +54,13 @@ export default function Register() {
 
       if (response.status) {
         login(response.data.username, response.data.access);
-        navigate('/');
+        void navigate('/');
+        setCredentials(defaultCredentials);
       } else {
         setError(response.errors_type as Error);
       }
-    } catch (error) {
+      // eslint-disable-next-line  @typescript-eslint/no-unused-vars, sonarjs/no-ignored-exceptions
+    } catch (err) {
       setError('unexpectedError');
     } finally {
       setIsLoading(false);
@@ -75,7 +77,9 @@ export default function Register() {
         )}
 
         <form
-          onSubmit={handleFormSubmit}
+          onSubmit={(e) => {
+            void handleFormSubmit(e);
+          }}
           className="space-y-5"
         >
           <div className="flex flex-col">
@@ -85,7 +89,9 @@ export default function Register() {
             <input
               type="text"
               value={credentials.username}
-              onChange={(e) => handleCredentialsOnChange('username', e.target.value)}
+              onChange={(e) => {
+                handleCredentialsOnChange('username', e.target.value);
+              }}
               className="border-dark/30 focus:ring-accent focus:border-accent rounded-2xl border px-4 py-3 transition focus:ring-2 focus:outline-none"
               placeholder={REGISTER_TEXT['form']['usernamePlaceholder']}
             />
@@ -97,7 +103,9 @@ export default function Register() {
             <input
               type="password"
               value={credentials.password}
-              onChange={(e) => handleCredentialsOnChange('password', e.target.value)}
+              onChange={(e) => {
+                handleCredentialsOnChange('password', e.target.value);
+              }}
               className="border-dark/30 focus:ring-accent focus:border-accent rounded-2xl border px-4 py-3 transition focus:ring-2 focus:outline-none"
               placeholder={REGISTER_TEXT['form']['passwordPlaceholder']}
             />
@@ -109,7 +117,9 @@ export default function Register() {
             <input
               type="password"
               value={credentials.confirmPassword}
-              onChange={(e) => handleCredentialsOnChange('confirmPassword', e.target.value)}
+              onChange={(e) => {
+                handleCredentialsOnChange('confirmPassword', e.target.value);
+              }}
               className="border-dark/30 focus:ring-accent focus:border-accent rounded-2xl border px-4 py-3 transition focus:ring-2 focus:outline-none"
               placeholder={REGISTER_TEXT['form']['repeatPasswordPlaceholder']}
             />

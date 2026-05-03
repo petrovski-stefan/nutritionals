@@ -3,7 +3,7 @@ import { ExternalLinkIcon } from 'lucide-react';
 import { checkIsPossiblyUnavailible } from '../../utils/availability';
 import { formatPrice } from '../../utils/prices';
 
-type Props = {
+type Props = Readonly<{
   name: string;
   price: number;
   discount_price: number | null;
@@ -12,7 +12,7 @@ type Props = {
   brand_name: string | null;
   url: string;
   last_scraped_at: string;
-};
+}>;
 
 export default function DropdownProductCard({
   name,

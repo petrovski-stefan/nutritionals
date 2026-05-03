@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 
-const email = import.meta.env.VITE_WEBSITE_EMAIL as string;
-const websiteUrl = import.meta.env.VITE_WEBSITE_URL as string;
+const email = import.meta.env['VITE_WEBSITE_EMAIL'] as string;
+const websiteUrl = import.meta.env['VITE_WEBSITE_URL'] as string;
 
 export default function Footer() {
   return (

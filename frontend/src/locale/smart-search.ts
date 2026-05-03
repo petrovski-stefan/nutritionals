@@ -9,6 +9,7 @@ const TEXT = {
   },
   searchResultsModal: {
     productsFound: (query: string, productsLength: number) =>
+      // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
       `Паметниот асистент пронајде ${productsLength} суплементи за вашето барање: "${query}".`,
     noProductsFound: (query: string) =>
       `Паметниот асистент не пронајде суплементи за вашето барање "${query}". Обидете се повторно.`,

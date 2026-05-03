@@ -6,10 +6,12 @@ import type { BackendMyListItem } from '../../types/mylist';
 import { checkIsPossiblyUnavailible } from '../../utils/availability';
 import { formatPrice } from '../../utils/prices';
 
-type Props = BackendMyListItem & {
-  arrayIndex: number;
-  handleDeleteProductMyList: () => void;
-};
+type Props = Readonly<
+  BackendMyListItem & {
+    arrayIndex: number;
+    handleDeleteProductMyList: () => void;
+  }
+>;
 
 export default function MyListItem({
   is_added_through_smart_search,

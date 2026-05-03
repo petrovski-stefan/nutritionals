@@ -6,7 +6,7 @@ import MYLISTS_TEXT from '../../locale/mylists';
 
 type Error = 'unexpectedError' | 'myListNameAlreadyUsed' | null;
 
-type Props = {
+type Props = Readonly<{
   handleCloseCreateUpdateMyListModal: () => void;
   handleCreateUpdateMyList: (
     name: string,
@@ -18,11 +18,13 @@ type Props = {
   mode: 'create' | 'update';
   isLoading: boolean;
   error: Error;
-  myListToUpdate?: {
-    id: number;
-    name: string;
-  };
-};
+  myListToUpdate:
+    | {
+        id: number;
+        name: string;
+      }
+    | undefined;
+}>;
 
 export default function CreateUpdateMyListModal({
   handleCloseCreateUpdateMyListModal,
@@ -44,9 +46,12 @@ export default function CreateUpdateMyListModal({
       <div className="relative w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl">
         <div className="mb-5 flex items-center justify-between border-b border-neutral-200 pb-3">
           <h2 className="text-dark text-xl font-semibold">
-            {mode === 'create'
-              ? MYLISTS_TEXT['modal']['createNewMyListTitle']
-              : `${MYLISTS_TEXT['modal']['updateMyListTitle']} ${myListToUpdate!.name}`}
+            {mode === 'create' &&
+              myListToUpdate === undefined &&
+              MYLISTS_TEXT['modal']['createNewMyListTitle']}
+            {mode === 'update' &&
+              myListToUpdate !== undefined &&
+              `${MYLISTS_TEXT['modal']['updateMyListTitle']} ${myListToUpdate.name}`}
           </h2>
 
           <button
@@ -69,13 +74,17 @@ export default function CreateUpdateMyListModal({
             type="text"
             maxLength={30}
             value={myListName}
-            onChange={(e) => setMyListName(e.target.value)}
+            onChange={(e) => {
+              setMyListName(e.target.value);
+            }}
             placeholder={MYLISTS_TEXT['modal']['myListPlaceholder']}
             className="focus:ring-primary flex-1 rounded-lg border border-neutral-300 px-3 py-2 focus:ring-2 focus:outline-none"
           />
           <button
             disabled={myListName.length < 1}
-            onClick={() => handleCreateUpdateMyList(myListName, myListToUpdate)}
+            onClick={() => {
+              void handleCreateUpdateMyList(myListName, myListToUpdate);
+            }}
             className="bg-primary hover:bg-primary/90 cursor-pointer rounded-lg px-4 py-2 text-white disabled:cursor-not-allowed"
           >
             {MYLISTS_TEXT['modal']['createNewMyListButton']}

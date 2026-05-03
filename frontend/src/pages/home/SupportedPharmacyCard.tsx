@@ -1,10 +1,10 @@
-type Props = {
+type Props = Readonly<{
   idx: number;
   name: string;
   homepage: string;
   num_products: number;
   last_scraped_at: string | null;
-};
+}>;
 
 export default function SupportedPharmacyCard({
   idx,

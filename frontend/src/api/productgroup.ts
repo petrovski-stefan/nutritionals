@@ -12,17 +12,18 @@ export const getProductGroups = async (
 ) => {
   const params = new URLSearchParams();
 
+  // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
   params.append('page', `${page}`);
 
   if (searchQuery) {
     params.append('q', searchQuery);
   }
 
-  if (categoryIds && categoryIds.length > 0) {
+  if (categoryIds.length > 0) {
     params.append('categories', categoryIds.join(','));
   }
 
-  if (brandIds && brandIds.length > 0) {
+  if (brandIds.length > 0) {
     params.append('brand', brandIds.join(','));
   }
   const response = await axiosInstance.get(PRODUCT_GROUPS_PATH, { params: params });

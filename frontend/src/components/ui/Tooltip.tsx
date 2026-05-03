@@ -1,9 +1,11 @@
-import { type PropsWithChildren,useState } from 'react';
+import { type PropsWithChildren, useState } from 'react';
 
-type Props = PropsWithChildren & {
-  text: string;
-  placement?: 'top' | 'bottom' | 'right' | 'left';
-};
+type Props = Readonly<
+  PropsWithChildren & {
+    text: string;
+    placement?: 'top' | 'bottom' | 'right' | 'left';
+  }
+>;
 
 export default function Tooltip({ children, text, placement = 'top' }: Props) {
   const [visible, setVisible] = useState(false);
@@ -17,8 +19,12 @@ export default function Tooltip({ children, text, placement = 'top' }: Props) {
 
   return (
     <span
-      onMouseEnter={() => setVisible(true)}
-      onMouseLeave={() => setVisible(false)}
+      onMouseEnter={() => {
+        setVisible(true);
+      }}
+      onMouseLeave={() => {
+        setVisible(false);
+      }}
       className="relative inline-block"
     >
       {children}

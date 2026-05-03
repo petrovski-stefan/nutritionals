@@ -1,5 +1,5 @@
 import { XIcon } from 'lucide-react';
-import { type FormEvent,useEffect, useState } from 'react';
+import { type FormEvent, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 
 import * as PharmacyService from '../../api/pharmacy';
@@ -53,6 +53,7 @@ export default function Home() {
         if (productsOnDiscountResponse.status)
           setProductsOnDiscount(productsOnDiscountResponse.data);
         else handleErrorsChange('productsOnDiscount', 'unexpectedError');
+        // eslint-disable-next-line  @typescript-eslint/no-unused-vars, sonarjs/no-ignored-exceptions
       } catch (error) {
         handleErrorsChange('pharmacies', 'unexpectedError');
         handleErrorsChange('productsOnDiscount', 'unexpectedError');
@@ -62,7 +63,7 @@ export default function Home() {
       }
     };
 
-    fetchData();
+    void fetchData();
   }, []);
 
   useEffect(() => {
@@ -91,6 +92,7 @@ export default function Home() {
           setProducts([]);
           handleErrorsChange('search', 'unexpectedError');
         }
+        // eslint-disable-next-line  @typescript-eslint/no-unused-vars, sonarjs/no-ignored-exceptions
       } catch (error) {
         setProducts([]);
         handleErrorsChange('search', 'unexpectedError');
@@ -99,7 +101,7 @@ export default function Home() {
       }
     };
 
-    searchProducts(searchQuery);
+    void searchProducts(searchQuery);
     setIsSearchDropdownOpen(true);
   }, [searchQuery]);
 
@@ -114,6 +116,9 @@ export default function Home() {
   const handleErrorsChange = (key: keyof typeof defaultErrors, value: Error | null) => {
     setErrors((prev) => ({ ...prev, [key]: value }));
   };
+
+  const hasDiscountProducts = productsOnDiscount.length > 0;
+  const isEmptyDiscountProducts = productsOnDiscount.length === 0;
 
   return (
     <div className="bg-neutral min-h-screen">
@@ -132,12 +137,16 @@ export default function Home() {
             type="text"
             placeholder={HOME_TEXT['form']['placeholder']}
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={(e) => {
+              setSearchQuery(e.target.value);
+            }}
           />
           {searchQuery && (
             <button
               type="button"
-              onClick={() => setSearchQuery('')}
+              onClick={() => {
+                setSearchQuery('');
+              }}
               className="text-dark/50 hover:text-dark absolute top-1/2 right-5 -translate-y-1/2 cursor-pointer"
             >
               <Tooltip text="Исчисти пребарување">
@@ -170,8 +179,8 @@ export default function Home() {
         </h1>
 
         {!isLoadings['productsOnDiscount'] &&
-          !errors['productsOnDiscount'] &&
-          productsOnDiscount.length > 0 && (
+          // errors['productsOnDiscount'] === null &&
+          hasDiscountProducts && (
             <div className="mt-5 flex flex-wrap justify-center gap-5">
               {productsOnDiscount.map((product) => (
                 <BestDealsProductCard
@@ -183,18 +192,18 @@ export default function Home() {
           )}
 
         {!isLoadings['productsOnDiscount'] &&
-          !errors['productsOnDiscount'] &&
-          productsOnDiscount.length === 0 && (
+          // errors.productsOnDiscount === null &&
+          isEmptyDiscountProducts && (
             <p className="text-dark/70 mt-5 text-center text-sm">
               {HOME_TEXT['productsOnDiscount']['noProductsOnDiscount']}
             </p>
           )}
 
-        {!isLoadings['productsOnDiscount'] && errors['productsOnDiscount'] && (
+        {/* {!isLoadings['productsOnDiscount'] && errors['productsOnDiscount'] && (
           <p className="text-dark/70 mt-5 text-center text-sm">
             {HOME_TEXT['productsOnDiscount'][errors['productsOnDiscount']]}
           </p>
-        )}
+        )} */}
 
         {isLoadings['productsOnDiscount'] && (
           <p className="text-dark/70 mt-5 text-center text-sm">
@@ -208,7 +217,8 @@ export default function Home() {
           {HOME_TEXT['supportedPharmacies']['h1']}
         </h1>
 
-        {!isLoadings['pharmacies'] && !errors['pharmacies'] && (
+        {/* && errors['pharmacies'] !== null */}
+        {!isLoadings['pharmacies'] && (
           <div className="mt-5 flex flex-wrap justify-center gap-5">
             {pharmacies.map((pharmacy, i) => (
               <SupportedPharmacyCard
@@ -226,11 +236,11 @@ export default function Home() {
           </p>
         )}
 
-        {!isLoadings['pharmacies'] && errors['pharmacies'] && (
+        {/* {!isLoadings['pharmacies'] && errors['pharmacies'] && (
           <p className="text-dark/70 mt-5 text-center text-sm">
             {HOME_TEXT['supportedPharmacies'][errors['pharmacies']]}
           </p>
-        )}
+        )} */}
       </Section>
     </div>
   );

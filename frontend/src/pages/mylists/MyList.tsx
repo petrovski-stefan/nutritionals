@@ -5,13 +5,15 @@ import { useAuthContext } from '../../context/AuthContext';
 import MYLISTS_TEXT from '../../locale/mylists';
 import type { BackendMyListWithItemsCount } from '../../types/mylist';
 
-type Props = BackendMyListWithItemsCount & {
-  arrayIndex: number;
-  isMyListCurrentlyViewed: boolean;
-  handleMyListToView: (myListId: number) => void;
-  handleDeleteMyList: (myListId: number, accessToken: string) => Promise<void>;
-  handleClickMyListToEdit: (myListId: number, myListName: string) => void;
-};
+type Props = Readonly<
+  BackendMyListWithItemsCount & {
+    arrayIndex: number;
+    isMyListCurrentlyViewed: boolean;
+    handleMyListToView: (myListId: number) => void;
+    handleDeleteMyList: (myListId: number, accessToken: string) => Promise<void>;
+    handleClickMyListToEdit: (myListId: number, myListName: string) => void;
+  }
+>;
 
 export default function MyList({
   id,
@@ -28,11 +30,17 @@ export default function MyList({
 
   const isEven = arrayIndex % 2 === 0;
   const backgroundColor = isEven ? 'bg-primary' : 'bg-white';
-  const textColor = isMyListCurrentlyViewed
-    ? 'text-accent'
-    : isEven
-      ? 'text-white'
-      : 'text-primary';
+
+  let textColor: string;
+
+  if (isMyListCurrentlyViewed) {
+    textColor = 'text-accent';
+  } else if (isEven) {
+    textColor = 'text-white';
+  } else {
+    textColor = 'text-primary';
+  }
+
   const secondaryTextColor = isEven ? 'text-white/70' : 'text-primary/70';
 
   return (
@@ -43,7 +51,8 @@ export default function MyList({
         <p className={`text-lg font-semibold ${textColor}`}>{name}</p>
         <p className={`mt-1 text-sm ${secondaryTextColor}`}>
           {items_count === 0 && MYLISTS_TEXT['myLists']['noProducts']}
-          {items_count === 1 && `${items_count} ${MYLISTS_TEXT['myLists']['oneProduct']}`}
+          {items_count === 1 && `1 ${MYLISTS_TEXT['myLists']['oneProduct']}`}
+          {/*eslint-disable-next-line @typescript-eslint/restrict-template-expressions*/}
           {items_count > 1 && `${items_count} ${MYLISTS_TEXT['myLists']['products']}`}
         </p>
         <p className={`mt-1 text-xs italic ${secondaryTextColor}`}>
@@ -59,7 +68,9 @@ export default function MyList({
         >
           <button
             className="cursor-pointer rounded-full bg-blue-500 p-2 text-white hover:bg-blue-600"
-            onClick={() => handleMyListToView(id)}
+            onClick={() => {
+              handleMyListToView(id);
+            }}
           >
             <EyeIcon className="h-5 w-5" />
           </button>
@@ -70,7 +81,9 @@ export default function MyList({
           placement="bottom"
         >
           <button
-            onClick={() => handleClickMyListToEdit(id, name)}
+            onClick={() => {
+              handleClickMyListToEdit(id, name);
+            }}
             className="cursor-pointer rounded-full bg-yellow-500 p-2 text-white hover:bg-yellow-600"
           >
             <Edit2Icon className="h-5 w-5" />
@@ -82,7 +95,7 @@ export default function MyList({
           placement="bottom"
         >
           <button
-            onClick={() => handleDeleteMyList(id, accessToken)}
+            onClick={() => void handleDeleteMyList(id, accessToken)}
             className="cursor-pointer rounded-full bg-red-500 p-2 text-white hover:bg-red-600"
           >
             <TrashIcon className="h-5 w-5" />

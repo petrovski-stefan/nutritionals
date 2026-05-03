@@ -2,11 +2,11 @@ import HOME_TEXT from '../../locale/home';
 import type { BackendProduct } from '../../types/product';
 import DropdownProductCard from './DropdownProduct';
 
-type Props = {
+type Props = Readonly<{
   products: BackendProduct[];
   isLoading: boolean;
   error: 'unexpectedError' | 'noProductsFoundError' | null;
-};
+}>;
 
 export default function SearchDropdown({ products, isLoading, error }: Props) {
   const searchProductsDropdownCards = products.map((product) => (

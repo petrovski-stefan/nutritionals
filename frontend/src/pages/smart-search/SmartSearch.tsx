@@ -1,5 +1,5 @@
-import { FilterIcon,SearchIcon, XIcon } from 'lucide-react';
-import { type FormEvent,useEffect, useState } from 'react';
+import { FilterIcon, SearchIcon, XIcon } from 'lucide-react';
+import { type FormEvent, useEffect, useState } from 'react';
 
 import * as PharmacyService from '../../api/pharmacy';
 import * as ProductService from '../../api/product';
@@ -9,7 +9,7 @@ import SMART_SEARCH_TEXT from '../../locale/smart-search';
 import type { BackendPharmacy } from '../../types/pharmacy';
 import type { BackendProduct } from '../../types/product';
 import SmartSearchResultsModal from './SmartSearchResultsModal';
-import type { Error,IsLoading } from './types';
+import type { Error, IsLoading } from './types';
 
 const defaultError: Error = {
   search: null,
@@ -60,6 +60,7 @@ export default function SmartSearch() {
         if (pharmaciesResponse.status) {
           setPharmacyOptions(pharmaciesResponse.data);
         }
+        // eslint-disable-next-line  @typescript-eslint/no-unused-vars, sonarjs/no-ignored-exceptions
       } catch (error) {
         handleErrorChange('pharmacies', 'unexpectedError');
       } finally {
@@ -67,7 +68,7 @@ export default function SmartSearch() {
       }
     };
 
-    fetchData();
+    void fetchData();
   }, []);
 
   const handleSearchFormSubmit = async (e: FormEvent) => {
@@ -90,6 +91,7 @@ export default function SmartSearch() {
       } else {
         setError((prev) => ({ ...prev, search: 'noProductsFoundError' }));
       }
+      // eslint-disable-next-line  @typescript-eslint/no-unused-vars, sonarjs/no-ignored-exceptions
     } catch (error) {
       setError((prev) => ({ ...prev, search: 'noProductsFoundError' }));
     } finally {
@@ -128,7 +130,7 @@ export default function SmartSearch() {
 
       <Section>
         <form
-          onSubmit={handleSearchFormSubmit}
+          onSubmit={(e) => void handleSearchFormSubmit(e)}
           className="relative mx-auto flex w-full max-w-3xl flex-col rounded-3xl bg-white px-4 py-2 shadow-md"
         >
           <div className="relative flex w-full items-center">
@@ -138,14 +140,18 @@ export default function SmartSearch() {
               value={inputSearchQuery}
               minLength={3}
               maxLength={100}
-              onChange={(e) => setInputSearchQuery(e.target.value)}
+              onChange={(e) => {
+                setInputSearchQuery(e.target.value);
+              }}
               className="focus:ring-accent focus:border-accent flex-1 rounded-2xl bg-white px-4 py-3 transition outline-none focus:ring-2"
             />
 
             {inputSearchQuery && (
               <button
                 type="button"
-                onClick={() => setInputSearchQuery('')}
+                onClick={() => {
+                  setInputSearchQuery('');
+                }}
                 className="text-dark/50 hover:text-dark absolute right-20 cursor-pointer transition md:top-1/2 md:right-32 md:-translate-y-1/3"
               >
                 <Tooltip text="Исчисти пребарување">
@@ -165,7 +171,9 @@ export default function SmartSearch() {
 
             <button
               type="button"
-              onClick={() => setShowFilters(!showFilters)}
+              onClick={() => {
+                setShowFilters(!showFilters);
+              }}
               className="ml-2 flex h-10 w-10 items-center justify-center rounded-full border border-gray-300 transition hover:bg-gray-100"
             >
               <Tooltip text="Филтри">
@@ -193,13 +201,13 @@ export default function SmartSearch() {
                           <input
                             type="checkbox"
                             checked={selectedPharmacies.includes(pharmacy.id)}
-                            onChange={() =>
+                            onChange={() => {
                               toggleSelection(
                                 pharmacy.id,
                                 selectedPharmacies,
                                 setSelectedPharmacies
-                              )
-                            }
+                              );
+                            }}
                             className="accent-accent h-4 w-4 rounded border-gray-300"
                           />
                         </label>

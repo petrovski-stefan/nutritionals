@@ -7,7 +7,7 @@ import type {
   RegisterCredentials,
 } from '../types/user';
 
-const USERS_BASE_URL = 'api/v1/users/';
+const USERS_BASE_PATH = 'api/v1/users/';
 
 const toBackendRegisterCredentials = (registerCredentials: RegisterCredentials) => {
   return {
@@ -18,16 +18,15 @@ const toBackendRegisterCredentials = (registerCredentials: RegisterCredentials) 
 };
 
 export const loginUser = async (loginCredentials: LoginCredentials) => {
-  const response = await axiosInstance.post(`${USERS_BASE_URL}login/`, loginCredentials);
+  const url = `${USERS_BASE_PATH}login/`;
+  const response = await axiosInstance.post(url, loginCredentials);
 
   return response.data as APIResponse<BackendTokenPair>;
 };
 
 export const registerUser = async (registerCredentials: RegisterCredentials) => {
-  const response = await axiosInstance.post(
-    `${USERS_BASE_URL}register/`,
-    toBackendRegisterCredentials(registerCredentials)
-  );
+  const url = `${USERS_BASE_PATH}register/`;
+  const response = await axiosInstance.post(url, toBackendRegisterCredentials(registerCredentials));
 
   return response.data as APIResponse<BackendRegisterResponse>;
 };

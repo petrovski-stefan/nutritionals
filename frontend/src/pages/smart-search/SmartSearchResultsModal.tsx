@@ -10,9 +10,9 @@ import SMART_SEARCH_TEXT from '../../locale/smart-search';
 import type { BackendMyListWithItemsCount, ProductToMyList } from '../../types/mylist';
 import type { BackendProduct } from '../../types/product';
 import ProductCard from './ProductCard';
-import type { Error,IsLoading } from './types';
+import type { Error, IsLoading } from './types';
 
-type Props = {
+type Props = Readonly<{
   query: string;
   products: BackendProduct[];
   error: Error;
@@ -20,7 +20,7 @@ type Props = {
   onClose: () => void;
   handleErrorChange: <K extends keyof Error>(key: K, value: Error[K]) => void;
   handleIsLoadingChange: <K extends keyof IsLoading>(key: K, value: IsLoading[K]) => void;
-};
+}>;
 
 export default function SmartSearchResultsModal({
   query,
@@ -47,13 +47,14 @@ export default function SmartSearchResultsModal({
         if (response.status) {
           setMyLists(response.data);
         }
+        // eslint-disable-next-line  @typescript-eslint/no-unused-vars, sonarjs/no-ignored-exceptions
       } catch (error) {
         handleErrorChange('myLists', 'unexpectedError');
       } finally {
         handleIsLoadingChange('myLists', false);
       }
     };
-    if (isLoggedIn) getMyLists();
+    if (isLoggedIn) void getMyLists();
   }, [isLoggedIn]);
 
   const productsLength = products.length;
@@ -61,7 +62,7 @@ export default function SmartSearchResultsModal({
 
   const handleClickAddProductToMyList = (productToMyList: ProductToMyList) => {
     if (!isLoggedIn) {
-      navigate('/login', { state: { from: location } });
+      void navigate('/login', { state: { from: location } });
       return;
     }
     setProductToMyList(productToMyList);
@@ -90,6 +91,7 @@ export default function SmartSearchResultsModal({
       } else {
         handleErrorChange('productToMyList', 'client_error');
       }
+      // eslint-disable-next-line  @typescript-eslint/no-unused-vars, sonarjs/no-ignored-exceptions
     } catch (error) {
       handleErrorChange('productToMyList', 'unexpectedError');
     } finally {
@@ -116,6 +118,7 @@ export default function SmartSearchResultsModal({
       if (response.status) {
         setMyLists((prev) => [...prev, response.data]);
       }
+      // eslint-disable-next-line  @typescript-eslint/no-unused-vars, sonarjs/no-ignored-exceptions
     } catch (error) {
       handleErrorChange('myLists', 'unexpectedError');
     } finally {

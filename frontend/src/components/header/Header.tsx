@@ -27,7 +27,9 @@ export default function Header() {
     .map((route) => (
       <MenuItem
         key={route.path}
-        handleLinkClick={() => setMobileMenuOpen(false)}
+        handleLinkClick={() => {
+          setMobileMenuOpen(false);
+        }}
         {...route}
       />
     ));
@@ -75,7 +77,9 @@ export default function Header() {
 
             <button
               className="text-accent text-2xl md:hidden"
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              onClick={() => {
+                setMobileMenuOpen(!mobileMenuOpen);
+              }}
             >
               {mobileMenuOpen ? <XIcon size={24} /> : <MenuIcon size={24} />}
             </button>

@@ -1,11 +1,18 @@
-import { type PropsWithChildren,useEffect } from 'react';
+import { type PropsWithChildren, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 import { useAuthContext } from '../context/AuthContext';
 
-type Props = PropsWithChildren & {
-  mode: 'guestOnly' | 'private';
-  redirectTo: string;
+type Props = Readonly<
+  PropsWithChildren & {
+    mode: 'guestOnly' | 'private';
+    redirectTo: string;
+  }
+>;
+type LocationState = {
+  from?: {
+    pathname?: string;
+  };
 };
 
 export default function AuthGuard({ children, mode, redirectTo }: Props) {
@@ -18,14 +25,16 @@ export default function AuthGuard({ children, mode, redirectTo }: Props) {
   const shouldRedirect = (isGuestOnlyRoute && isLoggedIn) || (isPrivateRoute && !isLoggedIn);
 
   useEffect(() => {
-    const fromPathname = location.state?.from.pathname;
+    const state = location.state as LocationState | null;
 
-    const target = fromPathname ? fromPathname : redirectTo;
+    const from = state?.from?.pathname ?? '/';
+
+    const target = from || redirectTo;
 
     if (shouldRedirect) {
-      navigate(target);
+      void navigate(target);
     }
-  }, [isLoggedIn, navigate, shouldRedirect, redirectTo]);
+  }, [location.state, navigate, shouldRedirect, redirectTo]);
 
   return shouldRedirect ? null : children;
 }

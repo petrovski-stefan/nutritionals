@@ -1,9 +1,9 @@
 import type { ReactNode } from 'react';
 
-type Props = {
+type Props = Readonly<{
   children: ReactNode;
   center?: boolean;
-};
+}>;
 
 export default function Section({ children, center = true }: Props) {
   return (

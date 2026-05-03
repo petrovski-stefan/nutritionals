@@ -1,4 +1,4 @@
-import { createContext, type ReactNode,useContext, useState } from 'react';
+import { createContext, type ReactNode, useContext, useState } from 'react';
 
 type AuthContextValue = {
   username: string;
@@ -10,9 +10,9 @@ type AuthContextValue = {
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
-type AuthProviderProps = {
+type AuthProviderProps = Readonly<{
   children: ReactNode;
-};
+}>;
 
 const USERNAME_LOCALSTORAGE_KEY = 'NUTRITIONALS_USERNAME';
 const ACCESS_TOKEN_LOCALSTORAGE_KEY = 'NUTRITIONALS_ACCESS_TOKEN';
@@ -20,8 +20,12 @@ const ACCESS_TOKEN_LOCALSTORAGE_KEY = 'NUTRITIONALS_ACCESS_TOKEN';
 type LocalStorageKey = typeof USERNAME_LOCALSTORAGE_KEY | typeof ACCESS_TOKEN_LOCALSTORAGE_KEY;
 
 const getInitialValue = (key: LocalStorageKey) => localStorage.getItem(key) ?? '';
-const setLocalStorage = (key: LocalStorageKey, value: string) => localStorage.setItem(key, value);
-const removeLocalStorage = (key: LocalStorageKey) => localStorage.removeItem(key);
+const setLocalStorage = (key: LocalStorageKey, value: string) => {
+  localStorage.setItem(key, value);
+};
+const removeLocalStorage = (key: LocalStorageKey) => {
+  localStorage.removeItem(key);
+};
 
 export function AuthProvider({ children }: AuthProviderProps) {
   const [username, setUsername] = useState(() => getInitialValue(USERNAME_LOCALSTORAGE_KEY));
@@ -49,7 +53,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   return <AuthContext value={value}>{children}</AuthContext>;
 }
-
+// eslint-disable-next-line react-refresh/only-export-components
 export const useAuthContext = () => {
   const context = useContext(AuthContext);
 

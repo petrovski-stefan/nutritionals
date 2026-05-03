@@ -4,13 +4,13 @@ import type { ReactNode } from 'react';
 import Tooltip from '../../components/ui/Tooltip';
 import type { GroupFilterDisplay } from '../../types/productgroup';
 
-type Props = {
+type Props = Readonly<{
   filterTitle: string;
   handleFilterDisplayToggle: (key: keyof GroupFilterDisplay) => void;
   checkboxes: ReactNode[];
   isFilterDisplayed: GroupFilterDisplay;
   filterType: keyof GroupFilterDisplay;
-};
+}>;
 
 export default function CheckboxesFilter({
   filterTitle,
@@ -29,7 +29,9 @@ export default function CheckboxesFilter({
       <div className="mb-2 flex items-center justify-between">
         <span className="text-dark font-semibold">{filterTitle}</span>
         <button
-          onClick={() => handleFilterDisplayToggle(filterType)}
+          onClick={() => {
+            handleFilterDisplayToggle(filterType);
+          }}
           className={`hover:text-primary text-gray-400 transition-colors ${shouldDisplayScroller ? '' : 'mr-4'}`}
         >
           {isFilterDisplayed[filterType] ? (

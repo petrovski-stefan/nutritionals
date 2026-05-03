@@ -1,4 +1,4 @@
-import { type FormEvent,useEffect, useState } from 'react';
+import { type FormEvent, useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 
 import * as UserService from '../../api/user';
@@ -13,6 +13,12 @@ const defaultCredentials = {
 
 type Error = keyof (typeof LOGIN_TEXT)['errors'];
 
+type LocationState = {
+  from?: {
+    pathname?: string;
+  };
+};
+
 export default function Login() {
   const [credentials, setCredentials] = useState<LoginCredentials>(defaultCredentials);
   const [isLoading, setIsLoading] = useState(false);
@@ -25,9 +31,12 @@ export default function Login() {
   const location = useLocation();
 
   useEffect(() => {
-    const fromPathname = location.state?.from.pathname || '/';
-    setFrom(fromPathname);
-  }, [location]);
+    const state = location.state as LocationState | null;
+
+    const fromPath = state?.from?.pathname ?? '/';
+
+    setFrom(fromPath);
+  }, [location.state]);
 
   const handleCredentialsOnChange = (key: keyof LoginCredentials, value: string) => {
     setError(null);
@@ -51,10 +60,11 @@ export default function Login() {
 
       if (response.status) {
         login(credentials.username, response.data.access);
-        navigate(from, { replace: true });
+        await navigate(from, { replace: true });
       } else {
         setError(response.errors_type as Error);
       }
+      // eslint-disable-next-line  @typescript-eslint/no-unused-vars, sonarjs/no-ignored-exceptions
     } catch (error) {
       setError('unexpectedError');
     } finally {
@@ -72,7 +82,7 @@ export default function Login() {
         )}
 
         <form
-          onSubmit={handleFormSubmit}
+          onSubmit={(e) => void handleFormSubmit(e)}
           className="space-y-5"
         >
           <div className="flex flex-col">
@@ -80,7 +90,9 @@ export default function Login() {
             <input
               type="text"
               value={credentials.username}
-              onChange={(e) => handleCredentialsOnChange('username', e.target.value)}
+              onChange={(e) => {
+                handleCredentialsOnChange('username', e.target.value);
+              }}
               className="border-dark/30 focus:ring-accent focus:border-accent rounded-2xl border px-4 py-3 transition focus:ring-2 focus:outline-none"
               placeholder={LOGIN_TEXT['form']['usernamePlaceholder']}
             />
@@ -91,7 +103,9 @@ export default function Login() {
             <input
               type="password"
               value={credentials.password}
-              onChange={(e) => handleCredentialsOnChange('password', e.target.value)}
+              onChange={(e) => {
+                handleCredentialsOnChange('password', e.target.value);
+              }}
               className="border-dark/30 focus:ring-accent focus:border-accent rounded-2xl border px-4 py-3 transition focus:ring-2 focus:outline-none"
               placeholder={LOGIN_TEXT['form']['passwordPlaceholder']}
             />

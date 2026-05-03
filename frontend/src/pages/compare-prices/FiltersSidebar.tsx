@@ -1,5 +1,5 @@
 import { SearchIcon, XIcon } from 'lucide-react';
-import { type FormEvent,useState } from 'react';
+import { type FormEvent, useState } from 'react';
 
 import Tooltip from '../../components/ui/Tooltip';
 import SEARCH_TEXT from '../../locale/search';
@@ -8,7 +8,7 @@ import type { BackendCategory } from '../../types/category';
 import type { GroupFilterDisplay, GroupFilterValue } from '../../types/productgroup';
 import CheckboxesFilter from './CheckboxesFilter';
 
-type Props = {
+type Props = Readonly<{
   inputSearchQuery: string;
   setInputSearchQuery: (value: string) => void;
   handleSearchFormSubmit: (e: FormEvent) => void;
@@ -18,7 +18,7 @@ type Props = {
   handleClearInputSearchQuery: () => void;
   filters: GroupFilterValue;
   setFilters: (value: GroupFilterValue) => void;
-};
+}>;
 
 const filterDisplayedInitialValue = {
   categories: true,
@@ -46,7 +46,9 @@ export default function FiltersSidebar({
       <input
         type="checkbox"
         value={name}
-        onChange={(e) => handleFilterValueChange('brandIds', id, e.target.checked)}
+        onChange={(e) => {
+          handleFilterValueChange('brandIds', id, e.target.checked);
+        }}
         checked={filters['brandIds'].includes(id)}
         className="accent-primary h-4 w-4 rounded border-neutral-300"
       />
@@ -62,7 +64,9 @@ export default function FiltersSidebar({
       <input
         type="checkbox"
         value={name}
-        onChange={(e) => handleFilterValueChange('categoryIds', id, e.target.checked)}
+        onChange={(e) => {
+          handleFilterValueChange('categoryIds', id, e.target.checked);
+        }}
         checked={filters['categoryIds'].includes(id)}
         className="accent-primary h-4 w-4 rounded border-neutral-300"
       />
@@ -92,8 +96,10 @@ export default function FiltersSidebar({
           type="text"
           name="query"
           placeholder={SEARCH_TEXT['filters']['search']['placeholder']}
-          value={inputSearchQuery ?? ''}
-          onChange={(e) => setInputSearchQuery(e.target.value)}
+          value={inputSearchQuery || ''}
+          onChange={(e) => {
+            setInputSearchQuery(e.target.value);
+          }}
         />
         <button
           type="submit"

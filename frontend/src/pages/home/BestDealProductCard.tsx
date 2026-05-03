@@ -4,7 +4,7 @@ import Tooltip from '../../components/ui/Tooltip';
 import { checkIsPossiblyUnavailible } from '../../utils/availability';
 import { formatPrice } from '../../utils/prices';
 
-type Props = {
+type Props = Readonly<{
   name: string;
   url: string;
   brand_name: string | null;
@@ -13,7 +13,7 @@ type Props = {
   discount_percent: number;
   pharmacy_name: string;
   last_scraped_at: string;
-};
+}>;
 
 export default function BestDealsProductCard({
   name,
