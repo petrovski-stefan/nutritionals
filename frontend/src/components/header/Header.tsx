@@ -3,7 +3,6 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 
 import { useAuthContext } from '../../context/AuthContext';
-import USER_CARD_TEXT from '../../locale/user-card';
 import routes from '../../routes';
 import Tooltip from '../ui/Tooltip';
 import MenuItem from './MenuItem';
@@ -55,7 +54,7 @@ export default function Header() {
             {isLoggedIn && (
               <>
                 <p className="bg-accent hover:bg-accent/90 flex max-w-[160px] items-center rounded-lg px-3 py-2 text-sm font-medium text-white transition-colors sm:max-w-none sm:text-base">
-                  <span className="mr-1 hidden sm:inline">{USER_CARD_TEXT['welcome']}</span>
+                  <span className="mr-1 hidden sm:inline">Добредојде, </span>
                   <span className="truncate">{username}</span>
                 </p>
 

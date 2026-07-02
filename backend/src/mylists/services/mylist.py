@@ -26,3 +26,14 @@ def create_mylist(*, name: str, user: User) -> MyList:
         raise exceptions.MyListNameByUserAlreadyExist
 
     return MyList.objects.create(name=name, user=user)
+
+
+def update_mylist(*, mylist: MyList, name: str) -> MyList:
+    if MyList.objects.filter(name=name, user=mylist.user).exclude(pk=mylist.pk).exists():
+        raise exceptions.MyListNameByUserAlreadyExist
+
+    mylist.name = name
+    # updated_at is auto_now — it only gets written when listed in update_fields
+    mylist.save(update_fields=["name", "updated_at"])
+
+    return mylist

@@ -46,6 +46,11 @@ class MyListRetrieveUpdateDestroyAPIView(
         elif self.request.method == "PUT":
             return MyListUpdateSerializer
 
+    def perform_update(self, serializer) -> None:
+        serializer.instance = mylist_service.update_mylist(
+            mylist=serializer.instance, name=serializer.validated_data.get("name")
+        )
+
 
 class MyListProductsCreateAPIView(JWTAuthMixin, generics.CreateAPIView):
     serializer_class = MyListItemCreateSerializer
