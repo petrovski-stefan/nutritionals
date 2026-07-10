@@ -2,13 +2,13 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { type ReactNode, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 
-import Button from '../../../components/ui/Button';
-import Field from '../../../components/ui/Field';
-import Input from '../../../components/ui/Input';
-import useApiFormErrors, { getFormErrorMessage } from '../../../hooks/useApiFormErrors';
-import type { APIBaseError } from '../../../shared/types/api';
-import { myListsErrorMessages } from '../errorMessages';
-import { buildMyListNameSchema, type MyListNameFormFields } from '../schemas';
+import Button from '@/components/ui/Button';
+import Field from '@/components/ui/Field';
+import Input from '@/components/ui/Input';
+import { myListsErrorMessages } from '@/features/my-lists/errorMessages';
+import { buildMyListNameSchema, type MyListNameFormFields } from '@/features/my-lists/schemas';
+import useApiFormErrors, { getFormErrorMessage } from '@/shared/hooks/useApiFormErrors';
+import type { APIBaseError } from '@/shared/types/api';
 
 type Props = Readonly<{
   existingNames: string[];

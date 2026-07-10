@@ -1,12 +1,12 @@
 import { ExternalLink, StarIcon } from 'lucide-react';
 
-import Badge from '../../../components/ui/Badge';
-import Card from '../../../components/ui/Card';
-import IconButton from '../../../components/ui/IconButton';
-import Tooltip from '../../../components/ui/Tooltip';
-import type { ProductToMyList } from '../../my-lists/types';
-import { formatPrice } from '../prices';
-import type { BackendProduct } from '../types/products';
+import Badge from '@/components/ui/Badge';
+import Card from '@/components/ui/Card';
+import IconButton from '@/components/ui/IconButton';
+import Tooltip from '@/components/ui/Tooltip';
+import type { ProductToMyList } from '@/features/my-lists/types';
+import type { BackendProduct } from '@/features/products/types/products';
+import { formatPrice } from '@/shared/utils/prices';
 
 type Props = Readonly<
   BackendProduct & {

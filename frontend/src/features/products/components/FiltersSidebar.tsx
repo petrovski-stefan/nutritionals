@@ -1,15 +1,15 @@
 import { SearchIcon, XIcon } from 'lucide-react';
 import { type FormEvent, useState } from 'react';
 
-import Card from '../../../components/ui/Card';
-import Checkbox from '../../../components/ui/Checkbox';
-import IconButton from '../../../components/ui/IconButton';
-import Input from '../../../components/ui/Input';
-import Tooltip from '../../../components/ui/Tooltip';
-import useBrands from '../hooks/useBrands';
-import useCategories from '../hooks/useCategories';
-import SEARCH_TEXT from '../locale/search';
-import type { GroupFilterDisplay, GroupFilterValue } from '../types/productgroups';
+import Card from '@/components/ui/Card';
+import Checkbox from '@/components/ui/Checkbox';
+import IconButton from '@/components/ui/IconButton';
+import Input from '@/components/ui/Input';
+import Tooltip from '@/components/ui/Tooltip';
+import useBrands from '@/features/products/hooks/useBrands';
+import useCategories from '@/features/products/hooks/useCategories';
+import type { GroupFilterDisplay, GroupFilterValue } from '@/features/products/types/productgroups';
+
 import CheckboxesFilter from './CheckboxesFilter';
 
 type Props = Readonly<{
@@ -71,7 +71,7 @@ export default function FiltersSidebar({
           key="categories-error"
           className="text-danger text-sm"
         >
-          {SEARCH_TEXT['filters']['categories']['error']['unexpectedError']}
+          Се случи неочекувана грешка
         </p>,
       ]
     : categoryFilterCheckboxes;
@@ -82,7 +82,7 @@ export default function FiltersSidebar({
           key="brands-error"
           className="text-danger text-sm"
         >
-          {SEARCH_TEXT['filters']['brands']['error']['unexpectedError']}
+          Се случи неочекувана грешка
         </p>,
       ]
     : brandFilterCheckboxes;
@@ -107,7 +107,7 @@ export default function FiltersSidebar({
         <Input
           type="text"
           name="query"
-          placeholder={SEARCH_TEXT['filters']['search']['placeholder']}
+          placeholder="Пример. Vitamin C"
           value={inputSearchQuery || ''}
           className="pr-20 text-sm"
           onChange={(e) => {
@@ -145,13 +145,13 @@ export default function FiltersSidebar({
           onClick={handleClearFilters}
           className="text-info hover:text-accent focus-visible:outline-primary cursor-pointer rounded text-sm font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2"
         >
-          {SEARCH_TEXT['filters']['clearFilters']}
+          [Избриши ги сите филтери]
         </button>
       </div>
 
       <div className="flex flex-col gap-5">
         <CheckboxesFilter
-          filterTitle={SEARCH_TEXT['filters']['categories']['filterTitle']}
+          filterTitle="Филтрирај по категорија"
           filterType="categories"
           checkboxes={categoriesContent}
           handleFilterDisplayToggle={handleFilterDisplayToggle}
@@ -159,7 +159,7 @@ export default function FiltersSidebar({
         />
 
         <CheckboxesFilter
-          filterTitle={SEARCH_TEXT['filters']['brands']['filterTitle']}
+          filterTitle="Филтрирај по бренд"
           filterType="brands"
           checkboxes={brandsContent}
           handleFilterDisplayToggle={handleFilterDisplayToggle}

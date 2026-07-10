@@ -1,4 +1,4 @@
-import type { APIBaseError } from '../types/api';
+import type { APIBaseError } from '@/shared/types/api';
 
 const isAuthError = (apiBaseError: APIBaseError) => {
   return apiBaseError.response?.status === 401;

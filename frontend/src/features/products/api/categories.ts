@@ -1,6 +1,6 @@
-import axiosInstance from '../../../lib/axios';
-import type { APIResponseSuccessV2 } from '../../../shared/types/api';
-import type { BackendCategory } from '../types/categories';
+import type { BackendCategory } from '@/features/products/types/categories';
+import axiosInstance from '@/shared/lib/axios';
+import type { APIResponseSuccessV2 } from '@/shared/types/api';
 
 const CATEGORIES_BASE_URL = 'api/v1/categories/';
 

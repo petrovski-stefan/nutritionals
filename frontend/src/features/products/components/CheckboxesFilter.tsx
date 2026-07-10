@@ -1,9 +1,9 @@
 import { ChevronDownCircleIcon, ChevronUpCircleIcon } from 'lucide-react';
 import type { ReactNode } from 'react';
 
-import IconButton from '../../../components/ui/IconButton';
-import Tooltip from '../../../components/ui/Tooltip';
-import type { GroupFilterDisplay } from '../types/productgroups';
+import IconButton from '@/components/ui/IconButton';
+import Tooltip from '@/components/ui/Tooltip';
+import type { GroupFilterDisplay } from '@/features/products/types/productgroups';
 
 type Props = Readonly<{
   filterTitle: string;

@@ -16,7 +16,9 @@ export default function MenuItem({ path, linkText, handleLinkClick }: Props) {
       onClick={handleLinkClick}
       className={({ isActive }) =>
         `${BASE_CLASSES} ${
-          isActive ? 'text-accent bg-white/15 font-bold' : 'text-white/90 hover:bg-white/10 hover:text-white'
+          isActive
+            ? 'text-accent bg-white/15 font-bold'
+            : 'text-white/90 hover:bg-white/10 hover:text-white'
         }`
       }
     >

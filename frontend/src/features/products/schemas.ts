@@ -1,13 +1,11 @@
 import * as z from 'zod';
 
-import SMART_SEARCH_TEXT from './locale/smart-search';
-
 export const SmartSearchSchema = z.object({
   query: z
     .string()
     .trim()
-    .min(3, { error: SMART_SEARCH_TEXT['form']['queryTooShort'] })
-    .max(100, { error: SMART_SEARCH_TEXT['form']['queryTooLong'] }),
+    .min(3, { error: 'Внесете барање со најмалку 3 карактери.' })
+    .max(100, { error: 'Барањето може да содржи најмногу 100 карактери.' }),
 });
 
 export type SmartSearchFormFields = z.infer<typeof SmartSearchSchema>;

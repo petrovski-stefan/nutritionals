@@ -1,7 +1,7 @@
 import { type PropsWithChildren, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
-import { useAuthContext } from '../../../context/AuthContext';
+import { useAuthContext } from '@/context/AuthContext';
 
 type Props = Readonly<
   PropsWithChildren & {

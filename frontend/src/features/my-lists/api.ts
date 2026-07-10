@@ -1,5 +1,6 @@
-import axiosInstance from '../../lib/axios';
-import type { APIResponseSuccessV2 } from '../../shared/types/api';
+import axiosInstance from '@/shared/lib/axios';
+import type { APIResponseSuccessV2 } from '@/shared/types/api';
+
 import type { BackendMyListWithItems, BackendMyListWithItemsCount } from './types';
 
 const BASE_PATH = 'api/v1/mylists/';

@@ -1,27 +1,18 @@
 import { FolderPlusIcon } from 'lucide-react';
 import { useMemo, useState } from 'react';
 
-import Button from '../../../components/ui/Button';
-import Modal from '../../../components/ui/Modal';
-import Spinner from '../../../components/ui/Spinner';
-import StateMessage from '../../../components/ui/StateMessage';
-import { useAuthContext } from '../../../context/AuthContext';
-import MyListNameForm from '../../my-lists/components/MyListNameForm';
-import { myListsErrorMessages } from '../../my-lists/errorMessages';
-import useAddProductToMyList from '../../my-lists/hooks/useAddProductToMyList';
-import useCreateMyList from '../../my-lists/hooks/useCreateMyList';
-import useMyLists from '../../my-lists/hooks/useMyLists';
-import type { ProductToMyList } from '../../my-lists/types';
-import {
-  ADD,
-  CANCEL,
-  CREATE_NEW_MYLIST,
-  MYLIST_PLACEHOLDER,
-  NO_MYLISTS_YET,
-  SAVE,
-  TO_MYLIST,
-} from '../locale/add-product-to-mylist-modal';
-import { MYLISTS_ERROR } from '../locale/error';
+import Button from '@/components/ui/Button';
+import Modal from '@/components/ui/Modal';
+import Spinner from '@/components/ui/Spinner';
+import StateMessage from '@/components/ui/StateMessage';
+import { useAuthContext } from '@/context/AuthContext';
+import { myListsErrorMessages } from '@/features/my-lists/errorMessages';
+import useAddProductToMyList from '@/features/my-lists/hooks/useAddProductToMyList';
+import useCreateMyList from '@/features/my-lists/hooks/useCreateMyList';
+import useMyLists from '@/features/my-lists/hooks/useMyLists';
+import type { ProductToMyList } from '@/features/my-lists/types';
+
+import MyListNameForm from './MyListNameForm';
 
 type Props = Readonly<{
   productToMyList: ProductToMyList;
@@ -80,9 +71,9 @@ export default function AddProductToMyListModal({
 
   const title = (
     <>
-      {ADD}
+      Додај го
       <span>({productToMyList.pharmacyName}) </span>
-      <span className="text-primary">{productToMyList.productName}</span> {TO_MYLIST}
+      <span className="text-primary">{productToMyList.productName}</span> во листа
     </>
   );
 
@@ -95,7 +86,7 @@ export default function AddProductToMyListModal({
       {myListsQuery.isError && (
         <StateMessage
           variant="error"
-          message={MYLISTS_ERROR}
+          message="Се случи неочекувана грешка"
         />
       )}
       {addProductErrorMessage && (
@@ -135,15 +126,15 @@ export default function AddProductToMyListModal({
           ))}
 
         {myListsQuery.isSuccess && myLists.length === 0 && (
-          <p className="text-text-muted text-sm italic">{NO_MYLISTS_YET}</p>
+          <p className="text-text-muted text-sm italic">Немате креирано листи</p>
         )}
       </div>
 
       {isCreatingNew ? (
         <MyListNameForm
           existingNames={existingNames}
-          placeholder={MYLIST_PLACEHOLDER}
-          submitText={SAVE}
+          placeholder="Моја листа ..."
+          submitText="Зачувај"
           isPending={createMyList.isPending}
           apiError={createMyList.error}
           onSubmit={handleCreateSubmit}
@@ -152,7 +143,7 @@ export default function AddProductToMyListModal({
             variant="outline"
             onClick={handleCancelCreateNewMyList}
           >
-            {CANCEL}
+            Откажи
           </Button>
         </MyListNameForm>
       ) : (
@@ -164,7 +155,7 @@ export default function AddProductToMyListModal({
           }}
         >
           <FolderPlusIcon className="h-4 w-4" />
-          {CREATE_NEW_MYLIST}
+          Креирајте нова листа
         </Button>
       )}
     </Modal>

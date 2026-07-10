@@ -1,16 +1,15 @@
-import type { ApiErrorMessages } from '../../shared/utils/flattenErrors';
-import MYLISTS_TEXT from './locale';
+import type { ApiErrorMessages } from '@/shared/utils/flattenErrors';
 
 export const myListsErrorMessages: ApiErrorMessages = {
-  fallback: MYLISTS_TEXT['modal']['unexpectedError'],
+  fallback: 'Се случи неочекувана грешка.',
   field: {
     name: {
-      blank: MYLISTS_TEXT['modal']['myListNameRequired'],
-      max_length: MYLISTS_TEXT['modal']['myListNameTooLong'],
+      blank: 'Внесете име на листата.',
+      max_length: 'Името на листата може да содржи најмногу 30 карактери.',
     },
   },
   form: {
-    unique_together_name_user: MYLISTS_TEXT['modal']['myListNameAlreadyUsed'],
+    unique_together_name_user: 'Веќе имате креирано листа со внесеното име.',
     unique_together_product_mylist: 'Суплементот веќе е додаден во листата.',
   },
 };

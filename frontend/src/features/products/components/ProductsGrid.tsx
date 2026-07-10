@@ -1,13 +1,13 @@
 import { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
-import Button from '../../../components/ui/Button';
-import StateMessage from '../../../components/ui/StateMessage';
-import { useAuthContext } from '../../../context/AuthContext';
-import AddProductToMyListModal from '../../add-product-to-mylist/components/AddProductToMyListModal';
-import type { ProductToMyList } from '../../my-lists/types';
-import SEARCH_TEXT from '../locale/search';
-import type { BackendProductGroup } from '../types/productgroups';
+import Button from '@/components/ui/Button';
+import StateMessage from '@/components/ui/StateMessage';
+import { useAuthContext } from '@/context/AuthContext';
+import AddProductToMyListModal from '@/features/my-lists/components/AddProductToMyListModal';
+import type { ProductToMyList } from '@/features/my-lists/types';
+import type { BackendProductGroup } from '@/features/products/types/productgroups';
+
 import ProductGroupCard from './ProductGroupCard';
 
 type Props = Readonly<{
@@ -86,7 +86,7 @@ export default function ProductsGrid({
       {isError && (
         <StateMessage
           variant="error"
-          message={SEARCH_TEXT['groupsGrid']['error']['unexpectedError']}
+          message="Се случи неочекувана грешка"
         />
       )}
 

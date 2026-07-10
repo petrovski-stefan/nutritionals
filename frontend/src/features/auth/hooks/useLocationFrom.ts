@@ -1,4 +1,3 @@
-import { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 
 type LocationState = {
@@ -9,15 +8,8 @@ type LocationState = {
 
 const useLocationFrom = () => {
   const location = useLocation();
-  const [from, setFrom] = useState('/');
 
-  useEffect(() => {
-    const state = location.state as LocationState | null;
-
-    const fromPath = state?.from?.pathname ?? '/';
-
-    setFrom(fromPath);
-  }, [location.state]);
+  const from = (location.state as LocationState | null)?.from?.pathname ?? '/';
 
   return { from };
 };

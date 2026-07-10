@@ -1,6 +1,6 @@
-import Badge from '../../../components/ui/Badge';
-import { formatPrice } from '../prices';
-import { checkIsPossiblyUnavailible } from '../utils';
+import Badge from '@/components/ui/Badge';
+import { checkIsPossiblyUnavailable } from '@/shared/utils/dates';
+import { formatPrice } from '@/shared/utils/prices';
 
 type Props = Readonly<{
   name: string;
@@ -26,7 +26,7 @@ export default function DropdownProductCard({
   const hasDiscountPrice = discount_price !== null;
 
   const lastScrapedAtDate = new Date(last_scraped_at);
-  const isPossiblyUnavailable = checkIsPossiblyUnavailible(lastScrapedAtDate);
+  const isPossiblyUnavailable = checkIsPossiblyUnavailable(lastScrapedAtDate);
   const lastScrapedAt = new Date(last_scraped_at).toLocaleDateString('en-GB');
 
   return (
@@ -51,9 +51,7 @@ export default function DropdownProductCard({
         {hasDiscountPrice ? (
           <>
             <span className="text-text-muted text-sm line-through">{formatPrice(price)}</span>
-            <span className="text-accent text-lg font-semibold">
-              {formatPrice(discount_price)}
-            </span>
+            <span className="text-accent text-lg font-semibold">{formatPrice(discount_price)}</span>
           </>
         ) : (
           <span className="text-primary text-lg font-semibold">{formatPrice(price)}</span>

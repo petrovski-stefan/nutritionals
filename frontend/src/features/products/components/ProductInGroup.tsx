@@ -1,12 +1,11 @@
 import { StarIcon } from 'lucide-react';
 
-import Badge from '../../../components/ui/Badge';
-import IconButton from '../../../components/ui/IconButton';
-import Tooltip from '../../../components/ui/Tooltip';
-import SEARCH_TEXT from '../locale/search';
-import { formatPrice } from '../prices';
-import type { BackendProduct } from '../types/products';
-import { checkIsPossiblyUnavailible } from '../utils';
+import Badge from '@/components/ui/Badge';
+import IconButton from '@/components/ui/IconButton';
+import Tooltip from '@/components/ui/Tooltip';
+import type { BackendProduct } from '@/features/products/types/products';
+import { checkIsPossiblyUnavailable } from '@/shared/utils/dates';
+import { formatPrice } from '@/shared/utils/prices';
 
 type Props = Readonly<
   BackendProduct & {
@@ -30,7 +29,7 @@ export default function ProductInGroup({
   handleClickAddProductToMyList,
 }: Props) {
   const lastScrapedAtDate = new Date(last_scraped_at);
-  const isPossiblyUnavailable = checkIsPossiblyUnavailible(lastScrapedAtDate);
+  const isPossiblyUnavailable = checkIsPossiblyUnavailable(lastScrapedAtDate);
   const lastScrapedAt = new Date(last_scraped_at).toLocaleDateString('en-GB');
 
   return (
@@ -54,7 +53,7 @@ export default function ProductInGroup({
           {pharmacy_name}
         </a>
         <p className={`text-sm ${isPossiblyUnavailable ? 'text-danger' : 'text-text-muted'}`}>
-          {`${SEARCH_TEXT['productCard']['updatedAt']} ${lastScrapedAt}`}
+          {`Ажурирано: ${lastScrapedAt}`}
         </p>
       </div>
 

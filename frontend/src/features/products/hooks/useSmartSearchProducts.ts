@@ -1,8 +1,8 @@
 import { useMutation } from '@tanstack/react-query';
 
-import type { APIBaseError } from '../../../shared/types/api';
-import * as ProductService from '../api/products';
-import type { BackendProduct } from '../types/products';
+import * as ProductService from '@/features/products/api/products';
+import type { BackendProduct } from '@/features/products/types/products';
+import type { APIBaseError } from '@/shared/types/api';
 
 type SmartSearchVariables = {
   query: string;

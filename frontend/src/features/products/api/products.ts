@@ -1,6 +1,6 @@
-import axiosInstance from '../../../lib/axios';
-import type { APIResponseSuccessV2 } from '../../../shared/types/api';
-import type { BackendDiscountedProduct, BackendProduct } from '../types/products';
+import type { BackendDiscountedProduct, BackendProduct } from '@/features/products/types/products';
+import axiosInstance from '@/shared/lib/axios';
+import type { APIResponseSuccessV2 } from '@/shared/types/api';
 
 const PRODUCTS_BASE_PATH = 'api/v1/products/';
 

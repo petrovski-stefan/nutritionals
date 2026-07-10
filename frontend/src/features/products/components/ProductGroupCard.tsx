@@ -1,5 +1,6 @@
-import Card from '../../../components/ui/Card';
-import type { BackendProductGroup } from '../types/productgroups';
+import Card from '@/components/ui/Card';
+import type { BackendProductGroup } from '@/features/products/types/productgroups';
+
 import ProductInGroup from './ProductInGroup';
 
 type Props = Readonly<{

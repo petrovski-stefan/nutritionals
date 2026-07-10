@@ -1,19 +1,18 @@
 import { PlusIcon } from 'lucide-react';
 import { useMemo, useState } from 'react';
 
-import Button from '../components/ui/Button';
-import Card from '../components/ui/Card';
-import StateMessage from '../components/ui/StateMessage';
-import { useAuthContext } from '../context/AuthContext';
-import CreateUpdateMyListModal from '../features/my-lists/components/CreateUpdateMyListModal';
-import MyList from '../features/my-lists/components/MyList';
-import MyListItem from '../features/my-lists/components/MyListItem';
-import useDeleteMyList from '../features/my-lists/hooks/useDeleteMyList';
-import useMyList from '../features/my-lists/hooks/useMyList';
-import useMyLists from '../features/my-lists/hooks/useMyLists';
-import useRemoveProductFromMyList from '../features/my-lists/hooks/useRemoveProductFromMyList';
-import MYLISTS_TEXT from '../features/my-lists/locale';
-import type { BackendMyListWithItems } from '../features/my-lists/types';
+import Button from '@/components/ui/Button';
+import Card from '@/components/ui/Card';
+import StateMessage from '@/components/ui/StateMessage';
+import { useAuthContext } from '@/context/AuthContext';
+import CreateUpdateMyListModal from '@/features/my-lists/components/CreateUpdateMyListModal';
+import MyList from '@/features/my-lists/components/MyList';
+import MyListItem from '@/features/my-lists/components/MyListItem';
+import useDeleteMyList from '@/features/my-lists/hooks/useDeleteMyList';
+import useMyList from '@/features/my-lists/hooks/useMyList';
+import useMyLists from '@/features/my-lists/hooks/useMyLists';
+import useRemoveProductFromMyList from '@/features/my-lists/hooks/useRemoveProductFromMyList';
+import type { BackendMyListWithItems } from '@/features/my-lists/types';
 
 type EditMyList = Pick<BackendMyListWithItems, 'id' | 'name'>;
 
@@ -81,13 +80,11 @@ export default function MyLists() {
   return (
     <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 px-4 py-8 sm:px-6">
       <div className="flex w-full flex-wrap items-center justify-between gap-4">
-        <h1 className="text-text text-2xl font-bold sm:text-3xl">
-          {MYLISTS_TEXT['hero']['h1']}
-        </h1>
+        <h1 className="text-text text-2xl font-bold sm:text-3xl">Мои листи</h1>
 
         <Button onClick={handleClickCreateNewMyList}>
           <PlusIcon className="h-4 w-4" />
-          {MYLISTS_TEXT['hero']['addNewMyListButton']}
+          Креирај нова листа
         </Button>
       </div>
 
@@ -119,7 +116,7 @@ export default function MyLists() {
               <li>
                 <StateMessage
                   variant="empty"
-                  message={MYLISTS_TEXT['myLists']['noMyLists']}
+                  message="Моментално немате креирано листи."
                 />
               </li>
             )}
@@ -134,7 +131,7 @@ export default function MyLists() {
               <li>
                 <StateMessage
                   variant="error"
-                  message={MYLISTS_TEXT['myLists']['unexpectedError']}
+                  message="Се случи неочекувана грешка."
                 />
               </li>
             )}
@@ -156,7 +153,7 @@ export default function MyLists() {
               <li>
                 <StateMessage
                   variant="loading"
-                  message={MYLISTS_TEXT['products']['loading']}
+                  message="Се вчитува ..."
                 />
               </li>
             )}
@@ -165,7 +162,7 @@ export default function MyLists() {
               <li>
                 <StateMessage
                   variant="error"
-                  message={MYLISTS_TEXT['products']['unexpectedError']}
+                  message="Се случи неочекувана грешка."
                 />
               </li>
             )}
@@ -174,7 +171,7 @@ export default function MyLists() {
               <li>
                 <StateMessage
                   variant="empty"
-                  message={MYLISTS_TEXT['products']['noProducts']}
+                  message="Листата е празна."
                 />
               </li>
             )}

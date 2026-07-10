@@ -1,9 +1,9 @@
 import { useEffect } from 'react';
 import type { FieldErrors, FieldValues, Path, UseFormSetError } from 'react-hook-form';
 
-import type { APIBaseError } from '../shared/types/api';
-import { classifyError, type ErrorType } from '../shared/utils/classifyErrors';
-import { type ApiErrorMessages, flattenAPIErrors } from '../shared/utils/flattenErrors';
+import type { APIBaseError } from '@/shared/types/api';
+import { classifyError, type ErrorType } from '@/shared/utils/classifyErrors';
+import { type ApiErrorMessages, flattenAPIErrors } from '@/shared/utils/flattenErrors';
 
 const GENERIC_ERROR_MESSAGES: Record<ErrorType, string> = {
   validation: 'Внесените податоци не се валидни. Проверете ги полињата.',

@@ -1,6 +1,6 @@
-import axiosInstance from '../../../lib/axios';
-import type { APIResponseSuccessV2 } from '../../../shared/types/api';
-import type { BackendBrand } from '../types/brands';
+import type { BackendBrand } from '@/features/products/types/brands';
+import axiosInstance from '@/shared/lib/axios';
+import type { APIResponseSuccessV2 } from '@/shared/types/api';
 
 const BRANDS_BASE_URL = 'api/v1/brands/';
 

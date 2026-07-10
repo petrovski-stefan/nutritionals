@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
-import type { APIBaseError } from '../../../shared/types/api';
-import { myListKeys } from '../queries';
+import { myListKeys } from '@/features/my-lists/queries';
+import type { APIBaseError } from '@/shared/types/api';
 
 const useMyListsMutation = <TData, TVariables>(
   mutationFn: (variables: TVariables) => Promise<TData>,

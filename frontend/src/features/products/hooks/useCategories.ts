@@ -1,10 +1,11 @@
 import { queryOptions, useQuery } from '@tanstack/react-query';
 
-import * as CategoryService from '../api/categories';
+import * as CategoryService from '@/features/products/api/categories';
+import { productKeys } from '@/features/products/queries';
 
 const useCategories = () => {
   const options = queryOptions({
-    queryKey: ['categories'],
+    queryKey: productKeys.categories(),
     queryFn: CategoryService.getCategories,
   });
 

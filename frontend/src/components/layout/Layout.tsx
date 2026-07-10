@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 
-import Header from '../header/Header';
+import Header from '@/components/header/Header';
+
 import Footer from './Footer';
 
 type Props = Readonly<{

@@ -1,6 +1,6 @@
-import axiosInstance from '../../../lib/axios';
-import type { APIPaginatedData, APIResponseSuccessV2 } from '../../../shared/types/api';
-import type { BackendProductGroup } from '../types/productgroups';
+import type { BackendProductGroup } from '@/features/products/types/productgroups';
+import axiosInstance from '@/shared/lib/axios';
+import type { APIPaginatedData, APIResponseSuccessV2 } from '@/shared/types/api';
 
 const PRODUCT_GROUPS_PATH = 'api/v1/product-groups/';
 

@@ -1,16 +1,16 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 
-import Button from '../../../components/ui/Button';
-import Field from '../../../components/ui/Field';
-import Input from '../../../components/ui/Input';
-import PasswordInput from '../../../components/ui/PasswordInput';
-import useApiFormErrors, { getFormErrorMessage } from '../../../hooks/useApiFormErrors';
-import { authErrorMessages } from '../errorMessages';
-import useLocationFrom from '../hooks/useLocationFrom';
-import useLogin from '../hooks/useLogin';
-import { LoginSchema } from '../schemas';
-import type { LoginFormFields } from '../types';
+import Button from '@/components/ui/Button';
+import Field from '@/components/ui/Field';
+import Input from '@/components/ui/Input';
+import PasswordInput from '@/components/ui/PasswordInput';
+import { authErrorMessages } from '@/features/auth/errorMessages';
+import useLocationFrom from '@/features/auth/hooks/useLocationFrom';
+import useLogin from '@/features/auth/hooks/useLogin';
+import { LoginSchema } from '@/features/auth/schemas';
+import type { LoginFormFields } from '@/features/auth/types';
+import useApiFormErrors, { getFormErrorMessage } from '@/shared/hooks/useApiFormErrors';
 
 export default function LoginForm() {
   const {

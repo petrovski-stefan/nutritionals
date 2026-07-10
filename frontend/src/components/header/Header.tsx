@@ -2,11 +2,12 @@ import { LogOutIcon, MenuIcon, XIcon } from 'lucide-react';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 
-import { useAuthContext } from '../../context/AuthContext';
-import routes from '../../routes';
-import IconButton from '../ui/IconButton';
-import ThemeToggle from '../ui/ThemeToggle';
-import Tooltip from '../ui/Tooltip';
+import IconButton from '@/components/ui/IconButton';
+import ThemeToggle from '@/components/ui/ThemeToggle';
+import Tooltip from '@/components/ui/Tooltip';
+import { useAuthContext } from '@/context/AuthContext';
+import routes from '@/routes';
+
 import MenuItem from './MenuItem';
 
 export default function Header() {

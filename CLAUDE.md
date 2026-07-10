@@ -40,7 +40,10 @@ Note: mypy's config references `core.settings.shared`, which no longer exists (b
 - All API responses are wrapped by `common/renderers.StandardizedJSONRenderer` as `{"success": true, "data": ...}` — the frontend unwraps `.data.data`.
 - Auth uses SimpleJWT via mixins in `common/mixins.py` (`JWTAuthMixin`, `NoAuthMixin`, `OptionalAuthMixin`).
 - `APPEND_SLASH = False` — API URLs must match exactly, no trailing-slash fallback.
-- Frontend is feature-sliced: `src/features/<feature>/` with `api.ts`, `components/`, `hooks/`, `types.ts`, `schemas.ts` (zod). Data fetching via TanStack Query; the shared axios instance is `src/lib/axios.ts`. Feature `api.ts` files map camelCase form fields → snake_case payloads.
+- Frontend is feature-sliced: `src/features/<feature>/` with flat `api.ts`, `types.ts`, `schemas.ts` (zod), `errorMessages.ts`, `queries.ts` (query-key factory), plus `components/` and `hooks/` — a flat file may become a same-named directory (`api/`, `types/`) when it genuinely needs splitting (see `products`). Feature `api.ts` files map camelCase form fields → snake_case payloads. UI text is written inline in components (no locale files).
+- **Feature dependency rule**: features import other features in one documented direction only — currently `products → my-lists` — and cycles are forbidden. Anything two features need lives in `src/shared/` (`hooks/`, `lib/`, `types/`, `utils/`) — the single home for cross-feature code (the axios instance is `src/shared/lib/axios.ts`).
+- Imports use the `@/` alias for anything outside the current directory; only sibling `./` imports stay relative. No `../` paths.
+- Data fetching via TanStack Query; every feature defines its query keys in a `queries.ts` factory (`myListKeys`, `productKeys`, `pharmacyKeys`) — never inline key arrays in hooks.
 - User-facing UI text is in **Macedonian** — keep new UI strings in Macedonian.
 
 ## Git

@@ -1,11 +1,12 @@
 import { keepPreviousData, queryOptions, useQuery } from '@tanstack/react-query';
 
-import * as ProductGroupService from '../api/productgroups';
-import type { GroupFilterValue } from '../types/productgroups';
+import * as ProductGroupService from '@/features/products/api/productgroups';
+import { productKeys } from '@/features/products/queries';
+import type { GroupFilterValue } from '@/features/products/types/productgroups';
 
 const useProductGroups = (searchQuery: string, filters: GroupFilterValue, page: number) => {
   const options = queryOptions({
-    queryKey: ['productGroups', searchQuery, filters.categoryIds, filters.brandIds, page],
+    queryKey: productKeys.groups(searchQuery, filters, page),
     queryFn: () =>
       ProductGroupService.getProductGroups(
         searchQuery,

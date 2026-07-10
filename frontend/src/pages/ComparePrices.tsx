@@ -1,9 +1,9 @@
 import { type FormEvent, useState } from 'react';
 
-import FiltersSidebar from '../features/products/components/FiltersSidebar';
-import ProductsGrid from '../features/products/components/ProductsGrid';
-import useProductGroups from '../features/products/hooks/useProductGroups';
-import type { GroupFilterValue } from '../features/products/types/productgroups';
+import FiltersSidebar from '@/features/products/components/FiltersSidebar';
+import ProductsGrid from '@/features/products/components/ProductsGrid';
+import useProductGroups from '@/features/products/hooks/useProductGroups';
+import type { GroupFilterValue } from '@/features/products/types/productgroups';
 
 const filtersDefault: GroupFilterValue = {
   brandIds: [],

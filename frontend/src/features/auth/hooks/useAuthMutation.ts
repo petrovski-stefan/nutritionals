@@ -2,9 +2,9 @@ import { useMutation } from '@tanstack/react-query';
 import type { AxiosError } from 'axios';
 import { useNavigate } from 'react-router-dom';
 
-import { useAuthContext } from '../../../context/AuthContext';
-import type { APIResponseFailV2 } from '../../../shared/types/api';
-import type { BackendTokenPair } from '../types';
+import { useAuthContext } from '@/context/AuthContext';
+import type { BackendTokenPair } from '@/features/auth/types';
+import type { APIResponseFailV2 } from '@/shared/types/api';
 
 const useAuthMutation = <TVariables extends { username: string }, TData extends BackendTokenPair>(
   mutationFn: (variables: TVariables) => Promise<TData>,

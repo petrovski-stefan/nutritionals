@@ -1,6 +1,7 @@
 import { MoonIcon, SunIcon } from 'lucide-react';
 
-import { useThemeContext } from '../../context/ThemeContext';
+import { useThemeContext } from '@/context/ThemeContext';
+
 import IconButton from './IconButton';
 
 export default function ThemeToggle() {

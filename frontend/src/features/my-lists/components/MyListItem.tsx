@@ -1,12 +1,11 @@
 import { BrainIcon, XIcon } from 'lucide-react';
 
-import Badge from '../../../components/ui/Badge';
-import IconButton from '../../../components/ui/IconButton';
-import Tooltip from '../../../components/ui/Tooltip';
-import { formatPrice } from '../../products/prices';
-import { checkIsPossiblyUnavailible } from '../../products/utils';
-import MYLISTS_TEXT from '../locale';
-import type { BackendMyListItem } from '../types';
+import Badge from '@/components/ui/Badge';
+import IconButton from '@/components/ui/IconButton';
+import Tooltip from '@/components/ui/Tooltip';
+import type { BackendMyListItem } from '@/features/my-lists/types';
+import { checkIsPossiblyUnavailable } from '@/shared/utils/dates';
+import { formatPrice } from '@/shared/utils/prices';
 
 type Props = Readonly<
   BackendMyListItem & {
@@ -28,7 +27,7 @@ export default function MyListItem({
   handleDeleteProductMyList,
 }: Props) {
   const lastScrapedAtDate = new Date(product_last_scraped_at);
-  const isPossiblyUnavailable = checkIsPossiblyUnavailible(lastScrapedAtDate);
+  const isPossiblyUnavailable = checkIsPossiblyUnavailable(lastScrapedAtDate);
   const lastScrapedAt = new Date(product_last_scraped_at).toLocaleDateString('en-GB');
 
   const scrapedDateClasses = isPossiblyUnavailable ? 'text-danger' : 'text-warning';
@@ -94,10 +93,7 @@ export default function MyListItem({
         <p className="text-text-muted mt-1 w-full truncate text-sm">
           <span>{product_brand_name}</span>
           <span> / </span>
-          <span>
-            {MYLISTS_TEXT.products.productAddedToMyListAt}{' '}
-            {new Date(created_at).toLocaleDateString('en-GB')}
-          </span>
+          <span>Додадено во листата на: {new Date(created_at).toLocaleDateString('en-GB')}</span>
         </p>
       </div>
 
@@ -108,12 +104,12 @@ export default function MyListItem({
         </div>
 
         <p className={`mt-2 text-right text-xs italic ${scrapedDateClasses}`}>
-          {MYLISTS_TEXT.products.productPriceUpdatedAt} {lastScrapedAt}
+          Цената е последно ажурирана на: {lastScrapedAt}
         </p>
       </div>
 
       <p className={`text-left text-xs italic md:hidden ${scrapedDateClasses}`}>
-        {MYLISTS_TEXT.products.productPriceUpdatedAt} {lastScrapedAt}
+        Цената е последно ажурирана на: {lastScrapedAt}
       </p>
     </li>
   );

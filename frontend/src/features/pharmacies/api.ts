@@ -1,5 +1,6 @@
-import axiosInstance from '../../lib/axios';
-import type { APIResponseSuccessV2 } from '../../shared/types/api';
+import axiosInstance from '@/shared/lib/axios';
+import type { APIResponseSuccessV2 } from '@/shared/types/api';
+
 import type { BackendPharmacy } from './types';
 
 const PHARMACIES_BASE_URL = 'api/v1/pharmacies/';

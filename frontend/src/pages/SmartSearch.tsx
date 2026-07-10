@@ -3,17 +3,16 @@ import { FilterIcon, SearchIcon, XIcon } from 'lucide-react';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 
-import Section from '../components/layout/Section';
-import Card from '../components/ui/Card';
-import Checkbox from '../components/ui/Checkbox';
-import IconButton from '../components/ui/IconButton';
-import Input from '../components/ui/Input';
-import Tooltip from '../components/ui/Tooltip';
-import usePharmacies from '../features/pharmacies/hooks/usePharmacies';
-import SmartSearchResultsModal from '../features/products/components/SmartSearchResultsModal';
-import useSmartSearchProducts from '../features/products/hooks/useSmartSearchProducts';
-import SMART_SEARCH_TEXT from '../features/products/locale/smart-search';
-import { type SmartSearchFormFields, SmartSearchSchema } from '../features/products/schemas';
+import Section from '@/components/layout/Section';
+import Card from '@/components/ui/Card';
+import Checkbox from '@/components/ui/Checkbox';
+import IconButton from '@/components/ui/IconButton';
+import Input from '@/components/ui/Input';
+import Tooltip from '@/components/ui/Tooltip';
+import usePharmacies from '@/features/pharmacies/hooks/usePharmacies';
+import SmartSearchResultsModal from '@/features/products/components/SmartSearchResultsModal';
+import useSmartSearchProducts from '@/features/products/hooks/useSmartSearchProducts';
+import { type SmartSearchFormFields, SmartSearchSchema } from '@/features/products/schemas';
 
 export default function SmartSearch() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -70,7 +69,7 @@ export default function SmartSearch() {
     <div className="flex flex-col items-center">
       <Section>
         <h1 className="text-text mx-auto max-w-2xl text-center text-lg font-semibold sm:text-xl md:text-2xl">
-          {SMART_SEARCH_TEXT['hero']['h1']}
+          Опишете ја вашата цел, а паметниот асистент ќе ги пронајде најдобрите суплементи за вас.
         </h1>
       </Section>
 
@@ -81,7 +80,7 @@ export default function SmartSearch() {
               <div className="relative flex-1">
                 <Input
                   type="text"
-                  placeholder={SMART_SEARCH_TEXT['form']['placeholder']}
+                  placeholder="Опишете ја вашата цел ... (пр., посилен имунитет)"
                   maxLength={100}
                   className="pr-11"
                   {...register('query')}
@@ -157,7 +156,9 @@ export default function SmartSearch() {
 
       <Section>
         <p className="text-text-muted mx-auto max-w-lg text-center text-sm">
-          {SMART_SEARCH_TEXT['warning']['h1']}
+          Оваа функционалност е само за информативни цели и не дијагностицира ниту лекува медицински
+          состојби. Секогаш консултирајте се со здравствен работник пред да започнете со употреба на
+          каков било суплемент.
         </p>
       </Section>
 

@@ -1,13 +1,13 @@
 import { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
-import Modal from '../../../components/ui/Modal';
-import StateMessage from '../../../components/ui/StateMessage';
-import { useAuthContext } from '../../../context/AuthContext';
-import AddProductToMyListModal from '../../add-product-to-mylist/components/AddProductToMyListModal';
-import type { ProductToMyList } from '../../my-lists/types';
-import SMART_SEARCH_TEXT from '../locale/smart-search';
-import type { BackendProduct } from '../types/products';
+import Modal from '@/components/ui/Modal';
+import StateMessage from '@/components/ui/StateMessage';
+import { useAuthContext } from '@/context/AuthContext';
+import AddProductToMyListModal from '@/features/my-lists/components/AddProductToMyListModal';
+import type { ProductToMyList } from '@/features/my-lists/types';
+import type { BackendProduct } from '@/features/products/types/products';
+
 import ProductCard from './ProductCard';
 
 type Props = Readonly<{
@@ -44,12 +44,12 @@ export default function SmartSearchResultsModal({
   };
 
   const getTitle = (): string => {
-    if (isPending) return SMART_SEARCH_TEXT['form']['loading'];
+    if (isPending) return 'Се вчитува ...';
     if (isError) return 'Паметно пребарување';
     if (hasProducts) {
-      return SMART_SEARCH_TEXT['searchResultsModal']['productsFound'](query, productsLength);
+      return `Паметниот асистент пронајде ${String(productsLength)} суплементи за вашето барање: "${query}".`;
     }
-    return SMART_SEARCH_TEXT['searchResultsModal']['noProductsFound'](query);
+    return `Паметниот асистент не пронајде суплементи за вашето барање "${query}". Обидете се повторно.`;
   };
 
   if (productToMyList !== null) {
@@ -80,7 +80,7 @@ export default function SmartSearchResultsModal({
       {!isPending && isError && (
         <StateMessage
           variant="error"
-          message={SMART_SEARCH_TEXT['form']['unexpectedError']}
+          message="Се случи неочекувана грешка."
         />
       )}
 

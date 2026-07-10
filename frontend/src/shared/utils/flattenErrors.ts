@@ -1,5 +1,5 @@
-import type { APIErrorItem } from '../types/api';
-import type { FlattenedClientError } from '../types/errors';
+import type { APIErrorItem } from '@/shared/types/api';
+import type { FlattenedClientError } from '@/shared/types/errors';
 
 export const GLOBAL_ZOD_FORM_ERROR_KEY = 'form';
 

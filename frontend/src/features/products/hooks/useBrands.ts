@@ -1,10 +1,11 @@
 import { queryOptions, useQuery } from '@tanstack/react-query';
 
-import * as BrandService from '../api/brands';
+import * as BrandService from '@/features/products/api/brands';
+import { productKeys } from '@/features/products/queries';
 
 const useBrands = () => {
   const options = queryOptions({
-    queryKey: ['brands'],
+    queryKey: productKeys.brands(),
     queryFn: BrandService.getBrands,
   });
 

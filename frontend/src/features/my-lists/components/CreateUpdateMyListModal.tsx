@@ -1,9 +1,9 @@
 import { useMemo } from 'react';
 
-import Modal from '../../../components/ui/Modal';
-import useCreateMyList from '../hooks/useCreateMyList';
-import useUpdateMyList from '../hooks/useUpdateMyList';
-import MYLISTS_TEXT from '../locale';
+import Modal from '@/components/ui/Modal';
+import useCreateMyList from '@/features/my-lists/hooks/useCreateMyList';
+import useUpdateMyList from '@/features/my-lists/hooks/useUpdateMyList';
+
 import MyListNameForm from './MyListNameForm';
 
 type MyListToUpdate = {
@@ -34,9 +34,7 @@ export default function CreateUpdateMyListModal({
   // not count as a duplicate, otherwise the list can never be re-saved.
   const blockedNames = useMemo(
     () =>
-      myListToUpdate
-        ? existingNames.filter((name) => name !== myListToUpdate.name)
-        : existingNames,
+      myListToUpdate ? existingNames.filter((name) => name !== myListToUpdate.name) : existingNames,
     [existingNames, myListToUpdate]
   );
 
@@ -50,8 +48,8 @@ export default function CreateUpdateMyListModal({
 
   const title =
     mode === 'update' && myListToUpdate
-      ? `${MYLISTS_TEXT['modal']['updateMyListTitle']} ${myListToUpdate.name}`
-      : MYLISTS_TEXT['modal']['createNewMyListTitle'];
+      ? `Ажурирај ја листата: ${myListToUpdate.name}`
+      : 'Креирај нова листа';
 
   return (
     <Modal
@@ -61,8 +59,8 @@ export default function CreateUpdateMyListModal({
     >
       <MyListNameForm
         existingNames={blockedNames}
-        placeholder={MYLISTS_TEXT['modal']['myListPlaceholder']}
-        submitText={MYLISTS_TEXT['modal']['createNewMyListButton']}
+        placeholder="Моја листа ..."
+        submitText="Зачувај"
         isPending={isPending}
         apiError={apiError}
         defaultName={myListToUpdate?.name}

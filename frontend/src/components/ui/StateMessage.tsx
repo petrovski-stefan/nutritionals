@@ -22,9 +22,7 @@ type Props = Readonly<{
 
 export default function StateMessage({ variant, message, className = '' }: Props) {
   return (
-    <div
-      className={`flex flex-col items-center justify-center gap-3 p-6 text-center ${className}`}
-    >
+    <div className={`flex flex-col items-center justify-center gap-3 p-6 text-center ${className}`}>
       {variant === 'loading' && <Spinner />}
       <p className={`text-sm ${TEXT_CLASSES[variant]}`}>{message ?? DEFAULT_MESSAGES[variant]}</p>
     </div>

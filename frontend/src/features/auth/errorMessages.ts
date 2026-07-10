@@ -1,4 +1,4 @@
-import type { ApiErrorMessages } from '../../shared/utils/flattenErrors';
+import type { ApiErrorMessages } from '@/shared/utils/flattenErrors';
 
 export const authErrorMessages: ApiErrorMessages = {
   fallback: 'Настана грешка. Проверете ги внесените податоци.',

@@ -1,6 +1,6 @@
 import type { PropsWithChildren } from 'react';
 
-import Card from '../../../components/ui/Card';
+import Card from '@/components/ui/Card';
 
 type Props = Readonly<
   PropsWithChildren & {

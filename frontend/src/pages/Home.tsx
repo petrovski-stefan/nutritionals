@@ -2,18 +2,18 @@ import { XIcon } from 'lucide-react';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 
-import Section from '../components/layout/Section';
-import Card from '../components/ui/Card';
-import IconButton from '../components/ui/IconButton';
-import Input from '../components/ui/Input';
-import StateMessage from '../components/ui/StateMessage';
-import Tooltip from '../components/ui/Tooltip';
-import SupportedPharmacyCard from '../features/pharmacies/components/SupportedPharmacyCard';
-import usePharmacies from '../features/pharmacies/hooks/usePharmacies';
-import BestDealsProductCard from '../features/products/components/BestDealProductCard';
-import DropdownProductCard from '../features/products/components/DropdownProduct';
-import useProductsOnDiscount from '../features/products/hooks/useProductsOnDiscount';
-import useProductsSearch from '../features/products/hooks/useProductsSearch';
+import Section from '@/components/layout/Section';
+import Card from '@/components/ui/Card';
+import IconButton from '@/components/ui/IconButton';
+import Input from '@/components/ui/Input';
+import StateMessage from '@/components/ui/StateMessage';
+import Tooltip from '@/components/ui/Tooltip';
+import SupportedPharmacyCard from '@/features/pharmacies/components/SupportedPharmacyCard';
+import usePharmacies from '@/features/pharmacies/hooks/usePharmacies';
+import BestDealsProductCard from '@/features/products/components/BestDealProductCard';
+import DropdownProductCard from '@/features/products/components/DropdownProduct';
+import useProductsOnDiscount from '@/features/products/hooks/useProductsOnDiscount';
+import useProductsSearch from '@/features/products/hooks/useProductsSearch';
 
 export default function Home() {
   const [searchQuery, setSearchQuery] = useState('');

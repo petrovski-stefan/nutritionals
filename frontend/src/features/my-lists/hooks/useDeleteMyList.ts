@@ -1,8 +1,9 @@
 import { useQueryClient } from '@tanstack/react-query';
 
-import { useAuthContext } from '../../../context/AuthContext';
-import * as MyListService from '../api';
-import { myListKeys } from '../queries';
+import { useAuthContext } from '@/context/AuthContext';
+import * as MyListService from '@/features/my-lists/api';
+import { myListKeys } from '@/features/my-lists/queries';
+
 import useMyListsMutation from './useMyListsMutation';
 
 const useDeleteMyList = () => {

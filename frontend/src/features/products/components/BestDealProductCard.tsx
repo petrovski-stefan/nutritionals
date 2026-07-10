@@ -1,10 +1,10 @@
 import { AlertTriangleIcon, ExternalLink } from 'lucide-react';
 
-import Badge from '../../../components/ui/Badge';
-import Card from '../../../components/ui/Card';
-import Tooltip from '../../../components/ui/Tooltip';
-import { formatPrice } from '../prices';
-import { checkIsPossiblyUnavailible } from '../utils';
+import Badge from '@/components/ui/Badge';
+import Card from '@/components/ui/Card';
+import Tooltip from '@/components/ui/Tooltip';
+import { checkIsPossiblyUnavailable } from '@/shared/utils/dates';
+import { formatPrice } from '@/shared/utils/prices';
 
 type Props = Readonly<{
   name: string;
@@ -30,7 +30,7 @@ export default function BestDealsProductCard({
   const hasBrand = brand_name !== null;
 
   const lastScrapedAtDate = new Date(last_scraped_at);
-  const isPossiblyUnavailable = checkIsPossiblyUnavailible(lastScrapedAtDate);
+  const isPossiblyUnavailable = checkIsPossiblyUnavailable(lastScrapedAtDate);
   const lastScrapedAt = new Date(last_scraped_at).toLocaleDateString('en-GB');
 
   return (

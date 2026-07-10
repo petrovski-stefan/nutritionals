@@ -1,5 +1,6 @@
-import { useAuthContext } from '../../../context/AuthContext';
-import * as MyListService from '../api';
+import { useAuthContext } from '@/context/AuthContext';
+import * as MyListService from '@/features/my-lists/api';
+
 import useMyListsMutation from './useMyListsMutation';
 
 const useUpdateMyList = () => {

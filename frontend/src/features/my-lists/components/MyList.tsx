@@ -1,9 +1,8 @@
 import { Edit2Icon, EyeIcon, TrashIcon } from 'lucide-react';
 
-import IconButton from '../../../components/ui/IconButton';
-import Tooltip from '../../../components/ui/Tooltip';
-import MYLISTS_TEXT from '../locale';
-import type { BackendMyListWithItemsCount } from '../types';
+import IconButton from '@/components/ui/IconButton';
+import Tooltip from '@/components/ui/Tooltip';
+import type { BackendMyListWithItemsCount } from '@/features/my-lists/types';
 
 type Props = Readonly<
   BackendMyListWithItemsCount & {
@@ -41,13 +40,12 @@ export default function MyList({
           {name}
         </p>
         <p className="text-text-muted mt-1 text-sm">
-          {items_count === 0 && MYLISTS_TEXT['myLists']['noProducts']}
-          {items_count === 1 && `1 ${MYLISTS_TEXT['myLists']['oneProduct']}`}
-          {items_count > 1 && `${String(items_count)} ${MYLISTS_TEXT['myLists']['products']}`}
+          {items_count === 0 && 'Листата е празна'}
+          {items_count === 1 && '1 суплемент'}
+          {items_count > 1 && `${String(items_count)} суплементи`}
         </p>
         <p className="text-text-muted mt-1 text-xs italic">
-          {MYLISTS_TEXT['myLists']['lastUpdatedAt']}{' '}
-          {new Date(updated_at).toLocaleDateString('en-GB')}
+          Последно ажурирана на: {new Date(updated_at).toLocaleDateString('en-GB')}
         </p>
       </div>
 
