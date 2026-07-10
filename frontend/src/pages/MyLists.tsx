@@ -1,6 +1,9 @@
 import { PlusIcon } from 'lucide-react';
 import { useMemo, useState } from 'react';
 
+import Button from '../components/ui/Button';
+import Card from '../components/ui/Card';
+import StateMessage from '../components/ui/StateMessage';
 import { useAuthContext } from '../context/AuthContext';
 import CreateUpdateMyListModal from '../features/my-lists/components/CreateUpdateMyListModal';
 import MyList from '../features/my-lists/components/MyList';
@@ -76,19 +79,16 @@ export default function MyLists() {
   const selectedMyListItemsLength = isThereSelectedMyList ? myListItems.length : 0;
 
   return (
-    <div className="flex flex-col gap-4 p-4">
-      <div className="flex h-[20%] w-full items-center justify-center px-2 md:w-[30%] md:justify-start">
-        <div>
-          <h2 className="text-2xl font-bold text-gray-800">{MYLISTS_TEXT['hero']['h1']}</h2>
-        </div>
-        <div className="ml-5">
-          <button
-            onClick={handleClickCreateNewMyList}
-            className="bg-primary hover:text-accent cursor-pointer rounded-3xl align-middle"
-          >
-            <PlusIcon />
-          </button>
-        </div>
+    <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 px-4 py-8 sm:px-6">
+      <div className="flex w-full flex-wrap items-center justify-between gap-4">
+        <h1 className="text-text text-2xl font-bold sm:text-3xl">
+          {MYLISTS_TEXT['hero']['h1']}
+        </h1>
+
+        <Button onClick={handleClickCreateNewMyList}>
+          <PlusIcon className="h-4 w-4" />
+          {MYLISTS_TEXT['hero']['addNewMyListButton']}
+        </Button>
       </div>
 
       {isCreateUpdateMyListModalOpen && (
@@ -100,59 +100,98 @@ export default function MyLists() {
         />
       )}
 
-      <div className="flex min-h-[400px] flex-col gap-4 md:flex-row">
-        <ul className="max-h-[70vh] w-full overflow-y-auto rounded bg-white shadow-sm md:w-[30%]">
-          {myListsQuery.isSuccess &&
-            myLists.map((myList, i) => (
-              <MyList
-                key={myList.id}
-                arrayIndex={i}
-                isMyListCurrentlyViewed={myListIdToView ? myListIdToView === myList.id : false}
-                handleMyListToView={handleViewMyList}
-                handleDeleteMyList={handleDeleteMyList}
-                handleClickMyListToEdit={handleClickUpdateMyList}
-                {...myList}
-              />
-            ))}
-          {myListsQuery.isSuccess && myLists.length === 0 && (
-            <li className="p-4 text-gray-500">{MYLISTS_TEXT['myLists']['noMyLists']}</li>
-          )}
+      <div className="grid min-h-96 items-start gap-4 md:grid-cols-[320px_1fr]">
+        <Card className="max-h-[70vh] overflow-y-auto">
+          <ul>
+            {myListsQuery.isSuccess &&
+              myLists.map((myList) => (
+                <MyList
+                  key={myList.id}
+                  isMyListCurrentlyViewed={myListIdToView === myList.id}
+                  handleMyListToView={handleViewMyList}
+                  handleDeleteMyList={handleDeleteMyList}
+                  handleClickMyListToEdit={handleClickUpdateMyList}
+                  {...myList}
+                />
+              ))}
 
-          {myListsQuery.isPending && (
-            <li className="p-4 text-gray-500">{MYLISTS_TEXT['myLists']['loading']}</li>
-          )}
+            {myListsQuery.isSuccess && myLists.length === 0 && (
+              <li>
+                <StateMessage
+                  variant="empty"
+                  message={MYLISTS_TEXT['myLists']['noMyLists']}
+                />
+              </li>
+            )}
 
-          {myListsQuery.isError && (
-            <li className="p-4 text-gray-500">{MYLISTS_TEXT['myLists']['unexpectedError']}</li>
-          )}
-        </ul>
+            {myListsQuery.isPending && (
+              <li>
+                <StateMessage variant="loading" />
+              </li>
+            )}
 
-        <ul className="max-h-[70vh] w-full overflow-y-auto rounded bg-white shadow-sm md:w-[70%]">
-          {isThereSelectedMyList && myListQuery.isPending && (
-            <li className="p-4 text-gray-500">{MYLISTS_TEXT['products']['loading']}</li>
-          )}
+            {myListsQuery.isError && (
+              <li>
+                <StateMessage
+                  variant="error"
+                  message={MYLISTS_TEXT['myLists']['unexpectedError']}
+                />
+              </li>
+            )}
+          </ul>
+        </Card>
 
-          {isThereSelectedMyList && myListQuery.isError && (
-            <li className="p-4 text-gray-500">{MYLISTS_TEXT['products']['unexpectedError']}</li>
-          )}
+        <Card className="max-h-[70vh] overflow-y-auto">
+          <ul>
+            {!isThereSelectedMyList && (
+              <li>
+                <StateMessage
+                  variant="empty"
+                  message="Изберете листа за преглед."
+                />
+              </li>
+            )}
 
-          {isThereSelectedMyList && myListQuery.isSuccess && selectedMyListItemsLength === 0 && (
-            <li className="p-4 text-gray-500">{MYLISTS_TEXT['products']['noProducts']}</li>
-          )}
+            {isThereSelectedMyList && myListQuery.isPending && (
+              <li>
+                <StateMessage
+                  variant="loading"
+                  message={MYLISTS_TEXT['products']['loading']}
+                />
+              </li>
+            )}
 
-          {isThereSelectedMyList &&
-            selectedMyListItemsLength > 0 &&
-            myListItems.map((item, i) => (
-              <MyListItem
-                key={item.id}
-                arrayIndex={i}
-                handleDeleteProductMyList={() => {
-                  handleRemoveProductFromMyList(myListIdToView, item.product_id);
-                }}
-                {...item}
-              />
-            ))}
-        </ul>
+            {isThereSelectedMyList && myListQuery.isError && (
+              <li>
+                <StateMessage
+                  variant="error"
+                  message={MYLISTS_TEXT['products']['unexpectedError']}
+                />
+              </li>
+            )}
+
+            {isThereSelectedMyList && myListQuery.isSuccess && selectedMyListItemsLength === 0 && (
+              <li>
+                <StateMessage
+                  variant="empty"
+                  message={MYLISTS_TEXT['products']['noProducts']}
+                />
+              </li>
+            )}
+
+            {isThereSelectedMyList &&
+              selectedMyListItemsLength > 0 &&
+              myListItems.map((item) => (
+                <MyListItem
+                  key={item.id}
+                  handleDeleteProductMyList={() => {
+                    handleRemoveProductFromMyList(myListIdToView, item.product_id);
+                  }}
+                  {...item}
+                />
+              ))}
+          </ul>
+        </Card>
       </div>
     </div>
   );

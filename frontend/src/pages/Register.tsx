@@ -4,7 +4,7 @@ import RegisterForm from '../features/auth/components/RegisterForm';
 
 export default function Register() {
   return (
-    <AuthLayout>
+    <AuthLayout title="Регистрација">
       <RegisterForm />
       <AuthPrompt type="register" />
     </AuthLayout>

@@ -1,14 +1,16 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 
+import Button from '../../../components/ui/Button';
+import Field from '../../../components/ui/Field';
+import Input from '../../../components/ui/Input';
+import PasswordInput from '../../../components/ui/PasswordInput';
 import useApiFormErrors, { getFormErrorMessage } from '../../../hooks/useApiFormErrors';
 import { authErrorMessages } from '../errorMessages';
 import useLocationFrom from '../hooks/useLocationFrom';
 import useRegister from '../hooks/useRegister';
 import { RegisterFormSchema } from '../schemas';
 import type { RegisterFormFields } from '../types';
-import FormField from './FormField';
-import SubmitButton from './SubmitButton';
 
 export default function RegisterForm() {
   const {
@@ -35,39 +37,47 @@ export default function RegisterForm() {
       onSubmit={(e) => void handleSubmit(onSubmit)(e)}
       className="space-y-5"
     >
-      {formError && <p className="text-center font-medium text-red-600">{formError}</p>}
+      {formError && <p className="text-danger text-center font-medium">{formError}</p>}
 
-      <FormField
-        inputType="text"
-        register={register}
-        placeholder="Внесете корисничко име со мин. 5 карактери"
-        field="username"
-        name="Корисничко име"
-        fieldError={errors.username?.message}
-      />
+      <Field
+        label="Корисничко име"
+        error={errors.username?.message}
+      >
+        <Input
+          type="text"
+          placeholder="Внесете корисничко име со мин. 5 карактери"
+          {...register('username')}
+        />
+      </Field>
 
-      <FormField
-        inputType="password"
-        register={register}
-        placeholder="Внесете лозинка со мин. 8 карактери"
-        field="password"
-        name="Лозинка"
-        fieldError={errors.password?.message}
-      />
+      <Field
+        label="Лозинка"
+        error={errors.password?.message}
+      >
+        <PasswordInput
+          placeholder="Внесете лозинка со мин. 8 карактери"
+          {...register('password')}
+        />
+      </Field>
 
-      <FormField
-        inputType="password"
-        register={register}
-        placeholder="Повторете ја лозинката"
-        field="confirmPassword"
-        name="Повторете ја лозинката"
-        fieldError={errors.confirmPassword?.message}
-      />
+      <Field
+        label="Повторете ја лозинката"
+        error={errors.confirmPassword?.message}
+      >
+        <PasswordInput
+          placeholder="Повторете ја лозинката"
+          {...register('confirmPassword')}
+        />
+      </Field>
 
-      <SubmitButton
+      <Button
+        type="submit"
+        variant="accent"
         isPending={isPending}
-        submitText="Најавете се"
-      />
+        className="w-full"
+      >
+        Регистрирајте се
+      </Button>
     </form>
   );
 }

@@ -1,6 +1,10 @@
 import { SearchIcon, XIcon } from 'lucide-react';
 import { type FormEvent, useState } from 'react';
 
+import Card from '../../../components/ui/Card';
+import Checkbox from '../../../components/ui/Checkbox';
+import IconButton from '../../../components/ui/IconButton';
+import Input from '../../../components/ui/Input';
 import Tooltip from '../../../components/ui/Tooltip';
 import useBrands from '../hooks/useBrands';
 import useCategories from '../hooks/useCategories';
@@ -40,46 +44,32 @@ export default function FiltersSidebar({
   const { data: categories, isError: categoriesIsError } = useCategories();
 
   const brandFilterCheckboxes = (brands || []).map(({ id, name }) => (
-    <label
+    <Checkbox
       key={name}
-      className="text-dark/80 hover:text-primary flex cursor-pointer items-center gap-2 text-sm"
-    >
-      <input
-        type="checkbox"
-        value={name}
-        onChange={(e) => {
-          handleFilterValueChange('brandIds', id, e.target.checked);
-        }}
-        checked={filters['brandIds'].includes(id)}
-        className="accent-primary h-4 w-4 rounded border-neutral-300"
-      />
-      <span>{name}</span>
-    </label>
+      label={name}
+      checked={filters['brandIds'].includes(id)}
+      onChange={(isChecked) => {
+        handleFilterValueChange('brandIds', id, isChecked);
+      }}
+    />
   ));
 
   const categoryFilterCheckboxes = (categories || []).map(({ id, name }) => (
-    <label
+    <Checkbox
       key={name}
-      className="text-dark/80 hover:text-primary flex cursor-pointer items-center gap-2 text-sm"
-    >
-      <input
-        type="checkbox"
-        value={name}
-        onChange={(e) => {
-          handleFilterValueChange('categoryIds', id, e.target.checked);
-        }}
-        checked={filters['categoryIds'].includes(id)}
-        className="accent-primary h-4 w-4 rounded border-neutral-300"
-      />
-      <span>{name}</span>
-    </label>
+      label={name}
+      checked={filters['categoryIds'].includes(id)}
+      onChange={(isChecked) => {
+        handleFilterValueChange('categoryIds', id, isChecked);
+      }}
+    />
   ));
 
   const categoriesContent = categoriesIsError
     ? [
         <p
           key="categories-error"
-          className="text-sm text-red-600"
+          className="text-danger text-sm"
         >
           {SEARCH_TEXT['filters']['categories']['error']['unexpectedError']}
         </p>,
@@ -90,7 +80,7 @@ export default function FiltersSidebar({
     ? [
         <p
           key="brands-error"
-          className="text-sm text-red-600"
+          className="text-danger text-sm"
         >
           {SEARCH_TEXT['filters']['brands']['error']['unexpectedError']}
         </p>,
@@ -109,46 +99,51 @@ export default function FiltersSidebar({
   };
 
   return (
-    <aside className="bg-neutral top-4 mt-4 flex h-fit w-full flex-col gap-6 rounded-2xl border border-neutral-300 p-5 shadow-sm md:sticky md:ml-4 md:w-[25%]">
+    <Card className="flex h-fit flex-col gap-5 p-5 md:sticky md:top-20">
       <form
         onSubmit={handleSearchFormSubmit}
         className="relative"
       >
-        <input
-          className="focus:ring-primary text-dark w-full rounded-xl border border-neutral-300 bg-white px-4 py-2 text-sm focus:ring-2 focus:outline-none"
+        <Input
           type="text"
           name="query"
           placeholder={SEARCH_TEXT['filters']['search']['placeholder']}
           value={inputSearchQuery || ''}
+          className="pr-20 text-sm"
           onChange={(e) => {
             setInputSearchQuery(e.target.value);
           }}
         />
-        <button
-          type="submit"
-          className="hover:text-primary absolute top-2.5 right-3 cursor-pointer text-gray-400 transition-colors"
-        >
-          <Tooltip text="Пребарувај">
-            <SearchIcon className="h-5 w-5" />
-          </Tooltip>
-        </button>
-        {inputSearchQuery && (
-          <button
-            type="button"
-            onClick={handleClearInputSearchQuery}
-            className="hover:text-primary absolute top-2.5 right-9 cursor-pointer text-gray-400 transition-colors"
-          >
+
+        <div className="absolute top-1/2 right-2 flex -translate-y-1/2 items-center gap-1">
+          {inputSearchQuery && (
             <Tooltip text="Исчисти пребарување">
-              <XIcon className="h-5 w-5" />
+              <IconButton
+                label="Исчисти пребарување"
+                size="sm"
+                onClick={handleClearInputSearchQuery}
+              >
+                <XIcon className="h-4 w-4" />
+              </IconButton>
             </Tooltip>
-          </button>
-        )}
+          )}
+
+          <Tooltip text="Пребарувај">
+            <IconButton
+              label="Пребарувај"
+              size="sm"
+              type="submit"
+            >
+              <SearchIcon className="h-4 w-4" />
+            </IconButton>
+          </Tooltip>
+        </div>
       </form>
 
       <div className="text-center">
         <button
           onClick={handleClearFilters}
-          className="text-secondary hover:text-accent cursor-pointer text-sm font-medium transition-colors"
+          className="text-info hover:text-accent focus-visible:outline-primary cursor-pointer rounded text-sm font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2"
         >
           {SEARCH_TEXT['filters']['clearFilters']}
         </button>
@@ -171,6 +166,6 @@ export default function FiltersSidebar({
           isFilterDisplayed={isFilterDisplayed}
         />
       </div>
-    </aside>
+    </Card>
   );
 }

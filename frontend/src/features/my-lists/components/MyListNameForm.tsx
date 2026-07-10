@@ -2,6 +2,9 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { type ReactNode, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 
+import Button from '../../../components/ui/Button';
+import Field from '../../../components/ui/Field';
+import Input from '../../../components/ui/Input';
 import useApiFormErrors, { getFormErrorMessage } from '../../../hooks/useApiFormErrors';
 import type { APIBaseError } from '../../../shared/types/api';
 import { myListsErrorMessages } from '../errorMessages';
@@ -51,26 +54,30 @@ export default function MyListNameForm({
   return (
     <form
       onSubmit={(e) => void handleSubmit(onValidSubmit)(e)}
-      className="mt-2 flex flex-col gap-2"
+      className="flex flex-col gap-3"
     >
-      {errors.name?.message && <p className="text-red-600">{errors.name.message}</p>}
-      {formError && <p className="text-red-600">{formError}</p>}
+      {formError && <p className="text-danger text-sm">{formError}</p>}
 
-      <div className="flex gap-2">
-        <input
+      <Field
+        label="Име на листата"
+        error={errors.name?.message}
+      >
+        <Input
           type="text"
           maxLength={30}
-          {...register('name')}
           placeholder={placeholder}
-          className="focus:ring-primary flex-1 rounded-lg border border-neutral-300 px-3 py-2 focus:ring-2 focus:outline-none"
+          {...register('name')}
         />
-        <button
+      </Field>
+
+      <div className="flex gap-2">
+        <Button
           type="submit"
-          disabled={isPending}
-          className="bg-primary hover:bg-primary/90 cursor-pointer rounded-lg px-4 py-2 text-white disabled:cursor-not-allowed disabled:opacity-70"
+          isPending={isPending}
+          className="flex-1"
         >
           {submitText}
-        </button>
+        </Button>
         {children}
       </div>
     </form>

@@ -1,8 +1,8 @@
-import { XIcon } from 'lucide-react';
 import { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
-import Tooltip from '../../../components/ui/Tooltip';
+import Modal from '../../../components/ui/Modal';
+import StateMessage from '../../../components/ui/StateMessage';
 import { useAuthContext } from '../../../context/AuthContext';
 import AddProductToMyListModal from '../../add-product-to-mylist/components/AddProductToMyListModal';
 import type { ProductToMyList } from '../../my-lists/types';
@@ -43,65 +43,58 @@ export default function SmartSearchResultsModal({
     setProductToMyList(productToMyList);
   };
 
+  const getTitle = (): string => {
+    if (isPending) return SMART_SEARCH_TEXT['form']['loading'];
+    if (isError) return 'Паметно пребарување';
+    if (hasProducts) {
+      return SMART_SEARCH_TEXT['searchResultsModal']['productsFound'](query, productsLength);
+    }
+    return SMART_SEARCH_TEXT['searchResultsModal']['noProductsFound'](query);
+  };
+
+  if (productToMyList !== null) {
+    return (
+      <AddProductToMyListModal
+        productToMyList={productToMyList}
+        onClose={() => {
+          setProductToMyList(null);
+        }}
+        isAddedThroughSmartSearch
+      />
+    );
+  }
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-      {productToMyList === null && (
-        <div className="relative max-h-[80vh] w-full max-w-4xl overflow-y-auto rounded-2xl bg-white p-6 shadow-xl">
-          <button
-            onClick={onClose}
-            className="text-dark/50 hover:text-dark absolute top-4 right-4 cursor-pointer transition"
-          >
-            <Tooltip
-              text="Затвори"
-              placement="left"
-            >
-              <XIcon className="h-6 w-6" />
-            </Tooltip>
-          </button>
-
-          <h2 className="text-dark mb-4 text-xl font-bold">
-            {!isPending &&
-              !isError &&
-              hasProducts &&
-              SMART_SEARCH_TEXT['searchResultsModal']['productsFound'](query, productsLength)}
-            {!isPending &&
-              !isError &&
-              !hasProducts &&
-              SMART_SEARCH_TEXT['searchResultsModal']['noProductsFound'](query)}
-            {!isPending && isError && SMART_SEARCH_TEXT['form']['unexpectedError']}
-
-            {isPending && <p>{SMART_SEARCH_TEXT['form']['loading']}</p>}
-          </h2>
-
-          {!isPending && !isError && (
-            <div className="grid gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-              {products.map((product) => (
-                <ProductCard
-                  key={product.id}
-                  handleClickAddProductToMyList={handleClickAddProductToMyList}
-                  {...product}
-                />
-              ))}
-            </div>
-          )}
-
-          {isPending && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30">
-              <div className="border-t-accent h-16 w-16 animate-spin rounded-full border-4 border-gray-200"></div>
-            </div>
-          )}
-        </div>
-      )}
-
-      {productToMyList !== null && (
-        <AddProductToMyListModal
-          productToMyList={productToMyList}
-          onClose={() => {
-            setProductToMyList(null);
-          }}
-          isAddedThroughSmartSearch
+    <Modal
+      title={getTitle()}
+      onClose={onClose}
+      size="xl"
+    >
+      {isPending && (
+        <StateMessage
+          variant="loading"
+          className="py-10"
         />
       )}
-    </div>
+
+      {!isPending && isError && (
+        <StateMessage
+          variant="error"
+          message={SMART_SEARCH_TEXT['form']['unexpectedError']}
+        />
+      )}
+
+      {!isPending && !isError && hasProducts && (
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {products.map((product) => (
+            <ProductCard
+              key={product.id}
+              handleClickAddProductToMyList={handleClickAddProductToMyList}
+              {...product}
+            />
+          ))}
+        </div>
+      )}
+    </Modal>
   );
 }

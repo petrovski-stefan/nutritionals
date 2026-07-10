@@ -1,6 +1,7 @@
 import { ChevronDownCircleIcon, ChevronUpCircleIcon } from 'lucide-react';
 import type { ReactNode } from 'react';
 
+import IconButton from '../../../components/ui/IconButton';
 import Tooltip from '../../../components/ui/Tooltip';
 import type { GroupFilterDisplay } from '../types/productgroups';
 
@@ -19,39 +20,36 @@ export default function CheckboxesFilter({
   isFilterDisplayed,
   filterType,
 }: Props) {
-  const shouldOverflow = checkboxes.length > 10;
-  const shouldDisplayScroller = shouldOverflow && isFilterDisplayed[filterType];
+  const isDisplayed = isFilterDisplayed[filterType];
+  const toggleLabel = isDisplayed ? 'Затвори' : 'Отвори';
 
   return (
-    <div
-      className={`max-h-96 overflow-x-hidden rounded-xl border border-neutral-200 bg-white p-3 shadow-sm transition-all hover:shadow-md ${shouldDisplayScroller ? 'overflow-y-scroll' : ''}`}
-    >
+    <div className="border-border bg-surface-raised max-h-96 overflow-x-hidden overflow-y-auto rounded-xl border p-3">
       <div className="mb-2 flex items-center justify-between">
-        <span className="text-dark font-semibold">{filterTitle}</span>
-        <button
-          onClick={() => {
-            handleFilterDisplayToggle(filterType);
-          }}
-          className={`hover:text-primary text-gray-400 transition-colors ${shouldDisplayScroller ? '' : 'mr-4'}`}
+        <span className="text-text font-semibold">{filterTitle}</span>
+
+        <Tooltip
+          text={toggleLabel}
+          placement="left"
         >
-          {isFilterDisplayed[filterType] ? (
-            <Tooltip
-              text="Затвори"
-              placement="left"
-            >
+          <IconButton
+            label={toggleLabel}
+            size="sm"
+            aria-expanded={isDisplayed}
+            onClick={() => {
+              handleFilterDisplayToggle(filterType);
+            }}
+          >
+            {isDisplayed ? (
               <ChevronUpCircleIcon className="h-5 w-5" />
-            </Tooltip>
-          ) : (
-            <Tooltip text="Отвори">
+            ) : (
               <ChevronDownCircleIcon className="h-5 w-5" />
-            </Tooltip>
-          )}
-        </button>
+            )}
+          </IconButton>
+        </Tooltip>
       </div>
 
-      {isFilterDisplayed[filterType] && (
-        <div className="mt-2 flex flex-col gap-2 pl-1">{checkboxes}</div>
-      )}
+      {isDisplayed && <div className="mt-2 flex flex-col gap-2 pl-1">{checkboxes}</div>}
     </div>
   );
 }

@@ -1,7 +1,6 @@
-import { XIcon } from 'lucide-react';
 import { useMemo } from 'react';
 
-import Tooltip from '../../../components/ui/Tooltip';
+import Modal from '../../../components/ui/Modal';
 import useCreateMyList from '../hooks/useCreateMyList';
 import useUpdateMyList from '../hooks/useUpdateMyList';
 import MYLISTS_TEXT from '../locale';
@@ -35,7 +34,9 @@ export default function CreateUpdateMyListModal({
   // not count as a duplicate, otherwise the list can never be re-saved.
   const blockedNames = useMemo(
     () =>
-      myListToUpdate ? existingNames.filter((name) => name !== myListToUpdate.name) : existingNames,
+      myListToUpdate
+        ? existingNames.filter((name) => name !== myListToUpdate.name)
+        : existingNames,
     [existingNames, myListToUpdate]
   );
 
@@ -47,39 +48,26 @@ export default function CreateUpdateMyListModal({
     }
   };
 
+  const title =
+    mode === 'update' && myListToUpdate
+      ? `${MYLISTS_TEXT['modal']['updateMyListTitle']} ${myListToUpdate.name}`
+      : MYLISTS_TEXT['modal']['createNewMyListTitle'];
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
-      <div className="relative w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl">
-        <div className="mb-5 flex items-center justify-between border-b border-neutral-200 pb-3">
-          <h2 className="text-dark text-xl font-semibold">
-            {mode === 'create' && MYLISTS_TEXT['modal']['createNewMyListTitle']}
-            {mode === 'update' &&
-              myListToUpdate !== undefined &&
-              `${MYLISTS_TEXT['modal']['updateMyListTitle']} ${myListToUpdate.name}`}
-          </h2>
-
-          <button
-            onClick={onClose}
-            className="hover:text-dark cursor-pointer text-gray-400 transition-colors"
-          >
-            <Tooltip text="Затвори">
-              <XIcon className="h-5 w-5" />
-            </Tooltip>
-          </button>
-        </div>
-
-        {isPending && <p>{MYLISTS_TEXT['modal']['loading']}</p>}
-
-        <MyListNameForm
-          existingNames={blockedNames}
-          placeholder={MYLISTS_TEXT['modal']['myListPlaceholder']}
-          submitText={MYLISTS_TEXT['modal']['createNewMyListButton']}
-          isPending={isPending}
-          apiError={apiError}
-          defaultName={myListToUpdate?.name}
-          onSubmit={handleSubmit}
-        />
-      </div>
-    </div>
+    <Modal
+      title={title}
+      onClose={onClose}
+      size="md"
+    >
+      <MyListNameForm
+        existingNames={blockedNames}
+        placeholder={MYLISTS_TEXT['modal']['myListPlaceholder']}
+        submitText={MYLISTS_TEXT['modal']['createNewMyListButton']}
+        isPending={isPending}
+        apiError={apiError}
+        defaultName={myListToUpdate?.name}
+        onSubmit={handleSubmit}
+      />
+    </Modal>
   );
 }

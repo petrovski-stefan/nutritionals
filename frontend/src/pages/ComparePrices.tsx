@@ -86,7 +86,7 @@ export default function ComparePrices() {
   };
 
   return (
-    <div className="relative flex min-h-screen w-full flex-col justify-around md:flex-row">
+    <div className="mx-auto grid w-full max-w-[96rem] items-start gap-6 px-4 py-8 sm:px-6 md:grid-cols-[280px_1fr]">
       <FiltersSidebar
         handleSearchFormSubmit={handleSearchFormSubmit}
         inputSearchQuery={searchQuery}

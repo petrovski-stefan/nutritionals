@@ -1,5 +1,7 @@
 import { StarIcon } from 'lucide-react';
 
+import Badge from '../../../components/ui/Badge';
+import IconButton from '../../../components/ui/IconButton';
 import Tooltip from '../../../components/ui/Tooltip';
 import SEARCH_TEXT from '../locale/search';
 import { formatPrice } from '../prices';
@@ -32,49 +34,55 @@ export default function ProductInGroup({
   const lastScrapedAt = new Date(last_scraped_at).toLocaleDateString('en-GB');
 
   return (
-    <div className="relative flex items-center justify-between border-b border-neutral-200 py-3 transition-colors hover:bg-neutral-50">
-      {discount_percent && (
-        <p className="bg-accent/20 text-accent absolute top-0 right-0 rounded px-2.5 py-0.5 text-xs font-medium">
+    <div className="border-border hover:bg-surface-sunken relative flex items-center justify-between gap-3 border-b py-3 transition-colors last:border-0">
+      {!!discount_percent && (
+        <Badge
+          variant="accent"
+          className="absolute top-1 right-0"
+        >
           -{discount_percent}%
-        </p>
+        </Badge>
       )}
-      <div className="flex flex-col">
+
+      <div className="flex min-w-0 flex-col">
         <a
           href={url}
           target="_blank"
           rel="noopener noreferrer"
-          className="text-primary font-medium hover:underline"
+          className="text-primary focus-visible:outline-primary rounded font-medium hover:underline focus-visible:outline-2 focus-visible:outline-offset-2"
         >
           {pharmacy_name}
         </a>
-        <p className={`text-sm ${isPossiblyUnavailable ? 'text-red-500' : 'text-gray-500'}`}>
+        <p className={`text-sm ${isPossiblyUnavailable ? 'text-danger' : 'text-text-muted'}`}>
           {`${SEARCH_TEXT['productCard']['updatedAt']} ${lastScrapedAt}`}
         </p>
       </div>
 
-      <div className="flex w-56 items-center justify-end space-x-4">
+      <div className="flex shrink-0 items-center gap-3">
         {discount_price ? (
           <>
-            <p className="text-primary text-sm line-through">{formatPrice(price)}</p>
+            <p className="text-text-muted text-sm line-through">{formatPrice(price)}</p>
             <p className="text-accent text-lg font-semibold">{formatPrice(discount_price)}</p>
           </>
         ) : (
           <p className="text-primary text-lg font-semibold">{formatPrice(price)}</p>
         )}
 
-        <button
-          onClick={() => {
-            handleClickAddProductToMyList(id, name, pharmacy_name);
-          }}
-          className="text-gray-400 transition-colors hover:text-yellow-500"
+        <Tooltip
+          text="Додај во листа"
+          placement="top"
         >
-          <Tooltip
-            text="Додај во листа"
-            placement="top"
+          <IconButton
+            label="Додај во листа"
+            variant="accentGhost"
+            size="sm"
+            onClick={() => {
+              handleClickAddProductToMyList(id, name, pharmacy_name);
+            }}
           >
             <StarIcon className="h-5 w-5" />
-          </Tooltip>
-        </button>
+          </IconButton>
+        </Tooltip>
       </div>
     </div>
   );

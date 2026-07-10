@@ -1,5 +1,7 @@
 import { AlertTriangleIcon, ExternalLink } from 'lucide-react';
 
+import Badge from '../../../components/ui/Badge';
+import Card from '../../../components/ui/Card';
 import Tooltip from '../../../components/ui/Tooltip';
 import { formatPrice } from '../prices';
 import { checkIsPossiblyUnavailible } from '../utils';
@@ -32,21 +34,22 @@ export default function BestDealsProductCard({
   const lastScrapedAt = new Date(last_scraped_at).toLocaleDateString('en-GB');
 
   return (
-    <div className="relative flex w-[190px] flex-col items-center rounded-3xl border border-gray-200 bg-white p-4 shadow-md transition-transform hover:scale-105 hover:shadow-xl">
+    <Card
+      hover
+      className="relative flex w-44 flex-col items-center p-4 sm:w-48"
+    >
       <div className="mb-2 flex w-full justify-center">
-        <span className="bg-accent rounded-full px-3 py-1 text-sm font-bold text-white shadow-sm">
-          -{discount_percent}%
-        </span>
+        <Badge variant="accent">-{discount_percent}%</Badge>
       </div>
 
-      <div className="mb-3 flex min-h-[3.5rem] w-full items-center justify-center">
-        <p className="line-clamp-3 text-center text-sm font-semibold text-black">{name}</p>
+      <div className="mb-3 flex min-h-14 w-full items-center justify-center">
+        <p className="text-text line-clamp-3 text-center text-sm font-semibold">{name}</p>
       </div>
 
-      <div className="mb-3 flex min-h-[2.5rem] w-full flex-col items-center gap-1">
+      <div className="mb-3 flex min-h-10 w-full flex-col items-center gap-1">
         {discount_price ? (
           <>
-            <p className="text-primary text-sm line-through">{formatPrice(price)}</p>
+            <p className="text-text-muted text-sm line-through">{formatPrice(price)}</p>
             <p className="text-accent truncate text-center text-lg font-bold">
               {formatPrice(discount_price)}
             </p>
@@ -58,14 +61,14 @@ export default function BestDealsProductCard({
         )}
       </div>
 
-      <div className="mb-3 flex min-h-[2.5rem] w-full justify-center">
+      <div className="mb-3 flex min-h-10 w-full justify-center">
         <a
           href={url}
           target="_blank"
           rel="noopener noreferrer"
-          className="bg-primary/10 text-primary hover:bg-primary/20 hover:text-accent flex w-full items-center justify-center gap-1 truncate rounded-lg px-3 py-2 text-center text-xs font-medium transition-colors"
+          className="bg-primary/10 text-primary hover:bg-primary/20 hover:text-accent focus-visible:outline-primary flex w-full items-center justify-center gap-1 truncate rounded-lg px-3 py-2 text-center text-xs font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2"
         >
-          <ExternalLink className="h-4 w-4 flex-shrink-0" />
+          <ExternalLink className="h-4 w-4 shrink-0" />
           <span className="truncate text-center">
             {hasBrand ? `${brand_name} - ${pharmacy_name}` : pharmacy_name}
           </span>
@@ -73,19 +76,19 @@ export default function BestDealsProductCard({
       </div>
 
       <div className="flex w-full justify-center">
-        <p className="text-center text-xs text-gray-400">Ажурирано на: {lastScrapedAt}</p>
+        <p className="text-text-muted text-center text-xs">Ажурирано на: {lastScrapedAt}</p>
       </div>
 
       {isPossiblyUnavailable && (
-        <span className="font-boldshadow-sm absolute top-4 right-2 rounded-full px-3 py-1 text-sm text-red-500">
+        <span className="text-danger absolute top-3 right-3">
           <Tooltip
             text="Достапноста е можеби застарена"
             placement="bottom"
           >
-            <AlertTriangleIcon size={20} />
+            <AlertTriangleIcon className="h-5 w-5" />
           </Tooltip>
         </span>
       )}
-    </div>
+    </Card>
   );
 }

@@ -1,12 +1,12 @@
 import { Edit2Icon, EyeIcon, TrashIcon } from 'lucide-react';
 
+import IconButton from '../../../components/ui/IconButton';
 import Tooltip from '../../../components/ui/Tooltip';
 import MYLISTS_TEXT from '../locale';
 import type { BackendMyListWithItemsCount } from '../types';
 
 type Props = Readonly<
   BackendMyListWithItemsCount & {
-    arrayIndex: number;
     isMyListCurrentlyViewed: boolean;
     handleMyListToView: (myListId: number) => void;
     handleDeleteMyList: (myListId: number) => void;
@@ -16,7 +16,6 @@ type Props = Readonly<
 
 export default function MyList({
   id,
-  arrayIndex,
   isMyListCurrentlyViewed,
   name,
   items_count,
@@ -25,80 +24,80 @@ export default function MyList({
   handleDeleteMyList,
   handleClickMyListToEdit,
 }: Props) {
-  const isEven = arrayIndex % 2 === 0;
-  const backgroundColor = isEven ? 'bg-primary' : 'bg-white';
-
-  let textColor: string;
-
-  if (isMyListCurrentlyViewed) {
-    textColor = 'text-accent';
-  } else if (isEven) {
-    textColor = 'text-white';
-  } else {
-    textColor = 'text-primary';
-  }
-
-  const secondaryTextColor = isEven ? 'text-white/70' : 'text-primary/70';
+  const rowClasses = isMyListCurrentlyViewed
+    ? 'border-l-primary bg-primary/10 border-l-4'
+    : 'bg-surface-raised odd:bg-surface-sunken';
 
   return (
     <li
-      className={`${backgroundColor} flex flex-row justify-between gap-0 rounded-lg border-b border-gray-200 px-4 py-4 shadow-sm sm:w-full md:items-center md:gap-4`}
+      className={`border-border flex flex-row items-center justify-between gap-2 border-b px-4 py-4 transition-colors last:border-0 md:gap-4 ${rowClasses}`}
     >
       <div className="flex min-w-0 flex-1 flex-col justify-center">
-        <p className={`text-lg font-semibold ${textColor}`}>{name}</p>
-        <p className={`mt-1 text-sm ${secondaryTextColor}`}>
+        <p
+          className={`truncate text-lg font-semibold ${
+            isMyListCurrentlyViewed ? 'text-primary' : 'text-text'
+          }`}
+        >
+          {name}
+        </p>
+        <p className="text-text-muted mt-1 text-sm">
           {items_count === 0 && MYLISTS_TEXT['myLists']['noProducts']}
           {items_count === 1 && `1 ${MYLISTS_TEXT['myLists']['oneProduct']}`}
-          {/*eslint-disable-next-line @typescript-eslint/restrict-template-expressions*/}
-          {items_count > 1 && `${items_count} ${MYLISTS_TEXT['myLists']['products']}`}
+          {items_count > 1 && `${String(items_count)} ${MYLISTS_TEXT['myLists']['products']}`}
         </p>
-        <p className={`mt-1 text-xs italic ${secondaryTextColor}`}>
+        <p className="text-text-muted mt-1 text-xs italic">
           {MYLISTS_TEXT['myLists']['lastUpdatedAt']}{' '}
           {new Date(updated_at).toLocaleDateString('en-GB')}
         </p>
       </div>
 
-      <div className="flex flex-shrink-0 items-center gap-2 md:gap-3">
+      <div className="flex shrink-0 items-center gap-2">
         <Tooltip
           text="Прегледај"
           placement="bottom"
         >
-          <button
-            className="cursor-pointer rounded-full bg-blue-500 p-2 text-white hover:bg-blue-600"
+          <IconButton
+            label="Прегледај"
+            variant="info"
+            size="sm"
             onClick={() => {
               handleMyListToView(id);
             }}
           >
-            <EyeIcon className="h-5 w-5" />
-          </button>
+            <EyeIcon className="h-4 w-4" />
+          </IconButton>
         </Tooltip>
 
         <Tooltip
           text="Измени"
           placement="bottom"
         >
-          <button
+          <IconButton
+            label="Измени"
+            variant="warning"
+            size="sm"
             onClick={() => {
               handleClickMyListToEdit(id, name);
             }}
-            className="cursor-pointer rounded-full bg-yellow-500 p-2 text-white hover:bg-yellow-600"
           >
-            <Edit2Icon className="h-5 w-5" />
-          </button>
+            <Edit2Icon className="h-4 w-4" />
+          </IconButton>
         </Tooltip>
 
         <Tooltip
           text="Избриши"
           placement="bottom"
         >
-          <button
+          <IconButton
+            label="Избриши"
+            variant="danger"
+            size="sm"
             onClick={() => {
               handleDeleteMyList(id);
             }}
-            className="cursor-pointer rounded-full bg-red-500 p-2 text-white hover:bg-red-600"
           >
-            <TrashIcon className="h-5 w-5" />
-          </button>
+            <TrashIcon className="h-4 w-4" />
+          </IconButton>
         </Tooltip>
       </div>
     </li>

@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
+import Button from '../../../components/ui/Button';
+import StateMessage from '../../../components/ui/StateMessage';
 import { useAuthContext } from '../../../context/AuthContext';
 import AddProductToMyListModal from '../../add-product-to-mylist/components/AddProductToMyListModal';
 import type { ProductToMyList } from '../../my-lists/types';
@@ -45,7 +47,7 @@ export default function ProductsGrid({
   };
 
   return (
-    <div className="flex h-full w-full flex-wrap justify-center gap-10 p-4 md:ml-10 md:w-[75%] md:justify-start">
+    <div className="flex w-full flex-col gap-6">
       {productToMyList && (
         <AddProductToMyListModal
           productToMyList={productToMyList}
@@ -55,55 +57,66 @@ export default function ProductsGrid({
         />
       )}
 
-      {!isPending &&
-        !isError &&
-        groups.map((group) => (
-          <ProductGroupCard
-            key={group.id}
-            productGroup={group}
-            handleClickAddProductToMyList={handleClickAddProductToMyList}
-          />
-        ))}
-
-      {isPending && (
-        <div className="ml-10 flex h-full w-[75%] flex-wrap justify-center gap-10 p-4">
-          <div className="border-t-accent h-16 w-16 animate-spin rounded-full border-4 border-gray-200"></div>
+      {!isPending && !isError && groups.length > 0 && (
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3">
+          {groups.map((group) => (
+            <ProductGroupCard
+              key={group.id}
+              productGroup={group}
+              handleClickAddProductToMyList={handleClickAddProductToMyList}
+            />
+          ))}
         </div>
       )}
 
+      {!isPending && !isError && groups.length === 0 && (
+        <StateMessage
+          variant="empty"
+          message="Нема резултати за вашето пребарување."
+        />
+      )}
+
+      {isPending && (
+        <StateMessage
+          variant="loading"
+          className="py-16"
+        />
+      )}
+
       {isError && (
-        <p className="p-4 text-gray-500">{SEARCH_TEXT['groupsGrid']['error']['unexpectedError']}</p>
+        <StateMessage
+          variant="error"
+          message={SEARCH_TEXT['groupsGrid']['error']['unexpectedError']}
+        />
       )}
 
       {!isPending && !isError && groups.length > 0 && (
-        <div className="flex w-full justify-center">
-          <div className="flex w-1/2 justify-around">
-            <div>
-              <button
-                className="bg-accent cursor-pointer rounded-2xl p-2 font-bold text-white"
-                disabled={currentPage === 1}
-                onClick={() => {
-                  handlePaginationClick(true);
-                }}
-              >
-                Претходна
-              </button>
-            </div>
-            <div>
-              {currentPage}/{totalPages}
-            </div>
-            <div>
-              <button
-                className="bg-primary cursor-pointer rounded-2xl p-2 font-bold text-white"
-                disabled={currentPage === totalPages}
-                onClick={() => {
-                  handlePaginationClick(false);
-                }}
-              >
-                Следна
-              </button>
-            </div>
-          </div>
+        <div className="flex items-center justify-center gap-6">
+          <Button
+            variant="outline"
+            size="sm"
+            disabled={currentPage === 1}
+            onClick={() => {
+              handlePaginationClick(true);
+            }}
+          >
+            Претходна
+          </Button>
+
+          <span className="text-text-muted text-sm">
+            {currentPage}/{totalPages}
+          </span>
+
+          <Button
+            variant="outline"
+            size="sm"
+            disabled={currentPage === totalPages}
+            onClick={() => {
+              handlePaginationClick(false);
+            }}
+          >
+            Следна
+          </Button>
         </div>
       )}
     </div>

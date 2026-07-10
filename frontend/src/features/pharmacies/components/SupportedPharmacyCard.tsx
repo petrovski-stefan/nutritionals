@@ -1,5 +1,6 @@
+import Card from '../../../components/ui/Card';
+
 type Props = Readonly<{
-  idx: number;
   name: string;
   homepage: string;
   num_products: number;
@@ -7,7 +8,6 @@ type Props = Readonly<{
 }>;
 
 export default function SupportedPharmacyCard({
-  idx,
   name,
   homepage,
   num_products,
@@ -17,28 +17,27 @@ export default function SupportedPharmacyCard({
     ? new Date(last_scraped_at).toLocaleDateString('en-GB')
     : '/';
 
-  const cardBackgroundColor = idx % 2 === 0 ? 'bg-white' : 'bg-green-50';
-
   return (
-    <div
-      className={`flex h-[200px] w-[200px] flex-col items-center justify-center gap-3 rounded-3xl border border-gray-200 ${cardBackgroundColor} p-4 shadow-md transition-transform hover:scale-105 hover:shadow-xl`}
+    <Card
+      hover
+      className="flex size-44 flex-col items-center justify-center gap-3 p-4 sm:size-48"
     >
-      <p className="line-clamp-2 text-center text-2xl font-semibold text-black">
+      <p className="line-clamp-2 text-center text-xl font-semibold sm:text-2xl">
         <a
           href={homepage}
           target="_blank"
           rel="noopener noreferrer"
-          className="text-primary hover:text-accent transition-colors hover:underline"
+          className="text-primary hover:text-accent focus-visible:outline-primary rounded transition-colors hover:underline focus-visible:outline-2 focus-visible:outline-offset-2"
         >
           {name}
         </a>
       </p>
 
-      <p className="text-center text-lg text-gray-700">
+      <p className="text-text text-center text-lg">
         <span className="text-primary font-bold">{num_products}</span> суплементи
       </p>
 
-      <p className="text-center text-xs text-gray-400">Ажурирано на: {lastScrapedAt}</p>
-    </div>
+      <p className="text-text-muted text-center text-xs">Ажурирано на: {lastScrapedAt}</p>
+    </Card>
   );
 }

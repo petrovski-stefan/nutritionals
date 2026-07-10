@@ -3,6 +3,10 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 
 import Section from '../components/layout/Section';
+import Card from '../components/ui/Card';
+import IconButton from '../components/ui/IconButton';
+import Input from '../components/ui/Input';
+import StateMessage from '../components/ui/StateMessage';
 import Tooltip from '../components/ui/Tooltip';
 import SupportedPharmacyCard from '../features/pharmacies/components/SupportedPharmacyCard';
 import usePharmacies from '../features/pharmacies/hooks/usePharmacies';
@@ -38,43 +42,48 @@ export default function Home() {
   } = useProductsSearch(searchQuery, shouldSearch);
 
   return (
-    <div className="bg-neutral min-h-screen">
+    <div>
       <Section center={true}>
-        <h1 className="text-dark text-center text-3xl font-bold">
+        <h1 className="text-text text-center text-2xl font-bold sm:text-3xl">
           Пронајдете ги најдобрите цени на суплементи од локалните аптеки.
         </h1>
-        <p className="text-dark/70 mt-5 text-center text-lg">
+        <p className="text-text-muted mt-4 text-center text-lg">
           Споредете ги понудите веднаш и заштедете на она што ви е потребно.
         </p>
       </Section>
 
       <Section center={true}>
-        <div className="relative mx-auto flex w-full max-w-3xl items-center rounded-3xl bg-white px-4 py-2 shadow-md">
-          <input
-            className="focus:ring-accent focus:border-accent flex-1 rounded-2xl bg-white px-4 py-3 transition outline-none focus:ring-2"
-            type="text"
-            placeholder={'Пример. Магнезиум глицинат'}
-            value={searchQuery}
-            onChange={(e) => {
-              setSearchQuery(e.target.value);
-            }}
-          />
-          {searchQuery && (
-            <button
-              type="button"
-              onClick={() => {
-                setSearchQuery('');
+        <div className="relative w-full max-w-3xl">
+          <Card className="relative flex items-center p-2">
+            <Input
+              type="text"
+              placeholder="Пример. Магнезиум глицинат"
+              value={searchQuery}
+              className="border-0 pr-12"
+              onChange={(e) => {
+                setSearchQuery(e.target.value);
               }}
-              className="text-dark/50 hover:text-dark absolute top-1/2 right-5 -translate-y-1/2 cursor-pointer"
-            >
-              <Tooltip text="Исчисти пребарување">
-                <XIcon className="h-6 w-6" />
+            />
+            {searchQuery && (
+              <Tooltip
+                text="Исчисти пребарување"
+                placement="bottom"
+              >
+                <IconButton
+                  label="Исчисти пребарување"
+                  className="absolute top-1/2 right-3 -translate-y-1/2"
+                  onClick={() => {
+                    setSearchQuery('');
+                  }}
+                >
+                  <XIcon className="h-5 w-5" />
+                </IconButton>
               </Tooltip>
-            </button>
-          )}
+            )}
+          </Card>
 
           {shouldSearch && (
-            <div className="bg-neutral absolute top-20 left-0 z-50 max-h-96 w-full max-w-3xl overflow-y-auto rounded-2xl p-2 shadow-lg">
+            <div className="border-border bg-surface-raised absolute top-full left-0 z-40 mt-2 max-h-96 w-full overflow-y-auto rounded-xl border p-2 shadow-md">
               {productsSearchIsSuccess &&
                 searchedProducts.length > 0 &&
                 searchedProducts.map((p) => (
@@ -85,20 +94,15 @@ export default function Home() {
                 ))}
 
               {productsSearchIsSuccess && searchedProducts.length === 0 && (
-                <p className="text-dark/50 py-4 text-center">
-                  Не беа пронајдени суплементи со вашето пребарување. Обидете се повторно.
-                </p>
+                <StateMessage
+                  variant="empty"
+                  message="Не беа пронајдени суплементи со вашето пребарување. Обидете се повторно."
+                />
               )}
 
-              {productsSearchIsPending && (
-                <p className="text-dark/50 py-4 text-center">Се вчитува ...</p>
-              )}
+              {productsSearchIsPending && <StateMessage variant="loading" />}
 
-              {productsSearchIsError && (
-                <p className="text-dark/50 py-4 text-center">
-                  Се случи неочекувана грешка. Обидете се повторно.
-                </p>
-              )}
+              {productsSearchIsError && <StateMessage variant="error" />}
             </div>
           )}
         </div>
@@ -106,21 +110,19 @@ export default function Home() {
         <div className="mt-3 text-center">
           <Link
             to="/smart-search"
-            className="hover:decoration-accent text-dark/70 text-sm italic hover:underline"
+            className="text-text-muted hover:text-accent focus-visible:outline-primary rounded text-sm italic transition-colors hover:underline focus-visible:outline-2 focus-visible:outline-offset-2"
           >
             Не најдовте тоа што ви треба? Обидете се со паметното пребарување!
           </Link>
         </div>
       </Section>
 
-      {/* PRODUCTS ON DISCOUNT */}
-      <Section center={false}>
-        <h1 className="flex justify-center p-4 text-center text-2xl font-bold">
-          Суплементи со најголемо намалување
-        </h1>
-
+      <Section
+        center={false}
+        title="Суплементи со најголемо намалување"
+      >
         {productsOnDiscountIsSuccess && productsOnDiscount.length > 0 && (
-          <div className="mt-5 flex flex-wrap justify-center gap-5">
+          <div className="flex flex-wrap justify-center gap-5">
             {productsOnDiscount.map((product) => (
               <BestDealsProductCard
                 key={product.id}
@@ -131,43 +133,35 @@ export default function Home() {
         )}
 
         {productsOnDiscountIsSuccess && productsOnDiscount.length === 0 && (
-          <p className="text-dark/70 mt-5 text-center text-sm">
-            Денес нема суплементи на попуст. Проверете утре повторно.
-          </p>
+          <StateMessage
+            variant="empty"
+            message="Денес нема суплементи на попуст. Проверете утре повторно."
+          />
         )}
 
-        {productsOnDiscountIsPending && (
-          <p className="text-dark/70 mt-5 text-center text-sm">Се вчитува ...</p>
-        )}
+        {productsOnDiscountIsPending && <StateMessage variant="loading" />}
 
-        {productsOnDiscountIsError && (
-          <p className="text-dark/70 mt-5 text-center text-sm">Се случи неочекувана грешка.</p>
-        )}
+        {productsOnDiscountIsError && <StateMessage variant="error" />}
       </Section>
 
-      {/* SUPPORTED PHARMACIES */}
-      <Section center={false}>
-        <h1 className="flex justify-center p-4 text-2xl font-bold">Поддржани аптеки од системот</h1>
-
+      <Section
+        center={false}
+        title="Поддржани аптеки од системот"
+      >
         {pharmaciesIsSuccess && (
-          <div className="mt-5 flex flex-wrap justify-center gap-5">
-            {pharmacies.map((pharmacy, i) => (
+          <div className="flex flex-wrap justify-center gap-5">
+            {pharmacies.map((pharmacy) => (
               <SupportedPharmacyCard
                 key={pharmacy.id}
-                idx={i}
                 {...pharmacy}
               />
             ))}
           </div>
         )}
 
-        {pharmaciesIsPending && (
-          <p className="text-dark/70 mt-5 text-center text-sm">Се вчитува ...</p>
-        )}
+        {pharmaciesIsPending && <StateMessage variant="loading" />}
 
-        {pharmaciesIsError && (
-          <p className="text-dark/70 mt-5 text-center text-sm">Се случи неочекувана грешка.</p>
-        )}
+        {pharmaciesIsError && <StateMessage variant="error" />}
       </Section>
     </div>
   );

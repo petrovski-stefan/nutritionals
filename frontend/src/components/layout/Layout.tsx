@@ -9,7 +9,7 @@ type Props = Readonly<{
 
 export default function Layout({ children }: Props) {
   return (
-    <div className="flex min-h-screen w-full flex-col">
+    <div className="bg-surface text-text flex min-h-screen w-full flex-col">
       <Header />
       <main className="flex-1">{children}</main>
       <Footer />
