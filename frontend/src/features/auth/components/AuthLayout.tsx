@@ -1,20 +1,16 @@
 import type { PropsWithChildren } from 'react';
 
-import Card from '@/components/ui/Card';
+import AuthBenefits from './AuthBenefits';
 
-type Props = Readonly<
-  PropsWithChildren & {
-    title: string;
-  }
->;
+type Props = Readonly<PropsWithChildren>;
 
-export default function AuthLayout({ title, children }: Props) {
+export default function AuthLayout({ children }: Props) {
   return (
-    <div className="flex min-h-[70vh] items-center justify-center px-4 py-10">
-      <Card className="w-full max-w-md p-6 sm:p-8">
-        <h1 className="text-text mb-6 text-center text-2xl font-bold">{title}</h1>
-        {children}
-      </Card>
+    <div className="mx-auto grid w-full max-w-7xl items-center gap-6 px-4 py-8 sm:px-6 sm:py-12 lg:grid-cols-2">
+      <div className="flex w-full justify-center lg:justify-center">{children}</div>
+      <div className="flex w-full justify-center lg:justify-start">
+        <AuthBenefits />
+      </div>
     </div>
   );
 }
