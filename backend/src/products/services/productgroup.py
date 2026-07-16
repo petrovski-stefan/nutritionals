@@ -10,7 +10,7 @@ from . import productgroupcategory as productgroupcategory_service
 logger = logging.getLogger(__name__)
 
 
-def list_productgroups(*, q: str | None) -> QuerySet:
+def list_productgroups(*, q: str | None = None) -> QuerySet:
     base_qs = ProductGroup.objects.filter(is_reviewed=True)
 
     if q:
