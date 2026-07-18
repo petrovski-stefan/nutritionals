@@ -253,6 +253,8 @@ def assign_product_to_group(product: Product) -> None:  # noqa
 
         logger.info(f"Created group {new_group.name} for product {product.name}")
 
+        best_group = new_group
+
     productgroupcategory_service.assign_unique_categories_to_group(
         category_ids=product_category_ids, group=best_group
     )
