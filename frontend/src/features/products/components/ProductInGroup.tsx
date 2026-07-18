@@ -59,10 +59,10 @@ export default function ProductInGroup({
 
       <div className="flex shrink-0 items-center gap-3">
         {discount_price ? (
-          <>
+          <div className="flex flex-col items-end">
             <p className="text-text-muted text-sm line-through">{formatPrice(price)}</p>
             <p className="text-accent text-lg font-semibold">{formatPrice(discount_price)}</p>
-          </>
+          </div>
         ) : (
           <p className="text-primary text-lg font-semibold">{formatPrice(price)}</p>
         )}

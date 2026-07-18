@@ -2,6 +2,7 @@ import { XIcon } from 'lucide-react';
 import { type PropsWithChildren, type ReactNode, useEffect } from 'react';
 
 import IconButton from './IconButton';
+import Tooltip from './Tooltip';
 
 type Size = 'md' | 'lg' | 'xl';
 
@@ -49,14 +50,19 @@ export default function Modal({ title, onClose, size = 'md', children }: Props) 
       >
         <div className="border-border mb-5 flex items-start justify-between gap-4 border-b pb-3">
           <h2 className="text-text text-xl font-semibold">{title}</h2>
-          <IconButton
-            label="Затвори"
-            size="sm"
-            onClick={onClose}
-            className="shrink-0"
+          <Tooltip
+            text="Затвори"
+            placement="left"
           >
-            <XIcon className="h-5 w-5" />
-          </IconButton>
+            <IconButton
+              label="Затвори"
+              size="sm"
+              onClick={onClose}
+              className="shrink-0"
+            >
+              <XIcon className="h-5 w-5" />
+            </IconButton>
+          </Tooltip>
         </div>
 
         {children}

@@ -1,3 +1,4 @@
+import type { BackendProductGroup } from '@/features/products/types/productgroups';
 import type { BackendDiscountedProduct, BackendProduct } from '@/features/products/types/products';
 import axiosInstance from '@/shared/lib/axios';
 import type { APIResponseSuccessV2 } from '@/shared/types/api';
@@ -14,19 +15,13 @@ export const searchProducts = async (searchQuery: string) => {
   return (response.data as APIResponseSuccessV2<BackendProduct[]>).data;
 };
 
-export const smartSearchProducts = async (
-  searchQuery: string,
-  pharmacyIds: number[],
-  categoryIds: number[]
-) => {
+export const smartSearchProductGroups = async (searchQuery: string) => {
   const url = `${PRODUCTS_BASE_PATH}smart-search/`;
   const response = await axiosInstance.post(url, {
     query: searchQuery,
-    pharmacy_ids: pharmacyIds,
-    category_ids: categoryIds,
   });
 
-  return (response.data as APIResponseSuccessV2<BackendProduct[]>).data;
+  return (response.data as APIResponseSuccessV2<BackendProductGroup[]>).data;
 };
 
 export const getProductsOnDiscount = async () => {

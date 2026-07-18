@@ -6,8 +6,8 @@ from .views import (
     DiscountedProductListAPIView,
     PharmacyListAPIView,
     ProductGroupListAPIView,
-    ProductSmartSearchAPIView,
     SearchProductListAPIView,
+    SmartSearchAPIView,
 )
 
 urlpatterns = [
@@ -23,7 +23,7 @@ urlpatterns = [
     ),
     path(
         "products/smart-search/",
-        view=ProductSmartSearchAPIView.as_view(),
+        view=SmartSearchAPIView.as_view(),
         name="product-smart-search",
     ),
     path(
