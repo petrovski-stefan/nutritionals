@@ -19,6 +19,6 @@ uv run flake8 --config=setup.cfg
 uv run mypy src --config-file=setup.cfg
 ```
 
-Known issue: mypy's `setup.cfg` references `core.settings.shared`, which no longer exists (base settings live in `core/settings/django.py`). If mypy fails resolving settings, report that as the pre-existing config mismatch — don't try to fix it as part of an unrelated change.
+Known issue: mypy exits non-zero due to a backlog of pre-existing errors (~97 across scrapers/products/users as of 2026-07-18, from the period its settings config was broken). Compare against that baseline: only errors in files the current change touched count as failures; also flag if the total rises above the baseline. Same for flake8's 6 pre-existing F401 warnings (unused imports in `tests.py` stubs, `users/admin.py`, `users/models.py`). Don't fix backlog items as part of an unrelated change.
 
 Report each command's pass/fail. Fix failures caused by the current change; list pre-existing failures separately without fixing them unless asked.
