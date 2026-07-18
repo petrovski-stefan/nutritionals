@@ -26,7 +26,7 @@ There is no CI — run these before considering a change done:
 - Frontend (in `frontend/`): `npm run lint` and `npm run build` (runs `tsc -b`, which is the type check).
 - Backend (in `backend/`): `uv run flake8 --config=setup.cfg` and `uv run mypy src --config-file=setup.cfg`.
 
-Note: mypy's config references `core.settings.shared`, which no longer exists (base settings are in `core/settings/django.py`) — if mypy fails on settings resolution, that's why.
+Note: mypy has a backlog of pre-existing errors (~97 across scrapers/products/users as of 2026-07-18) from the period its settings config was broken — treat only errors in code you touched as regressions.
 
 ## Code style
 
