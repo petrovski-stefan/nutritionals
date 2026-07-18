@@ -65,20 +65,21 @@ export default function Home() {
               }}
             />
             {searchQuery && (
-              <Tooltip
-                text="Исчисти пребарување"
-                placement="bottom"
-              >
-                <IconButton
-                  label="Исчисти пребарување"
-                  className="absolute top-1/2 right-3 -translate-y-1/2"
-                  onClick={() => {
-                    setSearchQuery('');
-                  }}
+              <div className="absolute top-1/2 right-3 -translate-y-1/2">
+                <Tooltip
+                  text="Исчисти пребарување"
+                  placement="top"
                 >
-                  <XIcon className="h-5 w-5" />
-                </IconButton>
-              </Tooltip>
+                  <IconButton
+                    label="Исчисти пребарување"
+                    onClick={() => {
+                      setSearchQuery('');
+                    }}
+                  >
+                    <XIcon className="h-5 w-5" />
+                  </IconButton>
+                </Tooltip>
+              </div>
             )}
           </Card>
 
