@@ -11,9 +11,9 @@ import Tooltip from '@/components/ui/Tooltip';
 import SupportedPharmacyCard from '@/features/pharmacies/components/SupportedPharmacyCard';
 import usePharmacies from '@/features/pharmacies/hooks/usePharmacies';
 import BestDealsProductCard from '@/features/products/components/BestDealProductCard';
-import DropdownProductCard from '@/features/products/components/DropdownProduct';
+import DropdownProductGroup from '@/features/products/components/DropdownProductGroup';
+import useProductGroupsSearch from '@/features/products/hooks/useProductGroupsSearch';
 import useProductsOnDiscount from '@/features/products/hooks/useProductsOnDiscount';
-import useProductsSearch from '@/features/products/hooks/useProductsSearch';
 
 export default function Home() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -35,11 +35,11 @@ export default function Home() {
   const shouldSearch = searchQuery.length > 2;
 
   const {
-    data: searchedProducts,
-    isSuccess: productsSearchIsSuccess,
-    isPending: productsSearchIsPending,
-    isError: productsSearchIsError,
-  } = useProductsSearch(searchQuery, shouldSearch);
+    data: searchedGroups,
+    isSuccess: groupsSearchIsSuccess,
+    isPending: groupsSearchIsPending,
+    isError: groupsSearchIsError,
+  } = useProductGroupsSearch(searchQuery, shouldSearch);
 
   return (
     <div>
@@ -85,25 +85,25 @@ export default function Home() {
 
           {shouldSearch && (
             <div className="border-border bg-surface-raised absolute top-full left-0 z-40 mt-2 max-h-96 w-full overflow-y-auto rounded-xl border p-2 shadow-md">
-              {productsSearchIsSuccess &&
-                searchedProducts.length > 0 &&
-                searchedProducts.map((p) => (
-                  <DropdownProductCard
-                    key={p.id}
-                    {...p}
+              {groupsSearchIsSuccess &&
+                searchedGroups.results.length > 0 &&
+                searchedGroups.results.map((group) => (
+                  <DropdownProductGroup
+                    key={group.id}
+                    productGroup={group}
                   />
                 ))}
 
-              {productsSearchIsSuccess && searchedProducts.length === 0 && (
+              {groupsSearchIsSuccess && searchedGroups.results.length === 0 && (
                 <StateMessage
                   variant="empty"
-                  message="Не беа пронајдени суплементи со вашето пребарување. Обидете се повторно."
+                  message="Не беа пронајдени производи со вашето пребарување. Обидете се повторно."
                 />
               )}
 
-              {productsSearchIsPending && <StateMessage variant="loading" />}
+              {groupsSearchIsPending && <StateMessage variant="loading" />}
 
-              {productsSearchIsError && <StateMessage variant="error" />}
+              {groupsSearchIsError && <StateMessage variant="error" />}
             </div>
           )}
         </div>

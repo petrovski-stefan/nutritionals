@@ -13,6 +13,8 @@ export const productKeys = {
       filters.brandIds,
       page,
     ] as const,
+  groupsSearch: (searchQuery: string) =>
+    [...productKeys.all, 'groups-search', searchQuery] as const,
   brands: () => [...productKeys.all, 'brands'] as const,
   categories: () => [...productKeys.all, 'categories'] as const,
 };

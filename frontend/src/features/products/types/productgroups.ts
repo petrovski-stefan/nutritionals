@@ -4,7 +4,7 @@ import type { BackendProduct } from './products';
 export type BackendProductGroup = {
   id: number;
   name: string;
-  brand_name: string;
+  brand_name: string | null;
   categories: BackendCategory[];
   products: BackendProduct[];
 };
