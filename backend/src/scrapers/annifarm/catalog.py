@@ -2,6 +2,7 @@ from bs4 import BeautifulSoup, ResultSet, Tag
 from pydantic import ValidationError
 
 from ..shared import exceptions
+from ..shared.soup import get_stripped_attribute
 from . import selectors, validators
 
 PRODUCT_FIELD_IN_PRODUCT_CARD_SELECTOR_MAP = {
@@ -33,7 +34,7 @@ def _extract_field_from_card(field: str, card: Tag) -> str | list[str] | None:
         return None
 
     if field == "url":
-        return element.get("href").strip()
+        return get_stripped_attribute(element, "href")
 
     return element.get_text(strip=True)
 

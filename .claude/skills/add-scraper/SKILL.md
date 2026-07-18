@@ -14,7 +14,7 @@ Scrapers are per-pharmacy packages loaded dynamically by name: `shared/imports.l
    - `url.py` — `get_catalog_url_by_page(base_url, page_num, qs_str=None) -> str` building the paginated catalog URL.
    - `normalization.py` — vendor-specific string cleanup (e.g. `normalize_price_str`); reuse `shared/normalization.py` helpers where possible.
    - `validators.py` — a pydantic `CatalogProduct(shared.validators.BaseCatalogProduct)` with `BeforeValidator`s applying the normalizers.
-   - `catalog.py` — `extract_cards_from_page(soup) -> list[Tag]` (raise `shared.exceptions.CardsNotFoundError` when no cards) and `get_products_from_cards(cards) -> list[dict]` returning `CatalogProduct(**data).model_dump()` per card, skipping cards that fail validation.
+   - `catalog.py` — `extract_cards_from_page(soup) -> list[Tag]` (raise `shared.exceptions.CardsNotFoundError` when no cards) and `get_products_from_cards(cards) -> list[dict]` returning `CatalogProduct(**data).model_dump()` per card, skipping cards that fail validation. Read tag attributes (e.g. `href`) via `get_stripped_attribute` from `shared/soup.py` — never `element.get("href").strip()`, which crashes the whole page task when the attribute is missing.
    - `__init__.py` — re-export the three required functions:
      `get_catalog_url_by_page`, `extract_cards_from_page`, `get_products_from_cards` (see `shared/imports.REQUIRED_FNS`).
 
