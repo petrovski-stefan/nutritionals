@@ -1,7 +1,7 @@
 import type { LucideIcon } from 'lucide-react';
 import { BellRing, ListChecks, ShieldCheck } from 'lucide-react';
 
-import authIllustration from '@/assets/auth-illustration.png';
+import authIllustration from '@/assets/auth-illustration.webp';
 import Badge from '@/components/ui/Badge';
 
 type Benefit = {
