@@ -1,12 +1,14 @@
-from django.contrib.auth.models import User as UserType
+from django.contrib.auth import get_user_model
 from django.db.models import Count, Prefetch, QuerySet
 
 from .. import exceptions
 from ..models import MyList
 from . import mylistitem as mylistitem_service
 
+User = get_user_model()
 
-def list_mylists_by_user(*, user: UserType, include_products: bool) -> QuerySet[MyList]:
+
+def list_mylists_by_user(*, user: User, include_products: bool) -> QuerySet[MyList]:
 
     base_qs = MyList.objects.filter(user=user).order_by("-updated_at")
 
@@ -19,8 +21,19 @@ def list_mylists_by_user(*, user: UserType, include_products: bool) -> QuerySet[
     return base_qs.prefetch_related(Prefetch("mylistitem_set", queryset=mylistitem_qs))
 
 
-def create_mylist(*, name: str, user: UserType) -> MyList:
+def create_mylist(*, name: str, user: User) -> MyList:
     if MyList.objects.filter(name=name, user=user).exists():
         raise exceptions.MyListNameByUserAlreadyExist
 
     return MyList.objects.create(name=name, user=user)
+
+
+def update_mylist(*, mylist: MyList, name: str) -> MyList:
+    if MyList.objects.filter(name=name, user=mylist.user).exclude(pk=mylist.pk).exists():
+        raise exceptions.MyListNameByUserAlreadyExist
+
+    mylist.name = name
+    # updated_at is auto_now — it only gets written when listed in update_fields
+    mylist.save(update_fields=["name", "updated_at"])
+
+    return mylist

@@ -22,6 +22,10 @@ def get_openai_response(
 
     output_text = response.choices[0].message.content
 
+    if output_text is None:
+        logger.warning("OpenAI response has no message content")
+        raise ValueError("OpenAI response has no message content")
+
     try:
         return json.loads(output_text)
     except json.JSONDecodeError as e:

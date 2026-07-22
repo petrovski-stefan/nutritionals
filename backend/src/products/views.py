@@ -38,16 +38,16 @@ class DiscountedProductListAPIView(NoAuthMixin, ListAPIView):
         return product_service.list_discounted_products()
 
 
-class ProductSmartSearchAPIView(NoAuthMixin, APIView):
+class SmartSearchAPIView(NoAuthMixin, APIView):
     def post(self, request: Request) -> Response:
         input_serializer = ProductSmartSearchInputSerializer(data=request.data)
         input_serializer.is_valid(raise_exception=True)
 
-        product_qs = product_service.get_smart_seached_products(
+        group_qs = productgroup_service.get_smart_searched_productgroups(
             validated_data=input_serializer.validated_data
         )
 
-        return Response(ProductListSerializer(product_qs, many=True).data)
+        return Response(ProductGroupListSerializer(group_qs, many=True).data)
 
 
 class BrandListAPIView(NoAuthMixin, ListAPIView):

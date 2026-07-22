@@ -49,20 +49,6 @@ class ProductListSerializer(serializers.ModelSerializer):
 
 class ProductSmartSearchInputSerializer(serializers.Serializer):
     query = serializers.CharField(min_length=3, max_length=100, write_only=True)
-    pharmacy_ids = serializers.PrimaryKeyRelatedField(
-        queryset=Pharmacy.objects.all(),
-        source="pharmacies",
-        many=True,
-        write_only=True,
-        required=False,
-    )
-    category_ids = serializers.PrimaryKeyRelatedField(
-        queryset=Category.objects.all(),
-        source="categories",
-        many=True,
-        write_only=True,
-        required=False,
-    )
 
 
 class CategoryListSerializer(serializers.ModelSerializer):

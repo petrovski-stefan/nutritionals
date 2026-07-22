@@ -1,16 +1,25 @@
 import logging
 
+from common.utils import transliterate_cyrillic_to_latin
 from django.contrib.postgres.search import TrigramSimilarity
-from django.db.models import Count, Prefetch, Q, QuerySet, Subquery
+from django.db.models import (
+    Count,
+    Prefetch,
+    Q,
+    QuerySet,
+    Subquery,
+)
+from django.db.models.functions import Greatest
 
 from ..models import Product, ProductGroup
+from . import openai as openai_service
 from . import product as product_service
 from . import productgroupcategory as productgroupcategory_service
 
 logger = logging.getLogger(__name__)
 
 
-def list_productgroups(*, q: str | None) -> QuerySet:
+def list_productgroups(*, q: str | None = None) -> QuerySet:
     base_qs = ProductGroup.objects.filter(is_reviewed=True)
 
     if q:
@@ -33,6 +42,156 @@ def list_productgroups(*, q: str | None) -> QuerySet:
         .prefetch_related("categories")
         .order_by("-product_count")
     )
+
+
+HUMAN_QUERY_TO_KEYWORDS_SYSTEM_PROMPT = """
+You are a supplement search keyword generator for a pharmacy catalog search engine.
+
+Your task:
+Given a natural language query describing a health goal, symptom, or specific supplement,
+generate a list of supplement name strings that will be used for fuzzy text matching
+against a product catalog.
+
+Rules:
+1. Output ONLY a valid JSON array of strings — no explanation, markdown, or extra text.
+2. Each string should be a supplement name or common alias/abbreviation as it would
+   typically appear on a product label or in a pharmacy catalog.
+3. The query may be written in English OR in transliterated Macedonian
+   (Macedonian words written with Latin letters, e.g. "za spienie", "zglobovi", "imunitet").
+   Understand the intent regardless of language and always output keywords in English.
+4. Always prioritize supplements explicitly named in the query — include them first
+   and add common spelling variants or abbreviations for them
+   (e.g. "coenzyme q10", "coq10", "ubiquinol").
+5. Add other supplements commonly associated with the health goal or symptom.
+6. Include both generic names and widely-used branded ingredient names where relevant
+   (e.g. "curcumin", "turmeric", "meriva").
+7. Aim for 7–10 strings. Do NOT pad with loosely related supplements just to hit a count.
+8. If the query is entirely unrelated to health, medicine, or supplements, return [].
+
+Examples:
+- Query: "I need magnesium 400mg for sleep"
+  → ["magnesium", "magnesium glycinate", "magnesium citrate", "magnesium oxide",
+     "melatonin", "l-theanine", "5-htp"]
+
+- Query: "za spienie" (Macedonian transliteration of "for sleep")
+  → ["melatonin", "magnesium", "magnesium glycinate", "l-theanine", "5-htp",
+     "valerian", "chamomile"]
+
+- Query: "bolki vo zglobovite" (Macedonian transliteration of "joint pain")
+  → ["glucosamine", "chondroitin", "msm", "collagen", "turmeric", "curcumin", "boswellia"]
+
+- Query: "coq10"
+  → ["coq10", "coenzyme q10", "ubiquinol", "ubiquinone"]
+"""
+
+
+SMART_SEARCH_SYSTEM_PROMPT = """
+You are a product search ranking engine for a pharmacy supplement catalog.
+
+Your task:
+Given a natural language search query and a list of candidate products,
+return the IDs of the products that are relevant to the query, ranked best match first.
+
+Each product has: id, name.
+
+Output rules:
+- Output ONLY a valid JSON array of integers — no explanation, markdown, or extra text.
+- Example output: [12, 4, 87]
+- Never output keys or wrappers like {"results": [...]}.
+- Return AT MOST 30 product IDs.
+- Rank IDs by relevance — most relevant first, least relevant last.
+- If you have more than 30 relevant products, return only the 30 best matches.
+
+Language rules:
+- The query will be written in one of two ways:
+  1. English (e.g. "magnesium for sleep", "joint pain relief")
+  2. Transliterated Macedonian — Macedonian written with Latin letters
+     (e.g. "za spienie", "bolki vo zglobovite", "za imunitet")
+- Understand the intent of the query regardless of which language it is in,
+  and match products accordingly.
+
+Matching rules:
+- Be INCLUSIVE rather than exclusive — when in doubt, include the product.
+- Use semantic understanding: recognize synonyms, aliases, and related terms
+  (e.g. "coq10" matches "coenzyme q10", "magnesium" matches "magnesium glycinate").
+- If the query is vague or general, return ALL products that are plausibly relevant.
+- Only omit a product if it is clearly unrelated to the query.
+- Never invent or hallucinate product IDs — only use IDs from the provided list.
+"""
+
+
+def _convert_human_query_to_keywords_with_openai(*, q: str) -> list[str]:
+    """Return list of strings keywords by transforming the human query with openai"""
+
+    latin_q = transliterate_cyrillic_to_latin(q)
+
+    data = {"query": latin_q}
+
+    results = openai_service.get_openai_response(
+        system_prompt=HUMAN_QUERY_TO_KEYWORDS_SYSTEM_PROMPT, input=data
+    )
+
+    return [r.strip() for r in results]
+
+
+def _get_smart_search_candidates(*, keywords: list[str]) -> QuerySet[Product]:
+    """
+    Return smart search group queryset candidates by taking the greatest similarity
+    from the keywords per product
+    """
+
+    similarity_expressions = [TrigramSimilarity("name", kw) for kw in keywords]
+
+    # Greatest requires at least 2 expressions
+    if len(similarity_expressions) == 1:
+        similarity_expressions.append(TrigramSimilarity("name", keywords[0]))
+
+    return (
+        list_productgroups()
+        .annotate(similarity=Greatest(*similarity_expressions))
+        .filter(similarity__gt=0.15)
+        .order_by("-similarity")
+    )
+
+
+def _group_ids_from_openai(*, query: str, candidates: list[dict]) -> list[int]:
+    """Return group ids from openai which match the smart search query"""
+
+    latin_q = transliterate_cyrillic_to_latin(query)
+
+    data = {
+        "query": latin_q,
+        "products": candidates,
+    }
+
+    result = openai_service.get_openai_response(
+        system_prompt=SMART_SEARCH_SYSTEM_PROMPT, input=data
+    )
+
+    return [int(r) for r in result]
+
+
+def get_smart_searched_productgroups(*, validated_data: dict) -> QuerySet[ProductGroup]:
+    """Return smart searched product group queryset, ordered by the best openai rank
+    of any member product
+    """
+
+    query = validated_data.get("query")
+
+    supplement_keywords = _convert_human_query_to_keywords_with_openai(q=query)
+
+    if not supplement_keywords:
+        return ProductGroup.objects.none()
+
+    candidates = _get_smart_search_candidates(keywords=supplement_keywords)
+
+    qs_values_for_openai = list(candidates.values("id", "name")[:200])
+
+    openai_product_ids = _group_ids_from_openai(
+        query=query, candidates=qs_values_for_openai
+    )
+
+    return list_productgroups().filter(id__in=openai_product_ids)
 
 
 SCORE_THRESHOLD = 0.7
@@ -93,6 +252,8 @@ def assign_product_to_group(product: Product) -> None:  # noqa
         product.save(update_fields=["group", "updated_at"])
 
         logger.info(f"Created group {new_group.name} for product {product.name}")
+
+        best_group = new_group
 
     productgroupcategory_service.assign_unique_categories_to_group(
         category_ids=product_category_ids, group=best_group

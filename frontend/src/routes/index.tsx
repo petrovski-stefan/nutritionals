@@ -1,13 +1,14 @@
-import Home from '../pages/home/Home';
-import ComparePrices from '../pages/compare-prices/ComparePrices';
-import SmartSearch from '../pages/smart-search/SmartSearch';
-import About from '../pages/about/About';
-import Login from '../pages/login/Login';
-import Register from '../pages/register/Register';
 import type { ReactElement } from 'react';
-import AuthGuard from '../components/AuthGuard';
-import MyLists from '../pages/mylists/MyLists';
-import HowToUse from '../pages/how-to-use/HowToUse';
+
+import AuthGuard from '@/features/auth/components/AuthGuard';
+import About from '@/pages/About';
+import ComparePrices from '@/pages/ComparePrices';
+import Home from '@/pages/Home';
+import HowToUse from '@/pages/HowToUse';
+import Login from '@/pages/Login';
+import MyLists from '@/pages/MyLists';
+import Register from '@/pages/Register';
+import SmartSearch from '@/pages/SmartSearch';
 
 type Route = {
   linkText: string;

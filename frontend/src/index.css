@@ -1,9 +1,84 @@
 @import 'tailwindcss';
 
-@theme {
-  --color-primary: #43a047;
-  --color-secondary: #2196f3;
-  --color-accent: #fb8c00;
-  --color-neutral: #fafafa;
-  --color-dark: #212121;
+/*
+  Design rules (enforced across the app):
+  - Radius: cards/modals/dropdown panels `rounded-xl`; inputs/buttons `rounded-lg`;
+    badges/pills/icon-buttons `rounded-full`. Nothing else.
+  - Shadow: resting cards `shadow-sm`; hover/dropdowns/sticky header `shadow-md`;
+    modal panel `shadow-lg`. In dark mode depth comes from `border-border` +
+    `bg-surface-raised`, so cards/modals always keep a 1px border.
+  - Type ramp: h1 `text-2xl sm:text-3xl font-bold`; h2 `text-xl sm:text-2xl font-semibold`;
+    h3 `text-lg font-semibold`; body `text-base text-text`; secondary `text-sm text-text-muted`;
+    meta `text-xs text-text-muted`.
+  - Spacing: page container `mx-auto w-full max-w-7xl px-4 sm:px-6` (data-dense catalog pages
+    may widen to `max-w-[96rem]`); sections `py-8 sm:py-12`;
+    gaps `gap-4`/`gap-6`; card padding `p-4`, modal padding `p-6`.
+  - Focus: every interactive element gets
+    `focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary`
+    (danger actions: `outline-danger`).
+  - Semantic roles: `info` = links & "view" actions; `warning` = stale prices;
+    `danger` = delete/errors; star/favorite hover = `accent`.
+*/
+
+/* Dark variant: class strategy on <html> (set by the inline script in index.html) */
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  color-scheme: light;
+
+  --surface: #fafafa;
+  --surface-raised: #ffffff;
+  --surface-sunken: #f1f3f1;
+  --border: #e2e5e2;
+  --text: #212121;
+  --text-muted: #5f6660;
+
+  --primary: #43a047;
+  --secondary: #2196f3;
+  --accent: #fb8c00;
+  --header: #43a047;
+
+  --success: #43a047;
+  --info: #1e88e5;
+  --warning: #b26a00;
+  --danger: #d32f2f;
+}
+
+.dark {
+  color-scheme: dark;
+
+  --surface: #141614;
+  --surface-raised: #1e221e;
+  --surface-sunken: #191c19;
+  --border: #2f342f;
+  --text: #ececec;
+  --text-muted: #a3aaa4;
+
+  --primary: #4caf50;
+  --secondary: #64b5f6;
+  --accent: #ffa040;
+  --header: #2e7d32;
+
+  --success: #4caf50;
+  --info: #64b5f6;
+  --warning: #ffb74d;
+  --danger: #ef5350;
+}
+
+/* `inline` is required: utilities compile to the underlying var and flip under .dark */
+@theme inline {
+  --color-primary: var(--primary);
+  --color-secondary: var(--secondary);
+  --color-accent: var(--accent);
+  --color-header: var(--header);
+  --color-surface: var(--surface);
+  --color-surface-raised: var(--surface-raised);
+  --color-surface-sunken: var(--surface-sunken);
+  --color-border: var(--border);
+  --color-text: var(--text);
+  --color-text-muted: var(--text-muted);
+  --color-success: var(--success);
+  --color-info: var(--info);
+  --color-warning: var(--warning);
+  --color-danger: var(--danger);
 }

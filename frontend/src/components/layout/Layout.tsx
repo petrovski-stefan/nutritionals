@@ -1,0 +1,19 @@
+import type { ReactNode } from 'react';
+
+import Header from '@/components/header/Header';
+
+import Footer from './Footer';
+
+type Props = Readonly<{
+  children: ReactNode;
+}>;
+
+export default function Layout({ children }: Props) {
+  return (
+    <div className="bg-surface text-text flex min-h-screen w-full flex-col">
+      <Header />
+      <main className="flex-1">{children}</main>
+      <Footer />
+    </div>
+  );
+}
