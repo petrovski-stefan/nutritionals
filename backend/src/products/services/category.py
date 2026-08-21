@@ -1,6 +1,6 @@
 import logging
 
-from django.db.models import QuerySet
+from django.db.models import Count, QuerySet
 
 from ..models import Category
 
@@ -8,6 +8,11 @@ logger = logging.getLogger(__name__)
 
 
 OPENAI_CATEGORY_CONFIDENCE = 0.8
+
+CATCH_ALL_CATEGORY_NAME = "Друго"
+
+MIN_CHIP_GROUP_COUNT = 3
+MIN_CHIP_CATEGORIES = 2
 
 
 def get_category_by_name(*, name: str | None) -> Category | None:
@@ -112,3 +117,28 @@ def list_categories() -> QuerySet[Category]:
     """Return category queryset ordered by name A-Z"""
 
     return Category.objects.order_by("name")
+
+
+def list_categories_with_discounted_groups() -> QuerySet[Category]:
+    """
+    Return categories holding enough discounted groups to be worth a filter chip,
+    ordered by group count. Returns nothing unless at least MIN_CHIP_CATEGORIES
+    qualify, since a single chip next to "all" filters nothing.
+    """
+
+    qs = (
+        Category.objects.filter(
+            productgroup__is_reviewed=True,
+            productgroup__product__is_reviewed=True,
+            productgroup__product__discount_price__isnull=False,
+        )
+        .exclude(name=CATCH_ALL_CATEGORY_NAME)
+        .annotate(group_count=Count("productgroup", distinct=True))
+        .filter(group_count__gte=MIN_CHIP_GROUP_COUNT)
+        .order_by("-group_count", "name")
+    )
+
+    if qs.count() < MIN_CHIP_CATEGORIES:
+        return Category.objects.none()
+
+    return qs

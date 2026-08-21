@@ -9,8 +9,3 @@ export type BackendProduct = {
   url: string;
   last_scraped_at: string;
 };
-
-export type BackendDiscountedProduct = BackendProduct & {
-  discount_price: number;
-  discount_percent: number;
-};

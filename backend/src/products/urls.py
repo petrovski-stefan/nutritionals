@@ -3,7 +3,7 @@ from django.urls import path
 from .views import (
     BrandListAPIView,
     CategoryListAPIView,
-    DiscountedProductListAPIView,
+    DiscountedProductGroupListAPIView,
     PharmacyListAPIView,
     ProductGroupListAPIView,
     SearchProductListAPIView,
@@ -17,11 +17,6 @@ urlpatterns = [
         name="search-product-list",
     ),
     path(
-        "products/discounted/",
-        view=DiscountedProductListAPIView.as_view(),
-        name="discounted-product-list",
-    ),
-    path(
         "products/smart-search/",
         view=SmartSearchAPIView.as_view(),
         name="product-smart-search",
@@ -30,6 +25,11 @@ urlpatterns = [
         "product-groups/",
         view=ProductGroupListAPIView.as_view(),
         name="productgroup-list",
+    ),
+    path(
+        "product-groups/discounted/",
+        view=DiscountedProductGroupListAPIView.as_view(),
+        name="discounted-productgroup-list",
     ),
     path(
         "brands/",

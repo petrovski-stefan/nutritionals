@@ -1,4 +1,7 @@
-import type { BackendProductGroup } from '@/features/products/types/productgroups';
+import type {
+  BackendDiscountedGroups,
+  BackendProductGroup,
+} from '@/features/products/types/productgroups';
 import axiosInstance from '@/shared/lib/axios';
 import type { APIPaginatedData, APIResponseSuccessV2 } from '@/shared/types/api';
 
@@ -28,4 +31,17 @@ export const getProductGroups = async (
   const response = await axiosInstance.get(PRODUCT_GROUPS_PATH, { params: params });
 
   return (response.data as APIResponseSuccessV2<APIPaginatedData<BackendProductGroup>>).data;
+};
+
+export const getDiscountedProductGroups = async (categoryId: number | null) => {
+  const params = new URLSearchParams();
+
+  if (categoryId !== null) {
+    params.append('category_id', String(categoryId));
+  }
+
+  const url = `${PRODUCT_GROUPS_PATH}discounted/`;
+  const response = await axiosInstance.get(url, { params: params });
+
+  return (response.data as APIResponseSuccessV2<BackendDiscountedGroups>).data;
 };

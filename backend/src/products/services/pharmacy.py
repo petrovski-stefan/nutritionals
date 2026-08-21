@@ -9,7 +9,7 @@ def _base_pharmacy_qs() -> QuerySet[Pharmacy]:
     return Pharmacy.objects.order_by("name")
 
 
-def list_pharmacies_with_product_stats() -> QuerySet[Pharmacy]:
+def list_pharmacies() -> QuerySet[Pharmacy]:
     """
     Return pharmacy queryset annotated with number products tracked
     and last scraped at timestamp

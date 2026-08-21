@@ -58,6 +58,24 @@ class CategoryListSerializer(serializers.ModelSerializer):
         read_only_fields = fields
 
 
+class DiscountedCategorySerializer(serializers.ModelSerializer):
+    group_count = serializers.IntegerField(read_only=True)
+
+    class Meta:
+        model = Category
+        fields = ["id", "name", "group_count"]
+        read_only_fields = fields
+
+
+class DiscountedProductGroupsInputSerializer(serializers.Serializer):
+    category_id = serializers.PrimaryKeyRelatedField(
+        queryset=Category.objects.all(),
+        source="category",
+        required=False,
+        write_only=True,
+    )
+
+
 class ProductGroupListSerializer(serializers.ModelSerializer):
     brand_name = serializers.CharField(
         source="brand.name", default=None, allow_null=True
@@ -69,3 +87,29 @@ class ProductGroupListSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProductGroup
         fields = ["id", "name", "brand_name", "categories", "products"]
+
+
+class DiscountedProductGroupSerializer(serializers.ModelSerializer):
+    """Home page deal card — deliberately omits categories, which nothing there renders"""
+
+    brand_name = serializers.CharField(
+        source="brand.name", default=None, allow_null=True
+    )
+
+    products = ProductListSerializer(many=True, source="product_set")
+
+    best_discount_percent = serializers.FloatField(read_only=True)
+    lowest_price = serializers.FloatField(read_only=True)
+    offer_count = serializers.IntegerField(read_only=True)
+
+    class Meta:
+        model = ProductGroup
+        fields = [
+            "id",
+            "name",
+            "brand_name",
+            "products",
+            "best_discount_percent",
+            "lowest_price",
+            "offer_count",
+        ]

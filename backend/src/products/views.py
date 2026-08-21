@@ -10,6 +10,9 @@ from .pagination import ProductGroupPagePagination
 from .serializers import (
     BrandListSerializer,
     CategoryListSerializer,
+    DiscountedCategorySerializer,
+    DiscountedProductGroupSerializer,
+    DiscountedProductGroupsInputSerializer,
     PharmacyListSerializer,
     ProductGroupListSerializer,
     ProductListSerializer,
@@ -31,11 +34,24 @@ class SearchProductListAPIView(NoAuthMixin, ListAPIView):
         return product_service.search_products(q=q)
 
 
-class DiscountedProductListAPIView(NoAuthMixin, ListAPIView):
-    serializer_class = ProductListSerializer
+class DiscountedProductGroupListAPIView(NoAuthMixin, APIView):
+    def get(self, request: Request) -> Response:
+        input_serializer = DiscountedProductGroupsInputSerializer(
+            data=request.query_params
+        )
+        input_serializer.is_valid(raise_exception=True)
 
-    def get_queryset(self) -> QuerySet:
-        return product_service.list_discounted_products()
+        category = input_serializer.validated_data.get("category")
+
+        group_qs = productgroup_service.list_discounted_groups(category=category)
+        category_qs = category_service.list_categories_with_discounted_groups()
+
+        return Response(
+            {
+                "categories": DiscountedCategorySerializer(category_qs, many=True).data,
+                "results": DiscountedProductGroupSerializer(group_qs, many=True).data,
+            }
+        )
 
 
 class SmartSearchAPIView(NoAuthMixin, APIView):
@@ -61,7 +77,7 @@ class PharmacyListAPIView(NoAuthMixin, ListAPIView):
     serializer_class = PharmacyListSerializer
 
     def get_queryset(self) -> QuerySet:
-        return pharmacy_service.list_pharmacies_with_product_stats()
+        return pharmacy_service.list_pharmacies()
 
 
 class CategoryListAPIView(NoAuthMixin, ListAPIView):
