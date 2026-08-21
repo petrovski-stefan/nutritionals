@@ -3,7 +3,8 @@ import type { GroupFilterValue } from './types/productgroups';
 export const productKeys = {
   all: ['products'] as const,
   search: (searchQuery: string) => [...productKeys.all, 'search', searchQuery] as const,
-  discounts: () => [...productKeys.all, 'discounts'] as const,
+  discountedGroups: (categoryId: number | null) =>
+    [...productKeys.all, 'discounted-groups', categoryId] as const,
   groups: (searchQuery: string, filters: GroupFilterValue, page: number) =>
     [
       ...productKeys.all,

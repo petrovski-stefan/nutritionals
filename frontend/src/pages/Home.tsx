@@ -2,6 +2,7 @@ import { XIcon } from 'lucide-react';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 
+import PriceTransparencySection from '@/components/home/PriceTransparencySection';
 import Section from '@/components/layout/Section';
 import Card from '@/components/ui/Card';
 import IconButton from '@/components/ui/IconButton';
@@ -10,13 +11,18 @@ import StateMessage from '@/components/ui/StateMessage';
 import Tooltip from '@/components/ui/Tooltip';
 import SupportedPharmacyCard from '@/features/pharmacies/components/SupportedPharmacyCard';
 import usePharmacies from '@/features/pharmacies/hooks/usePharmacies';
-import BestDealsProductCard from '@/features/products/components/BestDealProductCard';
+import BestDealGroupCard from '@/features/products/components/BestDealGroupCard';
+import CategoryChips from '@/features/products/components/CategoryChips';
 import DropdownProductGroup from '@/features/products/components/DropdownProductGroup';
+import GroupOffersModal from '@/features/products/components/GroupOffersModal';
+import useDiscountedProductGroups from '@/features/products/hooks/useDiscountedProductGroups';
 import useProductGroupsSearch from '@/features/products/hooks/useProductGroupsSearch';
-import useProductsOnDiscount from '@/features/products/hooks/useProductsOnDiscount';
+import type { BackendDiscountedProductGroup } from '@/features/products/types/productgroups';
 
 export default function Home() {
   const [searchQuery, setSearchQuery] = useState('');
+  const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(null);
+  const [openedGroup, setOpenedGroup] = useState<BackendDiscountedProductGroup | null>(null);
 
   const {
     data: pharmacies,
@@ -26,11 +32,11 @@ export default function Home() {
   } = usePharmacies();
 
   const {
-    data: productsOnDiscount,
-    isError: productsOnDiscountIsError,
-    isPending: productsOnDiscountIsPending,
-    isSuccess: productsOnDiscountIsSuccess,
-  } = useProductsOnDiscount();
+    data: discountedGroups,
+    isError: discountedGroupsIsError,
+    isPending: discountedGroupsIsPending,
+    isSuccess: discountedGroupsIsSuccess,
+  } = useDiscountedProductGroups(selectedCategoryId);
 
   const shouldSearch = searchQuery.length > 2;
 
@@ -57,7 +63,7 @@ export default function Home() {
           <Card className="relative flex items-center p-2">
             <Input
               type="text"
-              placeholder="Пример. Магнезиум глицинат"
+              placeholder="Пребарај суплементи..."
               value={searchQuery}
               className="border-0 pr-12"
               onChange={(e) => {
@@ -122,28 +128,48 @@ export default function Home() {
         center={false}
         title="Суплементи со најголемо намалување"
       >
-        {productsOnDiscountIsSuccess && productsOnDiscount.length > 0 && (
+        {discountedGroupsIsSuccess && (
+          <CategoryChips
+            categories={discountedGroups.categories}
+            selectedCategoryId={selectedCategoryId}
+            onSelect={setSelectedCategoryId}
+          />
+        )}
+
+        {discountedGroupsIsSuccess && discountedGroups.results.length > 0 && (
           <div className="flex flex-wrap justify-center gap-5">
-            {productsOnDiscount.map((product) => (
-              <BestDealsProductCard
-                key={product.id}
-                {...product}
+            {discountedGroups.results.map((group) => (
+              <BestDealGroupCard
+                key={group.id}
+                group={group}
+                onOpenOffers={setOpenedGroup}
               />
             ))}
           </div>
         )}
 
-        {productsOnDiscountIsSuccess && productsOnDiscount.length === 0 && (
+        {discountedGroupsIsSuccess && discountedGroups.results.length === 0 && (
           <StateMessage
             variant="empty"
             message="Денес нема суплементи на попуст. Проверете утре повторно."
           />
         )}
 
-        {productsOnDiscountIsPending && <StateMessage variant="loading" />}
+        {discountedGroupsIsPending && <StateMessage variant="loading" />}
 
-        {productsOnDiscountIsError && <StateMessage variant="error" />}
+        {discountedGroupsIsError && <StateMessage variant="error" />}
       </Section>
+
+      {openedGroup !== null && (
+        <GroupOffersModal
+          group={openedGroup}
+          onClose={() => {
+            setOpenedGroup(null);
+          }}
+        />
+      )}
+
+      <PriceTransparencySection />
 
       <Section
         center={false}

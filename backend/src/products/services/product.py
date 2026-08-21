@@ -322,16 +322,6 @@ def search_products(*, q: str, has_limit: bool = True) -> QuerySet[Product]:
     return qs
 
 
-def list_discounted_products() -> QuerySet[Product]:
-    """Return a product queryset containing 10 or less products with highest discount_percent"""
-
-    return (
-        base_products_qs()
-        .filter(discount_price__isnull=False)
-        .order_by("-discount_percent", "-price")[:10]
-    )
-
-
 def get_normalized_product_name(*, product_name: str, brand_name: str | None) -> str:
 
     lowercase_product_name = product_name.lower()

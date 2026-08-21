@@ -4,14 +4,17 @@ from common.utils import transliterate_cyrillic_to_latin
 from django.contrib.postgres.search import TrigramSimilarity
 from django.db.models import (
     Count,
+    F,
+    Max,
+    Min,
     Prefetch,
     Q,
     QuerySet,
     Subquery,
 )
-from django.db.models.functions import Greatest
+from django.db.models.functions import Coalesce, Greatest, Round
 
-from ..models import Product, ProductGroup
+from ..models import Category, Product, ProductGroup, ProductGroupCategory
 from . import openai as openai_service
 from . import product as product_service
 from . import productgroupcategory as productgroupcategory_service
@@ -41,6 +44,53 @@ def list_productgroups(*, q: str | None = None) -> QuerySet:
         )
         .prefetch_related("categories")
         .order_by("-product_count")
+    )
+
+
+DISCOUNTED_GROUPS_LIMIT = 12
+
+
+def list_discounted_groups(
+    *, category: Category | None = None
+) -> QuerySet[ProductGroup]:
+    """
+    Return the groups with the best member discount, annotated with the best discount
+    percent, the lowest current price and the total number of offers
+    """
+
+    discounted = Q(product__is_reviewed=True, product__discount_price__isnull=False)
+    reviewed = Q(product__is_reviewed=True)
+
+    qs = (
+        ProductGroup.objects.filter(is_reviewed=True)
+        .annotate(
+            best_discount_percent=Max(
+                Round((1 - F("product__discount_price") / F("product__price")) * 100),
+                filter=discounted,
+            ),
+            lowest_price=Min(
+                Coalesce("product__discount_price", "product__price"), filter=reviewed
+            ),
+            offer_count=Count("product", distinct=True, filter=reviewed),
+        )
+        .filter(best_discount_percent__isnull=False)
+    )
+
+    if category is not None:
+        # Filter through a subquery instead of joining categories, so the annotations
+        # above are not computed over a product x category cartesian product
+        qs = qs.filter(
+            id__in=ProductGroupCategory.objects.filter(category=category).values(
+                "group_id"
+            )
+        )
+
+    return (
+        qs.select_related("brand")
+        .prefetch_related(
+            Prefetch("product_set", queryset=product_service.base_products_qs())
+        )
+        .order_by("-best_discount_percent", "-lowest_price")[:DISCOUNTED_GROUPS_LIMIT]
     )
 
 

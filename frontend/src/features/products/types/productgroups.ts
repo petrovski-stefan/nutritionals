@@ -9,6 +9,21 @@ export type BackendProductGroup = {
   products: BackendProduct[];
 };
 
+export type BackendDiscountedProductGroup = Omit<BackendProductGroup, 'categories'> & {
+  best_discount_percent: number;
+  lowest_price: number;
+  offer_count: number;
+};
+
+export type BackendDiscountedCategory = BackendCategory & {
+  group_count: number;
+};
+
+export type BackendDiscountedGroups = {
+  categories: BackendDiscountedCategory[];
+  results: BackendDiscountedProductGroup[];
+};
+
 export type GroupFilterValue = {
   brandIds: Array<number>;
   categoryIds: number[];
