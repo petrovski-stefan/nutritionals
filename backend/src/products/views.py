@@ -60,7 +60,7 @@ class SmartSearchAPIView(NoAuthMixin, APIView):
         input_serializer.is_valid(raise_exception=True)
 
         group_qs = productgroup_service.get_smart_searched_productgroups(
-            validated_data=input_serializer.validated_data
+            query=input_serializer.validated_data.get("query")
         )
 
         return Response(ProductGroupListSerializer(group_qs, many=True).data)

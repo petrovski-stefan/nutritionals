@@ -9,9 +9,9 @@ from django.db.models.functions import Round
 from django.utils import timezone
 
 from .. import exceptions
+from ..ai.supplement_enrichment import enrich_supplement
 from ..models import Pharmacy, Product
 from . import category as category_service
-from . import openai as openai_service
 from . import productcategory as productcategory_service
 
 logger = logging.getLogger(__name__)
@@ -26,95 +26,6 @@ class ScrapedProduct:
     price: float
     discount_price: float | None
     url: str
-
-
-SUPPLEMENT_CLASSIFICATION_SYSTEM_PROMPT = """
-You are a dietary supplement classification engine.
-
-TASK:
-You will receive a list of up to 20 products. Each product includes a unique ID and a product name.
-For each product, classify it according to the fixed categories below,
-infer if it is an OTC supplement (status),
-and extract dosage and form+count if present.
-
-CATEGORIES (fixed, do not invent):
-1. Витамини
-2. Минерали
-3. Амино-киселини
-4. Херба
-5. Рибини масла
-6. Пробиотици
-7. Спортска исхрана
-8. Коски и зглобови
-9. Антиоксиданси
-10. Неуро
-11. Друго
-
-RULES:
-- For each product, output a maximum of 3 categories.
-- Order categories by descending relevance (most precise first).
-- Assign each category a confidence score between 0 and 1.
-- Do not include irrelevant categories.
-- Do not force 3 categories if fewer apply.
-- Prefer ingredient-based categorization over marketing claims.
-- If a product is a combination (e.g. mineral + vitamin), include both.
-- If functional intent is clear (e.g. neuro), it may be included as a secondary category.
-- Include "status": true if it is an OTC supplement suitable for classification; false otherwise.
-- Include "dosage": string in format "{number} {unit}" if the dosage is mentioned
-in the product name, else null.
-- Include "form_count": string in format "{count} {form}" if the product form and count
-are mentioned, else null.
-- Do not output any text outside JSON. Only return valid JSON.
-
-INPUT FORMAT:
-
-{"name": "<product_name>"},
-
-OUTPUT SCHEMA:
-
-{
-"categories": [
-    {
-    "name": "<category_name>",
-    "confidence": <0-1>
-    }
-],
-"status": <true|false>,
-"dosage": <string|null>,
-"form_count": <string|null>
-}
-
-"""
-
-
-def _get_additional_product_data_from_openai(
-    name: str,
-) -> tuple[str | None, str | None, list]:
-    data = {"name": name}
-
-    additional_data = openai_service.get_openai_response(
-        system_prompt=SUPPLEMENT_CLASSIFICATION_SYSTEM_PROMPT, input=data
-    )
-
-    return _parse_additional_product_data_from_openai(
-        openai_response_dict=additional_data
-    )
-
-
-def _parse_additional_product_data_from_openai(
-    *, openai_response_dict: dict
-) -> tuple[str, str, list[str]]:
-    form_with_count = (
-        transliterate_cyrillic_to_latin(openai_response_dict.get("form_count")) or ""
-    ).lower()
-
-    dosage = (
-        transliterate_cyrillic_to_latin(openai_response_dict.get("dosage")) or ""
-    ).lower()
-
-    categories = openai_response_dict.get("categories", [])
-
-    return form_with_count, dosage, categories
 
 
 def _create_scraped_product(
@@ -139,12 +50,12 @@ def _create_scraped_product(
             product_name=scraped_product.name, normalized_product_name=normalized_name
         )
 
-    form_with_count, dosage, openai_categories = (
-        _get_additional_product_data_from_openai(scraped_product.name)
+    form_with_count, dosage, ai_categories = enrich_supplement(
+        name=scraped_product.name, categories=category_service.list_category_names()
     )
 
     categories = category_service.get_unique_categories(
-        openai_categories=openai_categories, catalog_category=category_name
+        ai_categories=ai_categories, catalog_category=category_name
     )
 
     is_reviewed = bool(categories and form_with_count)
