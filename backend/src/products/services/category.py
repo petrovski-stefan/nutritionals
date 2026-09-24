@@ -7,7 +7,7 @@ from ..models import Category
 logger = logging.getLogger(__name__)
 
 
-OPENAI_CATEGORY_CONFIDENCE = 0.8
+AI_CATEGORY_CONFIDENCE = 0.8
 
 CATCH_ALL_CATEGORY_NAME = "Друго"
 
@@ -33,45 +33,12 @@ def get_category_by_name(*, name: str | None) -> Category | None:
         return None
 
 
-def _check_openai_category_structure(category: dict) -> bool:
-    """Return True if name exists as string, and confidence as number [0,1], in the category"""
-
-    if "name" not in category:
-        return False
-
-    if "confidence" not in category:
-        return False
-
-    if not isinstance(category["name"], str):
-        return False
-
-    if not isinstance(category["confidence"], (int, float)):
-        return False
-
-    if category["confidence"] < 0 or category["confidence"] > 1:
-        return False
-
-    return True
-
-
-def _validate_openai_categories(*, categories: list[dict]) -> list[dict]:
-    """Return only categories which fit the format {name:str, confidence:float}"""
-
-    return [c for c in categories if _check_openai_category_structure(category=c)]
-
-
-def _filter_high_confidence_openai_categories(*, categories: list[dict]) -> list[dict]:
+def _filter_high_confidence_ai_categories(*, categories: list[dict]) -> list[dict]:
     """
-    Filter category dict from OpenAI if have confidence higher than OPENAI_CATEGORY_CONFIDENCE
+    Filter category dict from AI if have confidence higher than AI_CATEGORY_CONFIDENCE
     """
 
-    return [c for c in categories if c["confidence"] > OPENAI_CATEGORY_CONFIDENCE]
-
-
-def _normalize_openai_categories(*, categories: list[str]) -> list[str]:
-    """Strip and capitilize each category name in the list"""
-
-    return [c.strip().capitalize() for c in categories]
+    return [c for c in categories if c["confidence"] > AI_CATEGORY_CONFIDENCE]
 
 
 def _get_categories_names(*, categories: list[dict]) -> list[str]:
@@ -81,34 +48,31 @@ def _get_categories_names(*, categories: list[dict]) -> list[str]:
 
 
 def _clean_categories(*, categories: list[dict]) -> list[str]:
-    valid = _validate_openai_categories(categories=categories)
-    high_confidence = _filter_high_confidence_openai_categories(categories=valid)
-    categories_names = _get_categories_names(categories=high_confidence)
-    normalized = _normalize_openai_categories(categories=categories_names)
+    high_confidence = _filter_high_confidence_ai_categories(categories=categories)
 
-    return normalized
+    return _get_categories_names(categories=high_confidence)
 
 
 def get_unique_categories(
-    *, openai_categories: list[dict], catalog_category: str | None
+    *, ai_categories: list[dict], catalog_category: str | None
 ) -> list[str]:
     """
-    Return a list of categories which represent union between OpenAI categories
+    Return a list of categories which represent union between AI categories
     and the catalog category if present
     """
 
-    clean_openai_categories = _clean_categories(categories=openai_categories)
+    clean_ai_categories = _clean_categories(categories=ai_categories)
 
-    if not clean_openai_categories and not catalog_category:
+    if not clean_ai_categories and not catalog_category:
         return []
 
     if not catalog_category:
-        return clean_openai_categories
+        return clean_ai_categories
 
-    if not clean_openai_categories:
+    if not clean_ai_categories:
         return [catalog_category]
 
-    unique_categories_set = {catalog_category, *clean_openai_categories}
+    unique_categories_set = {catalog_category, *clean_ai_categories}
 
     return list(unique_categories_set)
 
@@ -117,6 +81,12 @@ def list_categories() -> QuerySet[Category]:
     """Return category queryset ordered by name A-Z"""
 
     return Category.objects.order_by("name")
+
+
+def list_category_names() -> list[str]:
+    """Return category names ordered by name A-Z"""
+
+    return list(list_categories().values_list("name", flat=True))
 
 
 def list_categories_with_discounted_groups() -> QuerySet[Category]:
