@@ -4,49 +4,37 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Layout
 
-Monorepo: `backend/` (Django 5.2 + DRF, Python 3.13, managed with **uv**) and `frontend/` (React 19 + TypeScript + Vite, managed with **npm**). Docker Compose orchestrates everything.
+Monorepo orchestrated by Docker Compose. Each side has its own guidance file, which loads when files on that side are read:
 
-## Dev workflow
+- `backend/`: Django 5.2 + DRF, Python 3.13, managed with **uv**. See `backend/CLAUDE.md`.
+- `frontend/`: React 19 + TypeScript + Vite, managed with **npm**. See `frontend/CLAUDE.md`.
 
-The backend runs **only via Docker Compose** — do not run `manage.py` or Postgres/Redis locally:
+## Running
+
+The backend runs **only via Docker Compose**. Do not run `manage.py`, Postgres or Redis on the host:
 
 ```sh
-docker compose -f compose.dev.yaml up                 # web, database, redis, celery_worker, celery_worker_beat
-docker compose -f compose.dev.yaml exec web uv run manage.py <command>   # migrate, makemigrations, test, ...
+docker compose -f compose.dev.yaml up                                    # web, database, redis, celery_worker, celery_worker_beat
+docker compose -f compose.dev.yaml exec web uv run manage.py <command>   # migrate, makemigrations, shell, ...
 ```
 
-Frontend runs locally: `npm run dev` in `frontend/`.
-
-Env files: `backend/.env` (template: `backend/.env.template`) and `frontend/.env` (example: `frontend/.env.example`). `OPENAI_API_KEY` is required by backend settings (smart search / category inference).
+The frontend runs on the host: `npm run dev` in `frontend/`.
 
 ## Checks
 
-There is no CI — run these before considering a change done:
+There is no CI and there are no tests. Before considering a change done, run the checks for each side you changed. The `/check` skill runs them, and the commands are in each side's `CLAUDE.md`.
 
-- Frontend (in `frontend/`): `npm run lint` and `npm run build` (runs `tsc -b`, which is the type check).
-- Backend (in `backend/`): `uv run flake8 --config=setup.cfg` and `uv run mypy src --config-file=setup.cfg`.
+## API contract
 
-Note: mypy has a backlog of pre-existing errors (~97 across scrapers/products/users as of 2026-07-18) from the period its settings config was broken — treat only errors in code you touched as regressions.
+These rules span both sides, so change them together:
 
-## Code style
-
-- Frontend formatting via Prettier (`.prettierrc`): single quotes, width 100, one JSX attribute per line, Tailwind class sorting. There's no npm script — use `npx prettier --write <file>`.
-- ESLint uses `strictTypeChecked` + sonarjs + simple-import-sort; tsconfig has `exactOptionalPropertyTypes`, `noUncheckedIndexedAccess`, `noPropertyAccessFromIndexSignature`. Expect stricter errors than typical React projects.
-- Backend: flake8 line length 100; migrations and settings are excluded from lint/mypy.
-
-## Architecture conventions
-
-- Backend apps (`users`, `products`, `mylists`) are moving toward: thin class-based `APIView` → `use_cases/` (orchestration) → `services/` as **function modules** (e.g. `user_service.create_user(...)`), with input/output serializers split (`UserRegisterInputSerializer`). This refactor is **still evolving**: follow the pattern where it already exists, but don't refactor old code to match unless asked.
-- All API responses are wrapped by `common/renderers.StandardizedJSONRenderer` as `{"success": true, "data": ...}` — the frontend unwraps `.data.data`.
-- Auth uses SimpleJWT via mixins in `common/mixins.py` (`JWTAuthMixin`, `NoAuthMixin`, `OptionalAuthMixin`).
-- `APPEND_SLASH = False` — API URLs must match exactly, no trailing-slash fallback.
-- Frontend is feature-sliced: `src/features/<feature>/` with flat `api.ts`, `types.ts`, `schemas.ts` (zod), `errorMessages.ts`, `queries.ts` (query-key factory), plus `components/` and `hooks/` — a flat file may become a same-named directory (`api/`, `types/`) when it genuinely needs splitting (see `products`). Feature `api.ts` files map camelCase form fields → snake_case payloads. UI text is written inline in components (no locale files).
-- **Feature dependency rule**: features import other features in one documented direction only — currently `products → my-lists` — and cycles are forbidden. Anything two features need lives in `src/shared/` (`hooks/`, `lib/`, `types/`, `utils/`) — the single home for cross-feature code (the axios instance is `src/shared/lib/axios.ts`).
-- Imports use the `@/` alias for anything outside the current directory; only sibling `./` imports stay relative. No `../` paths.
-- Data fetching via TanStack Query; every feature defines its query keys in a `queries.ts` factory (`myListKeys`, `productKeys`, `pharmacyKeys`) — never inline key arrays in hooks.
-- User-facing UI text is in **Macedonian** — keep new UI strings in Macedonian.
+- `common/renderers.StandardizedJSONRenderer` wraps every response. Success is `{"success": true, "data": ...}`, and the frontend unwraps `.data.data`. Failure is `{"success": false, "type": ..., "errors": [{"code", "detail", "attr"}]}`, built by `drf-standardized-errors`.
+- Error codes are part of the API. The frontend's `errorMessages.ts` files map them to Macedonian messages, so renaming a code breaks that mapping.
+- `APPEND_SLASH = False` and every route ends in `/`, so URLs must match exactly.
+- Payloads are snake_case. Frontend `api.ts` files map camelCase form fields to it.
 
 ## Git
 
-- Commit directly on `v2-dev` (the active development branch). `main` is for releases.
-- Use Conventional Commits: `feat(frontend): ...`, `refactor(backend): ...`, `chore: ...`.
+- Changes go on a feature branch that PRs into `main`.
+- Never commit or push. The user commits manually.
+- Commit messages use Conventional Commits: `feat(frontend): ...`, `refactor(backend): ...`, `chore: ...`.
