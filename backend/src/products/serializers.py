@@ -28,7 +28,6 @@ class ProductListSerializer(serializers.ModelSerializer):
     discount_percent = serializers.FloatField(
         read_only=True, default=None, allow_null=True
     )
-    similarity = serializers.FloatField(read_only=True)
 
     class Meta:
         model = Product
@@ -42,7 +41,6 @@ class ProductListSerializer(serializers.ModelSerializer):
             "brand_name",
             "url",
             "last_scraped_at",
-            "similarity",
         ]
         read_only_fields = fields
 

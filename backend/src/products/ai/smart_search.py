@@ -103,6 +103,11 @@ class RankedProductIds(BaseModel):
 
 
 def smart_search(*, latin_query: str, candidates: list[dict]) -> list[int]:
+    """
+    Return the ids of the relevant candidates, best first. The candidates are product
+    groups, which the prompt calls products
+    """
+
     data = {
         "query": latin_query,
         "products": candidates,

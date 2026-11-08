@@ -3,18 +3,21 @@ import logging
 from common.utils import transliterate_cyrillic_to_latin
 from django.contrib.postgres.search import TrigramSimilarity
 from django.db.models import (
+    Case,
     Count,
-    F,
     Max,
     Min,
     Prefetch,
     Q,
     QuerySet,
     Subquery,
+    Value,
+    When,
 )
-from django.db.models.functions import Coalesce, Greatest, Round
+from django.db.models.functions import Coalesce, Greatest
 
 from ..ai import smart_search as smart_search_ai
+from ..expressions import discount_percent, public_product_q, search_match_score
 from ..models import Category, Product, ProductGroup, ProductGroupCategory
 from . import product as product_service
 from . import productgroupcategory as productgroupcategory_service
@@ -22,28 +25,50 @@ from . import productgroupcategory as productgroupcategory_service
 logger = logging.getLogger(__name__)
 
 
-def list_productgroups(*, q: str | None = None) -> QuerySet:
-    base_qs = ProductGroup.objects.filter(is_reviewed=True)
+def _public_products_prefetch() -> Prefetch:
+    """Prefetch the public products of each group, as ProductListSerializer reads them"""
 
-    if q:
-        matching_products_qs = product_service.search_products(
-            q=q,
-            has_limit=False,
+    return Prefetch(
+        "product_set",
+        queryset=Product.objects.public()
+        .with_discount_percent()
+        .select_related("pharmacy", "brand"),
+    )
+
+
+def list_productgroups(*, q: str | None = None) -> QuerySet[ProductGroup]:
+    """
+    Return public groups for the group list endpoint, ordered by product count, then id.
+    With a non-blank q, keep only the groups holding a public product that matches q,
+    ordered by their best matching product, then by how many products match
+    """
+
+    qs = ProductGroup.objects.public()
+    # id breaks ties, so a group can't move between pages from one request to the next
+    ordering = ["-product_count", "id"]
+
+    if q and q.strip():
+        latin_q = product_service.normalize_search_query(q=q)
+        matching_products_qs = product_service.list_matching_products(
+            latin_q=latin_q
         ).values("pk")
 
-        base_qs = base_qs.filter(product__in=Subquery(matching_products_qs)).distinct()
-
-    return (
-        base_qs.annotate(product_count=Count("product", distinct=True))
-        .select_related("brand")
-        .prefetch_related(
-            Prefetch(
-                "product_set",
-                queryset=product_service.base_products_qs(),
+        # Annotations after this filter cover only the matching products,
+        # so product_count counts matches and the score is the best match
+        qs = (
+            qs.filter(product__in=Subquery(matching_products_qs))
+            .distinct()
+            .annotate(
+                best_match_score=Max(search_match_score(latin_q=latin_q, prefix="product__"))
             )
         )
-        .prefetch_related("categories")
-        .order_by("-product_count")
+        ordering = ["-best_match_score", "-product_count", "id"]
+
+    return (
+        qs.with_product_count()
+        .select_related("brand")
+        .prefetch_related(_public_products_prefetch(), "categories")
+        .order_by(*ordering)
     )
 
 
@@ -58,20 +83,19 @@ def list_discounted_groups(
     percent, the lowest current price and the total number of offers
     """
 
-    discounted = Q(product__is_reviewed=True, product__discount_price__isnull=False)
-    reviewed = Q(product__is_reviewed=True)
+    public = public_product_q(prefix="product__")
+    discounted = public & Q(product__discount_price__isnull=False)
 
     qs = (
-        ProductGroup.objects.filter(is_reviewed=True)
+        ProductGroup.objects.public()
         .annotate(
             best_discount_percent=Max(
-                Round((1 - F("product__discount_price") / F("product__price")) * 100),
-                filter=discounted,
+                discount_percent(prefix="product__"), filter=discounted
             ),
             lowest_price=Min(
-                Coalesce("product__discount_price", "product__price"), filter=reviewed
+                Coalesce("product__discount_price", "product__price"), filter=public
             ),
-            offer_count=Count("product", distinct=True, filter=reviewed),
+            offer_count=Count("product", distinct=True, filter=public),
         )
         .filter(best_discount_percent__isnull=False)
     )
@@ -87,39 +111,43 @@ def list_discounted_groups(
 
     return (
         qs.select_related("brand")
-        .prefetch_related(
-            Prefetch("product_set", queryset=product_service.base_products_qs())
-        )
+        .prefetch_related(_public_products_prefetch())
         .order_by("-best_discount_percent", "-lowest_price")[:DISCOUNTED_GROUPS_LIMIT]
     )
 
 
-def _get_smart_search_candidates(*, keywords: list[str]) -> QuerySet[Product]:
+def _get_smart_search_candidates(*, keywords: list[str]) -> QuerySet[ProductGroup]:
     """
-    Return smart search group queryset candidates by taking the greatest similarity
-    from the keywords per product
+    Return public groups holding a public product whose normalized name is similar to
+    any keyword, most similar first. Product names are matched instead of group names
+    because the keywords are English and most group names are Cyrillic
     """
 
-    similarity_expressions = [TrigramSimilarity("name", kw) for kw in keywords]
+    similarity_expressions = [
+        TrigramSimilarity("product__normalized_name", kw) for kw in keywords
+    ]
 
     # Greatest requires at least 2 expressions
     if len(similarity_expressions) == 1:
-        similarity_expressions.append(TrigramSimilarity("name", keywords[0]))
+        similarity_expressions.append(
+            TrigramSimilarity("product__normalized_name", keywords[0])
+        )
 
+    # Filtering on product before annotating limits the Max to public products
     return (
-        list_productgroups()
-        .annotate(similarity=Greatest(*similarity_expressions))
+        ProductGroup.objects.public()
+        .filter(public_product_q(prefix="product__"))
+        .annotate(similarity=Max(Greatest(*similarity_expressions)))
         .filter(similarity__gt=0.15)
-        .order_by("-similarity")
+        .order_by("-similarity", "id")
     )
 
 
 def get_smart_searched_productgroups(*, query: str) -> QuerySet[ProductGroup]:
-    """Return smart searched product group queryset, ordered by the best AI rank
-    of any member product
-    """
+    """Return smart searched public groups in the order the AI ranked them"""
 
-    latin_query = transliterate_cyrillic_to_latin(query)
+    # The serializer requires at least 3 characters, so this is never None
+    latin_query = transliterate_cyrillic_to_latin(query) or ""
 
     supplement_keywords = smart_search_ai.convert_query_to_tags(latin_query=latin_query)
 
@@ -129,12 +157,29 @@ def get_smart_searched_productgroups(*, query: str) -> QuerySet[ProductGroup]:
     candidates = _get_smart_search_candidates(keywords=supplement_keywords)
 
     candidates_list = list(candidates.values("id", "name")[:200])
+    candidate_ids = {c["id"] for c in candidates_list}
 
-    ai_product_ids = smart_search_ai.smart_search(
+    ai_ranked_ids = smart_search_ai.smart_search(
         latin_query=latin_query, candidates=candidates_list
     )
 
-    return list_productgroups().filter(id__in=ai_product_ids)
+    # Keep the AI order, drop repeats and ids that were not offered as candidates
+    ranked_group_ids = list(dict.fromkeys(i for i in ai_ranked_ids if i in candidate_ids))
+
+    if not ranked_group_ids:
+        return ProductGroup.objects.none()
+
+    ai_rank = Case(
+        *[When(id=group_id, then=Value(rank)) for rank, group_id in enumerate(ranked_group_ids)]
+    )
+
+    return (
+        ProductGroup.objects.public()
+        .filter(id__in=ranked_group_ids)
+        .select_related("brand")
+        .prefetch_related(_public_products_prefetch(), "categories")
+        .order_by(ai_rank)
+    )
 
 
 SCORE_THRESHOLD = 0.7
@@ -148,23 +193,27 @@ def assign_product_to_group(product: Product) -> None:
     product_brand_q = Q(brand=product.brand) if product.brand else Q(brand__isnull=True)
     product_category_ids = list(product.categories.values_list("id", flat=True))
 
+    # Only public groups are candidates. Ties on score go to the group with
+    # the most products, because candidates are scored in this order
     group_candidates = (
-        list_productgroups()
+        ProductGroup.objects.public()
+        .with_product_count()
         .filter(product_brand_q, product__categories__in=product_category_ids)
         .distinct()
+        .order_by("-product_count")
     )
 
     best_group = None
     best_score = 0
 
     for group in group_candidates:
-        pharmacy_count = group.product_set.filter(
-            pharmacy=product.pharmacy, is_reviewed=True
-        ).count()
+        pharmacy_count = (
+            group.product_set.public().filter(pharmacy=product.pharmacy).count()
+        )
         if pharmacy_count >= 2:
             continue
 
-        for product_in_group in group.product_set.filter(is_reviewed=True).annotate(
+        for product_in_group in group.product_set.public().annotate(
             similarity=TrigramSimilarity("normalized_name", product.normalized_name)
         ):
             name_score = product_in_group.similarity

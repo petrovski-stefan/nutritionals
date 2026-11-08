@@ -15,23 +15,12 @@ from .serializers import (
     DiscountedProductGroupsInputSerializer,
     PharmacyListSerializer,
     ProductGroupListSerializer,
-    ProductListSerializer,
     ProductSmartSearchInputSerializer,
 )
 from .services import brand as brand_service
 from .services import category as category_service
 from .services import pharmacy as pharmacy_service
-from .services import product as product_service
 from .services import productgroup as productgroup_service
-
-
-class SearchProductListAPIView(NoAuthMixin, ListAPIView):
-    serializer_class = ProductListSerializer
-
-    def get_queryset(self) -> QuerySet:
-        q = self.request.query_params.get("q", None)
-
-        return product_service.search_products(q=q)
 
 
 class DiscountedProductGroupListAPIView(NoAuthMixin, APIView):

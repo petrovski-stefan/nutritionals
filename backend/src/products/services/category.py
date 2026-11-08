@@ -2,6 +2,7 @@ import logging
 
 from django.db.models import Count, QuerySet
 
+from ..expressions import public_group_q, public_product_q
 from ..models import Category
 
 logger = logging.getLogger(__name__)
@@ -98,8 +99,8 @@ def list_categories_with_discounted_groups() -> QuerySet[Category]:
 
     qs = (
         Category.objects.filter(
-            productgroup__is_reviewed=True,
-            productgroup__product__is_reviewed=True,
+            public_group_q(prefix="productgroup__"),
+            public_product_q(prefix="productgroup__product__"),
             productgroup__product__discount_price__isnull=False,
         )
         .exclude(name=CATCH_ALL_CATEGORY_NAME)

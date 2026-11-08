@@ -22,7 +22,7 @@ Supplement prices in North Macedonia vary significantly between pharmacies, and 
 - 🔍 **Instant search** — type a product name, get matching products grouped across pharmacies right in the dropdown, each expandable to its live per-pharmacy offers starting from the lowest price
 - ⚖️ **Price comparison** — identical products from different pharmacies are grouped side by side, filterable by brand and category, with discount badges and stale-price warnings
 - 🤖 **Smart search (AI)** — describe a health goal in plain language (*"stronger immunity"*) and get supplement recommendations powered by the OpenAI API, grouped and ready for price comparison
-- 📋 **My Lists** — registered users build and manage shopping lists, tracking each product's price and availability over time
+- 📋 **My Lists** — registered users build and manage shopping lists showing each product's latest scraped price, discount and last-updated date, highlighted when the date suggests it may no longer be available
 - 🌙 **Dark mode**, fully responsive UI (360 px → ultrawide), localized in Macedonian
 
 Price data is collected by **scheduled scrapers for 4 pharmacy chains** (Zegin, Apteka24, Vitamini, Annifarm), run as Celery tasks on a beat schedule, so listed prices stay fresh without manual intervention.
@@ -34,7 +34,7 @@ Price data is collected by **scheduled scrapers for 4 pharmacy chains** (Zegin, 
  pharmacy sites ──▶ │ scrapers (per-vendor packages, BeautifulSoup)            │
                     │   └─ Celery workers + beat schedule ── Redis (broker)    │
                     │ products / mylists / users apps                          │
-                    │   └─ thin APIView → use cases → service modules          │
+                    │   └─ thin views → service modules                        │
                     │ PostgreSQL                                               │
                     └───────────────▲──────────────────────────────────────────┘
                                     │ REST (standardized JSON envelope, JWT auth)
@@ -49,17 +49,17 @@ Price data is collected by **scheduled scrapers for 4 pharmacy chains** (Zegin, 
 ### Engineering highlights
 
 **Frontend**
-- **Feature-sliced architecture with an enforced dependency rule** — features may depend on each other in one documented direction only, no cycles; cross-feature code lives in a single `shared/` home
+- **Feature-sliced architecture with a one-way dependency rule** — features may depend on each other in one documented direction only, no cycles; cross-feature code lives in `shared/`, `components/` and `context/`
 - **Design system built on semantic CSS tokens** (Tailwind v4 CSS-first config) — one source of truth for color, radius, shadow, and type scale; dark mode is a token flip, not per-component overrides
 - **Strict type safety end to end**: `exactOptionalPropertyTypes`, `noUncheckedIndexedAccess`, ESLint `strictTypeChecked` + SonarJS — stricter than typical React codebases
 - **Disciplined server state**: TanStack Query with per-feature query-key factories, `queryOptions`, and targeted cache invalidation
 - Forms with React Hook Form + zod resolvers, including mapping backend validation error codes onto the right form fields
 
 **Backend**
-- Layered request flow: thin class-based views → use cases (orchestration) → **services as function modules**, with input/output serializers split per direction
+- **Thin views over services as function modules** — views validate input and delegate; reads, writes and orchestration live in services, with separate input and output serializers where the shapes differ
 - **Every API response wrapped in a standardized envelope** (`{"success": true, "data": ...}`) with machine-readable error codes (`drf-standardized-errors`) the frontend maps to localized messages
 - **Pluggable scraper design** — each pharmacy is an isolated vendor package behind a common interface, so adding a chain doesn't touch existing ones
-- JWT auth (SimpleJWT) via reusable view mixins (`JWTAuthMixin`, `OptionalAuthMixin`), category inference and smart search via the OpenAI API
+- JWT auth (SimpleJWT) via reusable view mixins (`JWTAuthMixin`, `NoAuthMixin`), category inference and smart search via the OpenAI API behind a single `integrations/` client
 
 **Infrastructure**
 - Docker Compose for dev and prod (web, PostgreSQL, Redis, Celery worker + beat), nginx + gunicorn + WhiteNoise in production
@@ -109,12 +109,14 @@ uv run mypy src --config-file=setup.cfg
 ├── backend/src/
 │   ├── core/            # settings, celery app
 │   ├── common/          # renderers (response envelope), auth mixins
-│   ├── users/           # JWT auth, registration (use cases + services)
+│   ├── integrations/    # OpenAI client
+│   ├── users/           # JWT auth, registration
 │   ├── products/        # products, groups, brands, categories, smart search
 │   ├── mylists/         # user shopping lists
 │   └── scrapers/        # per-pharmacy vendor packages + Celery tasks
 ├── frontend/src/
 │   ├── components/      # design-system primitives (Button, Modal, Field, ...)
+│   ├── context/         # auth and theme providers
 │   ├── features/        # auth / products / my-lists / pharmacies slices
 │   ├── shared/          # cross-feature hooks, utils, axios instance
 │   └── pages/           # route-level composition

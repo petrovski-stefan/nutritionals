@@ -8,17 +8,25 @@ from . import mylistitem as mylistitem_service
 User = get_user_model()
 
 
-def list_mylists_by_user(*, user: User, include_products: bool) -> QuerySet[MyList]:
+def list_mylists_by_user(*, user: User) -> QuerySet[MyList]:
+    """Return the user's lists annotated with items_count, most recently updated first"""
 
-    base_qs = MyList.objects.filter(user=user).order_by("-updated_at")
+    return (
+        MyList.objects.filter(user=user)
+        .only("name", "created_at", "updated_at")
+        .annotate(items_count=Count("products"))
+        .order_by("-updated_at")
+    )
 
-    if not include_products:
-        return base_qs.only("name", "created_at", "updated_at").annotate(
-            items_count=Count("products")
-        )
+
+def list_mylists_with_items_by_user(*, user: User) -> QuerySet[MyList]:
+    """Return the user's lists with their items and the items' products prefetched"""
 
     mylistitem_qs = mylistitem_service.list_mylistitems_with_discount_percent()
-    return base_qs.prefetch_related(Prefetch("mylistitem_set", queryset=mylistitem_qs))
+
+    return MyList.objects.filter(user=user).prefetch_related(
+        Prefetch("mylistitem_set", queryset=mylistitem_qs)
+    )
 
 
 def create_mylist(*, name: str, user: User) -> MyList:

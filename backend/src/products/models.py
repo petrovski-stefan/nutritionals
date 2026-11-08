@@ -3,6 +3,7 @@ from django.contrib.auth import get_user_model
 from django.db import models
 from django.db.models.constraints import UniqueConstraint
 
+from .querysets import ProductGroupQuerySet, ProductQuerySet
 from .validators import validate_catalog_queryparams_string
 
 User = get_user_model()
@@ -96,6 +97,8 @@ class Product(BaseModel):
 
     is_reviewed = models.BooleanField(default=True)
 
+    objects = ProductQuerySet.as_manager()
+
     def __str__(self) -> str:
         return self.name
 
@@ -122,6 +125,8 @@ class ProductGroup(BaseModel):
     categories = models.ManyToManyField(Category, through=ProductGroupCategory)
 
     is_reviewed = models.BooleanField(default=True)
+
+    objects = ProductGroupQuerySet.as_manager()
 
     def __str__(self) -> str:
         return self.name

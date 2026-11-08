@@ -16,9 +16,7 @@ from .services import mylistitem as mylistitem_service
 
 class MyListListCreateAPIView(JWTAuthMixin, generics.ListCreateAPIView):
     def get_queryset(self) -> QuerySet[MyList]:
-        return mylist_service.list_mylists_by_user(
-            user=self.request.user, include_products=False
-        )
+        return mylist_service.list_mylists_by_user(user=self.request.user)
 
     def get_serializer_class(self):  # noqa
         if self.request.method == "POST":
@@ -36,9 +34,7 @@ class MyListRetrieveUpdateDestroyAPIView(
     JWTAuthMixin, generics.RetrieveUpdateDestroyAPIView
 ):
     def get_queryset(self) -> QuerySet[MyList]:
-        return mylist_service.list_mylists_by_user(
-            user=self.request.user, include_products=True
-        )
+        return mylist_service.list_mylists_with_items_by_user(user=self.request.user)
 
     def get_serializer_class(self):  # noqa
         if self.request.method == "GET":
@@ -57,6 +53,7 @@ class MyListProductsCreateAPIView(JWTAuthMixin, generics.CreateAPIView):
 
     def perform_create(self, serializer) -> None:
         instance = mylistitem_service.create_mylistitem(
+            user=self.request.user,
             mylist_id=self.kwargs["pk"], **serializer.validated_data
         )
         serializer.instance = instance
@@ -65,5 +62,7 @@ class MyListProductsCreateAPIView(JWTAuthMixin, generics.CreateAPIView):
 class MyListProductsDestroyAPIView(JWTAuthMixin, generics.DestroyAPIView):
     def get_object(self) -> MyListItem:
         return mylistitem_service.get_mylistitem(
-            mylist_id=self.kwargs["pk"], product_id=self.kwargs["product_id"]
+            user=self.request.user,
+            mylist_id=self.kwargs["pk"],
+            product_id=self.kwargs["product_id"],
         )
