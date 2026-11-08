@@ -19,7 +19,7 @@ uv run flake8 --config=setup.cfg
 uv run mypy src --config-file=setup.cfg
 ```
 
-- Both tools have a backlog of pre-existing errors, so only errors in code you touched count as regressions. The baseline is in `.claude/skills/check/SKILL.md`.
+- Both tools have a backlog of pre-existing errors, so only errors in code you touched count as regressions.
 - flake8 line length is 100. Migrations and settings are excluded from flake8 and mypy.
 - There are no tests yet: every `tests.py` is a stub.
 
@@ -46,8 +46,7 @@ thin view (APIView or DRF generics) → services/ function modules
 Most flows have one entry point and one service call, so extra layers would add files without adding value.
 
 - Reads and writes both live in `services/`. Do not add `use_cases/` or `selectors/`.
-- Reusable query pieces are QuerySet methods in the app's `querysets.py`, attached with `as_manager()`, such as `Product.objects.public()`. Each method adds one filter or one annotation. Joins, `.only()`, prefetches, ordering and limits belong to the service function for one endpoint, so read functions don't share a built queryset. Keep the default manager unfiltered. ORM expressions shared across querysets and services, such as `discount_percent()`, go in the app's `expressions.py`.
-- `users/use_cases/register_user.py` is the one leftover. It will be folded into `users/services/user.py`, so don't copy the pattern.
+- Reusable query pieces are QuerySet methods in the app's `querysets.py`, attached with `as_manager()`, such as `Product.objects.public()`. Each method adds one filter or one annotation. Joins, `.only()`, prefetches, ordering and limits belong to the service function for one endpoint, so read functions don't share a built queryset. Keep the default manager unfiltered. ORM expressions shared across querysets and services, such as `discount_percent()`, go in the app's `expressions.py`. Conditions applied through a relation go there too, such as `public_product_q(prefix="product__")`. `.public()` uses the same helper, so each rule is defined once.
 - Orchestration is a service calling other services. Keep the import graph acyclic.
 - Views contain no ORM calls.
 - Services are imported under an alias: `from .services import product as product_service`. New public functions take keyword-only arguments.

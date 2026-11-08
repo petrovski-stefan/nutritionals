@@ -17,3 +17,12 @@ def create_user(username: str, password: str) -> User:
     # NOTE: Possible race condition, IntegrityError should be handled
 
     return User.objects.create_user(username=username, password=password)
+
+
+def register_user(*, username: str, password: str) -> tuple[User, str, str]:
+    """Create a user and return it with its access and refresh tokens"""
+
+    user = create_user(username, password)
+    access, refresh = get_token_pair(user)
+
+    return user, access, refresh

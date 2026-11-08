@@ -5,7 +5,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from .serializers import UserRegisterInputSerializer
-from .use_cases import register_user
+from .services import user as user_service
 
 
 class UserRegisterAPIView(NoAuthMixin, APIView):
@@ -14,7 +14,7 @@ class UserRegisterAPIView(NoAuthMixin, APIView):
         serializer = UserRegisterInputSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
-        user, access, refresh = register_user.execute(
+        user, access, refresh = user_service.register_user(
             username=serializer.validated_data["username"],
             password=serializer.validated_data["password"],
         )
