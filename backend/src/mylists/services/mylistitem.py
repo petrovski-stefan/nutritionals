@@ -1,5 +1,6 @@
 import logging
 
+from django.contrib.auth import get_user_model
 from django.db import transaction
 from django.db.models import F, QuerySet
 from django.db.models.functions import Round
@@ -11,12 +12,18 @@ from ..models import MyList, MyListItem
 
 logger = logging.getLogger(__name__)
 
+User = get_user_model()
+
 
 @transaction.atomic
 def create_mylistitem(
-    *, mylist_id: int, product_id: int, is_added_through_smart_search: bool = False
+    *,
+    user: User,
+    mylist_id: int,
+    product_id: int,
+    is_added_through_smart_search: bool = False,
 ) -> MyListItem:
-    mylist = get_object_or_404(MyList, id=mylist_id)
+    mylist = get_object_or_404(MyList, id=mylist_id, user=user)
     product = get_object_or_404(Product, id=product_id)
 
     if MyListItem.objects.filter(mylist=mylist, product=product).exists():
@@ -39,10 +46,10 @@ def create_mylistitem(
 
 
 def get_mylistitem(
-    *, mylist_id: int, product_id: int, raise_api_error: bool = True
+    *, user: User, mylist_id: int, product_id: int, raise_api_error: bool = True
 ) -> MyListItem | None:
     mylistitem = MyListItem.objects.filter(
-        product_id=product_id, mylist_id=mylist_id
+        product_id=product_id, mylist_id=mylist_id, mylist__user=user
     ).first()
 
     if not mylistitem:

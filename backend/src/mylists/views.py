@@ -57,6 +57,7 @@ class MyListProductsCreateAPIView(JWTAuthMixin, generics.CreateAPIView):
 
     def perform_create(self, serializer) -> None:
         instance = mylistitem_service.create_mylistitem(
+            user=self.request.user,
             mylist_id=self.kwargs["pk"], **serializer.validated_data
         )
         serializer.instance = instance
@@ -65,5 +66,7 @@ class MyListProductsCreateAPIView(JWTAuthMixin, generics.CreateAPIView):
 class MyListProductsDestroyAPIView(JWTAuthMixin, generics.DestroyAPIView):
     def get_object(self) -> MyListItem:
         return mylistitem_service.get_mylistitem(
-            mylist_id=self.kwargs["pk"], product_id=self.kwargs["product_id"]
+            user=self.request.user,
+            mylist_id=self.kwargs["pk"],
+            product_id=self.kwargs["product_id"],
         )
