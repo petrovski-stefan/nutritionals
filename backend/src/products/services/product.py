@@ -4,7 +4,7 @@ from dataclasses import dataclass
 
 from common.utils import transliterate_cyrillic_to_latin
 from django.contrib.postgres.search import TrigramSimilarity
-from django.db.models import Case, F, FloatField, Q, QuerySet, Value, When
+from django.db.models import Q, QuerySet
 from django.utils import timezone
 
 from .. import exceptions
@@ -165,14 +165,12 @@ def create_or_update_scraped_product(
         )
 
 
-def list_matching_products(*, q: str) -> QuerySet[Product]:
+def normalize_search_query(*, q: str) -> str:
     """
-    Return every public product whose normalized name matches q, to filter other
-    models by. Queries longer than 4 characters are ordered best match first.
-    Raise if q is empty or too short
+    Return q stripped and transliterated to latin, the form product names are
+    normalized to. Raise if q is empty or too short
     """
 
-    queryset = Product.objects.public()
     stripped_q = q.strip()
 
     if not stripped_q:
@@ -184,37 +182,28 @@ def list_matching_products(*, q: str) -> QuerySet[Product]:
     if len(latin_q) < 2:
         raise exceptions.ProductSearchQueryShortAPIError
 
+    return latin_q
+
+
+def list_matching_products(*, latin_q: str) -> QuerySet[Product]:
+    """
+    Return every public product whose normalized name matches latin_q, unordered.
+    Get latin_q from normalize_search_query
+    """
+
+    queryset = Product.objects.public()
     q_len = len(latin_q)
 
     if q_len <= 4:
-        qs = queryset.filter(normalized_name__icontains=latin_q)
+        return queryset.filter(normalized_name__icontains=latin_q)
 
-    elif q_len <= 15:
-        qs = (
-            queryset.annotate(
-                similarity=TrigramSimilarity("normalized_name", latin_q),
-                contains_boost=Case(
-                    When(
-                        Q(normalized_name__icontains=latin_q),
-                        then=Value(0.3),
-                    ),
-                    default=Value(0.0),
-                    output_field=FloatField(),
-                ),
-            )
-            .filter(Q(similarity__gt=0.1) | Q(normalized_name__icontains=latin_q))
-            .order_by(-(F("similarity") + F("contains_boost")))
-        )
+    queryset = queryset.alias(similarity=TrigramSimilarity("normalized_name", latin_q))
 
-    else:
-        # Long query
-        qs = (
-            queryset.annotate(similarity=TrigramSimilarity("normalized_name", latin_q))
-            .filter(similarity__gt=0.1)
-            .order_by("-similarity")
-        )
+    if q_len <= 15:
+        return queryset.filter(Q(similarity__gt=0.1) | Q(normalized_name__icontains=latin_q))
 
-    return qs
+    # Long query
+    return queryset.filter(similarity__gt=0.1)
 
 
 def get_normalized_product_name(*, product_name: str, brand_name: str | None) -> str:

@@ -6,7 +6,7 @@ from django.db.models import Count, Max, Min, Prefetch, Q, QuerySet, Subquery
 from django.db.models.functions import Coalesce, Greatest
 
 from ..ai import smart_search as smart_search_ai
-from ..expressions import discount_percent
+from ..expressions import discount_percent, search_match_score
 from ..models import Category, Product, ProductGroup, ProductGroupCategory
 from . import product as product_service
 from . import productgroupcategory as productgroupcategory_service
@@ -27,22 +27,37 @@ def _public_products_prefetch() -> Prefetch:
 
 def list_productgroups(*, q: str | None = None) -> QuerySet[ProductGroup]:
     """
-    Return public groups for the group list endpoint, ordered by product count.
-    With a non-blank q, keep only the groups holding a public product that matches q
+    Return public groups for the group list endpoint, ordered by product count, then id.
+    With a non-blank q, keep only the groups holding a public product that matches q,
+    ordered by their best matching product, then by how many products match
     """
 
     qs = ProductGroup.objects.public()
+    # id breaks ties, so a group can't move between pages from one request to the next
+    ordering = ["-product_count", "id"]
 
     if q and q.strip():
-        matching_products_qs = product_service.list_matching_products(q=q).values("pk")
+        latin_q = product_service.normalize_search_query(q=q)
+        matching_products_qs = product_service.list_matching_products(
+            latin_q=latin_q
+        ).values("pk")
 
-        qs = qs.filter(product__in=Subquery(matching_products_qs)).distinct()
+        # Annotations after this filter cover only the matching products,
+        # so product_count counts matches and the score is the best match
+        qs = (
+            qs.filter(product__in=Subquery(matching_products_qs))
+            .distinct()
+            .annotate(
+                best_match_score=Max(search_match_score(latin_q=latin_q, prefix="product__"))
+            )
+        )
+        ordering = ["-best_match_score", "-product_count", "id"]
 
     return (
         qs.with_product_count()
         .select_related("brand")
         .prefetch_related(_public_products_prefetch(), "categories")
-        .order_by("-product_count")
+        .order_by(*ordering)
     )
 
 
