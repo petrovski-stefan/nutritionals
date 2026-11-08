@@ -165,16 +165,15 @@ def create_or_update_scraped_product(
         )
 
 
-SEARCH_RESULTS_LIMIT = 20
-
-
-def _match_products(*, queryset: QuerySet[Product], q: str | None) -> QuerySet[Product]:
+def list_matching_products(*, q: str) -> QuerySet[Product]:
     """
-    Filter the queryset to products whose normalized name matches q. Queries longer
-    than 4 characters are ordered best match first. Raise if q is empty or too short
+    Return every public product whose normalized name matches q, to filter other
+    models by. Queries longer than 4 characters are ordered best match first.
+    Raise if q is empty or too short
     """
 
-    stripped_q = q.strip() if q else ""
+    queryset = Product.objects.public()
+    stripped_q = q.strip()
 
     if not stripped_q:
         raise exceptions.ProductSearchQueryEmptyAPIError
@@ -216,22 +215,6 @@ def _match_products(*, queryset: QuerySet[Product], q: str | None) -> QuerySet[P
         )
 
     return qs
-
-
-def search_products(*, q: str | None) -> QuerySet[Product]:
-    """Return the best matching public products for the product search endpoint"""
-
-    queryset = (
-        Product.objects.public().with_discount_percent().select_related("pharmacy", "brand")
-    )
-
-    return _match_products(queryset=queryset, q=q)[:SEARCH_RESULTS_LIMIT]
-
-
-def list_matching_products(*, q: str) -> QuerySet[Product]:
-    """Return every public product matching q, unsliced, to filter other models by"""
-
-    return _match_products(queryset=Product.objects.public(), q=q)
 
 
 def get_normalized_product_name(*, product_name: str, brand_name: str | None) -> str:
