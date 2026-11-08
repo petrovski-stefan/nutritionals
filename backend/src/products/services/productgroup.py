@@ -28,12 +28,12 @@ def _public_products_prefetch() -> Prefetch:
 def list_productgroups(*, q: str | None = None) -> QuerySet[ProductGroup]:
     """
     Return public groups for the group list endpoint, ordered by product count.
-    With q, keep only the groups holding a public product that matches q
+    With a non-blank q, keep only the groups holding a public product that matches q
     """
 
     qs = ProductGroup.objects.public()
 
-    if q:
+    if q and q.strip():
         matching_products_qs = product_service.list_matching_products(q=q).values("pk")
 
         qs = qs.filter(product__in=Subquery(matching_products_qs)).distinct()

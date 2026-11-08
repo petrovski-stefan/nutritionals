@@ -174,10 +174,13 @@ def _match_products(*, queryset: QuerySet[Product], q: str | None) -> QuerySet[P
     than 4 characters are ordered best match first. Raise if q is empty or too short
     """
 
-    if not q:
+    stripped_q = q.strip() if q else ""
+
+    if not stripped_q:
         raise exceptions.ProductSearchQueryEmptyAPIError
 
-    latin_q = transliterate_cyrillic_to_latin(q.strip())
+    # A non-empty string never transliterates to None, the `or ""` only narrows the type
+    latin_q = transliterate_cyrillic_to_latin(stripped_q) or ""
 
     if len(latin_q) < 2:
         raise exceptions.ProductSearchQueryShortAPIError
