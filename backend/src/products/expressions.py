@@ -1,8 +1,27 @@
 from django.contrib.postgres.search import TrigramSimilarity
-from django.db.models import Case, CharField, F, FloatField, Value, When
+from django.db.models import Case, CharField, F, FloatField, Q, Value, When
 from django.db.models.expressions import CombinedExpression
 from django.db.models.functions import Coalesce, Concat, Greatest, Lower, Round
 from django.db.models.lookups import IContains
+
+
+def public_product_q(*, prefix: str = "") -> Q:
+    """
+    Return the condition a product meets when it is shown on the site.
+    Pass prefix="product__" to apply it from a model related to Product
+    """
+
+    return Q(**{f"{prefix}is_reviewed": True})
+
+
+def public_group_q(*, prefix: str = "") -> Q:
+    """
+    Return the condition a group meets when it is shown on the site. A public group may
+    have no public products. Pass prefix="productgroup__" to apply it from a model
+    related to ProductGroup
+    """
+
+    return Q(**{f"{prefix}is_reviewed": True})
 
 
 def discount_percent(*, prefix: str = "") -> Round:

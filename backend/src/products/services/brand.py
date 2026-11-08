@@ -5,6 +5,7 @@ from functools import reduce
 from common.utils import transliterate_cyrillic_to_latin
 from django.db.models import Count, Q, QuerySet
 
+from ..expressions import public_group_q, public_product_q
 from ..models import Brand, Product
 
 logger = logging.getLogger(__name__)
@@ -18,7 +19,7 @@ def list_brands() -> QuerySet[Brand]:
     return (
         Brand.objects.annotate(
             product_count=Count(
-                "product", filter=Q(product__is_reviewed=True), distinct=True
+                "product", filter=public_product_q(prefix="product__"), distinct=True
             )
         )
         .filter(product_count__gt=0)
@@ -119,10 +120,10 @@ def with_counts(*, queryset: QuerySet[Brand]) -> QuerySet[Brand]:
     return queryset.annotate(
         total_product_count=Count("product", distinct=True),
         reviewed_product_count=Count(
-            "product", filter=Q(product__is_reviewed=True), distinct=True
+            "product", filter=public_product_q(prefix="product__"), distinct=True
         ),
         total_group_count=Count("productgroup", distinct=True),
         reviewed_group_count=Count(
-            "productgroup", filter=Q(productgroup__is_reviewed=True), distinct=True
+            "productgroup", filter=public_group_q(prefix="productgroup__"), distinct=True
         ),
     )

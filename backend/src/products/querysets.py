@@ -2,7 +2,7 @@ from typing import TYPE_CHECKING, Self, TypeVar
 
 from django.db.models import Count, QuerySet
 
-from .expressions import discount_percent
+from .expressions import discount_percent, public_group_q, public_product_q
 
 if TYPE_CHECKING:
     from .models import Product, ProductGroup
@@ -20,7 +20,7 @@ class ProductQuerySet(QuerySet[_ProductT, _ProductRowT]):
     def public(self) -> Self:
         """Keep the products shown on the site"""
 
-        return self.filter(is_reviewed=True)
+        return self.filter(public_product_q())
 
     def with_discount_percent(self) -> Self:
         """Annotate discount_percent"""
@@ -32,7 +32,7 @@ class ProductGroupQuerySet(QuerySet[_GroupT, _GroupRowT]):
     def public(self) -> Self:
         """Keep the groups shown on the site. A public group may have no public products"""
 
-        return self.filter(is_reviewed=True)
+        return self.filter(public_group_q())
 
     def with_product_count(self) -> Self:
         """

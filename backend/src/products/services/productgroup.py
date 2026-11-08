@@ -17,7 +17,7 @@ from django.db.models import (
 from django.db.models.functions import Coalesce, Greatest
 
 from ..ai import smart_search as smart_search_ai
-from ..expressions import discount_percent, search_match_score
+from ..expressions import discount_percent, public_product_q, search_match_score
 from ..models import Category, Product, ProductGroup, ProductGroupCategory
 from . import product as product_service
 from . import productgroupcategory as productgroupcategory_service
@@ -83,8 +83,8 @@ def list_discounted_groups(
     percent, the lowest current price and the total number of offers
     """
 
-    discounted = Q(product__is_reviewed=True, product__discount_price__isnull=False)
-    reviewed = Q(product__is_reviewed=True)
+    public = public_product_q(prefix="product__")
+    discounted = public & Q(product__discount_price__isnull=False)
 
     qs = (
         ProductGroup.objects.public()
@@ -93,9 +93,9 @@ def list_discounted_groups(
                 discount_percent(prefix="product__"), filter=discounted
             ),
             lowest_price=Min(
-                Coalesce("product__discount_price", "product__price"), filter=reviewed
+                Coalesce("product__discount_price", "product__price"), filter=public
             ),
-            offer_count=Count("product", distinct=True, filter=reviewed),
+            offer_count=Count("product", distinct=True, filter=public),
         )
         .filter(best_discount_percent__isnull=False)
     )
@@ -136,7 +136,7 @@ def _get_smart_search_candidates(*, keywords: list[str]) -> QuerySet[ProductGrou
     # Filtering on product before annotating limits the Max to public products
     return (
         ProductGroup.objects.public()
-        .filter(product__is_reviewed=True)
+        .filter(public_product_q(prefix="product__"))
         .annotate(similarity=Max(Greatest(*similarity_expressions)))
         .filter(similarity__gt=0.15)
         .order_by("-similarity", "id")
