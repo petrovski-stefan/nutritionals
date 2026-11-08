@@ -9,6 +9,7 @@ from django.utils import timezone
 
 from .. import exceptions
 from ..ai.supplement_enrichment import enrich_supplement
+from ..expressions import product_search_text
 from ..models import Pharmacy, Product
 from . import category as category_service
 from . import productcategory as productcategory_service
@@ -187,23 +188,28 @@ def normalize_search_query(*, q: str) -> str:
 
 def list_matching_products(*, latin_q: str) -> QuerySet[Product]:
     """
-    Return every public product whose normalized name matches latin_q, unordered.
-    Get latin_q from normalize_search_query
+    Return every public product matching latin_q by its normalized name, or by its
+    brand and normalized name together, unordered. Get latin_q from
+    normalize_search_query
     """
 
-    queryset = Product.objects.public()
+    queryset = Product.objects.public().annotate(search_text=product_search_text())
     q_len = len(latin_q)
 
     if q_len <= 4:
-        return queryset.filter(normalized_name__icontains=latin_q)
+        return queryset.filter(search_text__icontains=latin_q)
 
-    queryset = queryset.alias(similarity=TrigramSimilarity("normalized_name", latin_q))
+    queryset = queryset.annotate(
+        name_similarity=TrigramSimilarity("normalized_name", latin_q),
+        text_similarity=TrigramSimilarity("search_text", latin_q),
+    )
+    is_similar = Q(name_similarity__gt=0.1) | Q(text_similarity__gt=0.1)
 
     if q_len <= 15:
-        return queryset.filter(Q(similarity__gt=0.1) | Q(normalized_name__icontains=latin_q))
+        return queryset.filter(is_similar | Q(search_text__icontains=latin_q))
 
     # Long query
-    return queryset.filter(similarity__gt=0.1)
+    return queryset.filter(is_similar)
 
 
 def get_normalized_product_name(*, product_name: str, brand_name: str | None) -> str:

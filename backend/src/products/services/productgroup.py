@@ -2,7 +2,18 @@ import logging
 
 from common.utils import transliterate_cyrillic_to_latin
 from django.contrib.postgres.search import TrigramSimilarity
-from django.db.models import Count, Max, Min, Prefetch, Q, QuerySet, Subquery
+from django.db.models import (
+    Case,
+    Count,
+    Max,
+    Min,
+    Prefetch,
+    Q,
+    QuerySet,
+    Subquery,
+    Value,
+    When,
+)
 from django.db.models.functions import Coalesce, Greatest
 
 from ..ai import smart_search as smart_search_ai
@@ -107,30 +118,36 @@ def list_discounted_groups(
 
 def _get_smart_search_candidates(*, keywords: list[str]) -> QuerySet[ProductGroup]:
     """
-    Return smart search group queryset candidates by taking the greatest similarity
-    from the keywords per product
+    Return public groups holding a public product whose normalized name is similar to
+    any keyword, most similar first. Product names are matched instead of group names
+    because the keywords are English and most group names are Cyrillic
     """
 
-    similarity_expressions = [TrigramSimilarity("name", kw) for kw in keywords]
+    similarity_expressions = [
+        TrigramSimilarity("product__normalized_name", kw) for kw in keywords
+    ]
 
     # Greatest requires at least 2 expressions
     if len(similarity_expressions) == 1:
-        similarity_expressions.append(TrigramSimilarity("name", keywords[0]))
+        similarity_expressions.append(
+            TrigramSimilarity("product__normalized_name", keywords[0])
+        )
 
+    # Filtering on product before annotating limits the Max to public products
     return (
         ProductGroup.objects.public()
-        .annotate(similarity=Greatest(*similarity_expressions))
+        .filter(product__is_reviewed=True)
+        .annotate(similarity=Max(Greatest(*similarity_expressions)))
         .filter(similarity__gt=0.15)
-        .order_by("-similarity")
+        .order_by("-similarity", "id")
     )
 
 
 def get_smart_searched_productgroups(*, query: str) -> QuerySet[ProductGroup]:
-    """Return smart searched product group queryset, ordered by the best AI rank
-    of any member product
-    """
+    """Return smart searched public groups in the order the AI ranked them"""
 
-    latin_query = transliterate_cyrillic_to_latin(query)
+    # The serializer requires at least 3 characters, so this is never None
+    latin_query = transliterate_cyrillic_to_latin(query) or ""
 
     supplement_keywords = smart_search_ai.convert_query_to_tags(latin_query=latin_query)
 
@@ -140,18 +157,28 @@ def get_smart_searched_productgroups(*, query: str) -> QuerySet[ProductGroup]:
     candidates = _get_smart_search_candidates(keywords=supplement_keywords)
 
     candidates_list = list(candidates.values("id", "name")[:200])
+    candidate_ids = {c["id"] for c in candidates_list}
 
-    ai_product_ids = smart_search_ai.smart_search(
+    ai_ranked_ids = smart_search_ai.smart_search(
         latin_query=latin_query, candidates=candidates_list
+    )
+
+    # Keep the AI order, drop repeats and ids that were not offered as candidates
+    ranked_group_ids = list(dict.fromkeys(i for i in ai_ranked_ids if i in candidate_ids))
+
+    if not ranked_group_ids:
+        return ProductGroup.objects.none()
+
+    ai_rank = Case(
+        *[When(id=group_id, then=Value(rank)) for rank, group_id in enumerate(ranked_group_ids)]
     )
 
     return (
         ProductGroup.objects.public()
-        .filter(id__in=ai_product_ids)
-        .with_product_count()
+        .filter(id__in=ranked_group_ids)
         .select_related("brand")
         .prefetch_related(_public_products_prefetch(), "categories")
-        .order_by("-product_count")
+        .order_by(ai_rank)
     )
 
 

@@ -1,7 +1,8 @@
 from django.contrib.postgres.search import TrigramSimilarity
-from django.db.models import Case, F, FloatField, Value, When
+from django.db.models import Case, CharField, F, FloatField, Value, When
 from django.db.models.expressions import CombinedExpression
-from django.db.models.functions import Round
+from django.db.models.functions import Coalesce, Concat, Greatest, Lower, Round
+from django.db.models.lookups import IContains
 
 
 def discount_percent(*, prefix: str = "") -> Round:
@@ -13,18 +14,37 @@ def discount_percent(*, prefix: str = "") -> Round:
     return Round((1 - F(f"{prefix}discount_price") / F(f"{prefix}price")) * 100)
 
 
-def search_match_score(*, latin_q: str, prefix: str = "") -> CombinedExpression:
+def product_search_text(*, prefix: str = "") -> Concat:
     """
-    Return how well a product's normalized name matches latin_q: its trigram similarity,
-    plus 0.3 when the name contains latin_q. Pass prefix="product__" to score from a
-    model related to Product
+    Return a product's lowercase brand name and normalized name joined by a space.
+    Searching it finds a product by brand whether or not normalization cut the brand
+    from normalized_name. Pass prefix="product__" to build it from a related model
     """
 
-    field = f"{prefix}normalized_name"
+    return Concat(
+        Coalesce(Lower(f"{prefix}brand__name"), Value("")),
+        Value(" "),
+        F(f"{prefix}normalized_name"),
+        output_field=CharField(),
+    )
+
+
+def search_match_score(*, latin_q: str, prefix: str = "") -> CombinedExpression:
+    """
+    Return how well a product matches latin_q: the higher trigram similarity of its
+    normalized name and its search text, plus 0.3 when the search text contains
+    latin_q. Pass prefix="product__" to score from a model related to Product
+    """
+
+    search_text = product_search_text(prefix=prefix)
+    similarity = Greatest(
+        TrigramSimilarity(f"{prefix}normalized_name", latin_q),
+        TrigramSimilarity(search_text, latin_q),
+    )
     contains_boost = Case(
-        When(**{f"{field}__icontains": latin_q}, then=Value(0.3)),
+        When(IContains(search_text, latin_q), then=Value(0.3)),
         default=Value(0.0),
         output_field=FloatField(),
     )
 
-    return TrigramSimilarity(field, latin_q) + contains_boost
+    return similarity + contains_boost
