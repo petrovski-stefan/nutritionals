@@ -46,6 +46,7 @@ thin view (APIView or DRF generics) → services/ function modules
 Most flows have one entry point and one service call, so extra layers would add files without adding value.
 
 - Reads and writes both live in `services/`. Do not add `use_cases/` or `selectors/`.
+- Reusable query pieces are QuerySet methods in the app's `querysets.py`, attached with `as_manager()`, such as `Product.objects.public()`. Each method adds one filter or one annotation. Joins, `.only()`, prefetches, ordering and limits belong to the service function for one endpoint, so read functions don't share a built queryset. Keep the default manager unfiltered. ORM expressions shared across querysets and services, such as `discount_percent()`, go in the app's `expressions.py`.
 - `users/use_cases/register_user.py` is the one leftover. It will be folded into `users/services/user.py`, so don't copy the pattern.
 - Orchestration is a service calling other services. Keep the import graph acyclic.
 - Views contain no ORM calls.

@@ -97,12 +97,9 @@ def infer_brand_from_product_name(
         return brand
 
     candidate_to_return_brand = (
-        Product.objects.select_related("brand")
-        .filter(
-            is_reviewed=True,
-            normalized_name=normalized_product_name,
-            brand__isnull=False,
-        )
+        Product.objects.public()
+        .select_related("brand")
+        .filter(normalized_name=normalized_product_name, brand__isnull=False)
         .first()
     )
 

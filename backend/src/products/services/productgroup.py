@@ -2,19 +2,11 @@ import logging
 
 from common.utils import transliterate_cyrillic_to_latin
 from django.contrib.postgres.search import TrigramSimilarity
-from django.db.models import (
-    Count,
-    F,
-    Max,
-    Min,
-    Prefetch,
-    Q,
-    QuerySet,
-    Subquery,
-)
-from django.db.models.functions import Coalesce, Greatest, Round
+from django.db.models import Count, Max, Min, Prefetch, Q, QuerySet, Subquery
+from django.db.models.functions import Coalesce, Greatest
 
 from ..ai import smart_search as smart_search_ai
+from ..expressions import discount_percent
 from ..models import Category, Product, ProductGroup, ProductGroupCategory
 from . import product as product_service
 from . import productgroupcategory as productgroupcategory_service
@@ -22,27 +14,34 @@ from . import productgroupcategory as productgroupcategory_service
 logger = logging.getLogger(__name__)
 
 
-def list_productgroups(*, q: str | None = None) -> QuerySet:
-    base_qs = ProductGroup.objects.filter(is_reviewed=True)
+def _public_products_prefetch() -> Prefetch:
+    """Prefetch the public products of each group, as ProductListSerializer reads them"""
+
+    return Prefetch(
+        "product_set",
+        queryset=Product.objects.public()
+        .with_discount_percent()
+        .select_related("pharmacy", "brand"),
+    )
+
+
+def list_productgroups(*, q: str | None = None) -> QuerySet[ProductGroup]:
+    """
+    Return public groups for the group list endpoint, ordered by product count.
+    With q, keep only the groups holding a public product that matches q
+    """
+
+    qs = ProductGroup.objects.public()
 
     if q:
-        matching_products_qs = product_service.search_products(
-            q=q,
-            has_limit=False,
-        ).values("pk")
+        matching_products_qs = product_service.list_matching_products(q=q).values("pk")
 
-        base_qs = base_qs.filter(product__in=Subquery(matching_products_qs)).distinct()
+        qs = qs.filter(product__in=Subquery(matching_products_qs)).distinct()
 
     return (
-        base_qs.annotate(product_count=Count("product", distinct=True))
+        qs.with_product_count()
         .select_related("brand")
-        .prefetch_related(
-            Prefetch(
-                "product_set",
-                queryset=product_service.base_products_qs(),
-            )
-        )
-        .prefetch_related("categories")
+        .prefetch_related(_public_products_prefetch(), "categories")
         .order_by("-product_count")
     )
 
@@ -62,11 +61,10 @@ def list_discounted_groups(
     reviewed = Q(product__is_reviewed=True)
 
     qs = (
-        ProductGroup.objects.filter(is_reviewed=True)
+        ProductGroup.objects.public()
         .annotate(
             best_discount_percent=Max(
-                Round((1 - F("product__discount_price") / F("product__price")) * 100),
-                filter=discounted,
+                discount_percent(prefix="product__"), filter=discounted
             ),
             lowest_price=Min(
                 Coalesce("product__discount_price", "product__price"), filter=reviewed
@@ -87,14 +85,12 @@ def list_discounted_groups(
 
     return (
         qs.select_related("brand")
-        .prefetch_related(
-            Prefetch("product_set", queryset=product_service.base_products_qs())
-        )
+        .prefetch_related(_public_products_prefetch())
         .order_by("-best_discount_percent", "-lowest_price")[:DISCOUNTED_GROUPS_LIMIT]
     )
 
 
-def _get_smart_search_candidates(*, keywords: list[str]) -> QuerySet[Product]:
+def _get_smart_search_candidates(*, keywords: list[str]) -> QuerySet[ProductGroup]:
     """
     Return smart search group queryset candidates by taking the greatest similarity
     from the keywords per product
@@ -107,7 +103,7 @@ def _get_smart_search_candidates(*, keywords: list[str]) -> QuerySet[Product]:
         similarity_expressions.append(TrigramSimilarity("name", keywords[0]))
 
     return (
-        list_productgroups()
+        ProductGroup.objects.public()
         .annotate(similarity=Greatest(*similarity_expressions))
         .filter(similarity__gt=0.15)
         .order_by("-similarity")
@@ -134,7 +130,14 @@ def get_smart_searched_productgroups(*, query: str) -> QuerySet[ProductGroup]:
         latin_query=latin_query, candidates=candidates_list
     )
 
-    return list_productgroups().filter(id__in=ai_product_ids)
+    return (
+        ProductGroup.objects.public()
+        .filter(id__in=ai_product_ids)
+        .with_product_count()
+        .select_related("brand")
+        .prefetch_related(_public_products_prefetch(), "categories")
+        .order_by("-product_count")
+    )
 
 
 SCORE_THRESHOLD = 0.7
@@ -148,23 +151,27 @@ def assign_product_to_group(product: Product) -> None:
     product_brand_q = Q(brand=product.brand) if product.brand else Q(brand__isnull=True)
     product_category_ids = list(product.categories.values_list("id", flat=True))
 
+    # Only public groups are candidates. Ties on score go to the group with
+    # the most products, because candidates are scored in this order
     group_candidates = (
-        list_productgroups()
+        ProductGroup.objects.public()
+        .with_product_count()
         .filter(product_brand_q, product__categories__in=product_category_ids)
         .distinct()
+        .order_by("-product_count")
     )
 
     best_group = None
     best_score = 0
 
     for group in group_candidates:
-        pharmacy_count = group.product_set.filter(
-            pharmacy=product.pharmacy, is_reviewed=True
-        ).count()
+        pharmacy_count = (
+            group.product_set.public().filter(pharmacy=product.pharmacy).count()
+        )
         if pharmacy_count >= 2:
             continue
 
-        for product_in_group in group.product_set.filter(is_reviewed=True).annotate(
+        for product_in_group in group.product_set.public().annotate(
             similarity=TrigramSimilarity("normalized_name", product.normalized_name)
         ):
             name_score = product_in_group.similarity

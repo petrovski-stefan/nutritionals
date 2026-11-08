@@ -5,7 +5,6 @@ from dataclasses import dataclass
 from common.utils import transliterate_cyrillic_to_latin
 from django.contrib.postgres.search import TrigramSimilarity
 from django.db.models import Case, F, FloatField, Q, QuerySet, Value, When
-from django.db.models.functions import Round
 from django.utils import timezone
 
 from .. import exceptions
@@ -166,28 +165,15 @@ def create_or_update_scraped_product(
         )
 
 
-def base_products_qs() -> QuerySet[Product]:
-    """Return public products queryset with annotated field discount_percent"""
-
-    return (
-        Product.objects.select_related("pharmacy", "brand", "group")
-        .filter(is_reviewed=True)
-        .only(
-            "id",
-            "name",
-            "price",
-            "discount_price",
-            "pharmacy__name",
-            "brand__name",
-            "group",
-            "url",
-            "last_scraped_at",
-        )
-        .annotate(discount_percent=Round((1 - F("discount_price") / F("price")) * 100))
-    )
+SEARCH_RESULTS_LIMIT = 20
 
 
-def search_products(*, q: str, has_limit: bool = True) -> QuerySet[Product]:
+def _match_products(*, queryset: QuerySet[Product], q: str | None) -> QuerySet[Product]:
+    """
+    Filter the queryset to products whose normalized name matches q. Queries longer
+    than 4 characters are ordered best match first. Raise if q is empty or too short
+    """
+
     if not q:
         raise exceptions.ProductSearchQueryEmptyAPIError
 
@@ -196,15 +182,14 @@ def search_products(*, q: str, has_limit: bool = True) -> QuerySet[Product]:
     if len(latin_q) < 2:
         raise exceptions.ProductSearchQueryShortAPIError
 
-    base_qs = base_products_qs()
     q_len = len(latin_q)
 
     if q_len <= 4:
-        qs = base_qs.filter(normalized_name__icontains=latin_q)
+        qs = queryset.filter(normalized_name__icontains=latin_q)
 
     elif q_len <= 15:
         qs = (
-            base_qs.annotate(
+            queryset.annotate(
                 similarity=TrigramSimilarity("normalized_name", latin_q),
                 contains_boost=Case(
                     When(
@@ -222,15 +207,28 @@ def search_products(*, q: str, has_limit: bool = True) -> QuerySet[Product]:
     else:
         # Long query
         qs = (
-            base_qs.annotate(similarity=TrigramSimilarity("normalized_name", latin_q))
+            queryset.annotate(similarity=TrigramSimilarity("normalized_name", latin_q))
             .filter(similarity__gt=0.1)
             .order_by("-similarity")
         )
 
-    if has_limit:
-        return qs[:20]
-
     return qs
+
+
+def search_products(*, q: str | None) -> QuerySet[Product]:
+    """Return the best matching public products for the product search endpoint"""
+
+    queryset = (
+        Product.objects.public().with_discount_percent().select_related("pharmacy", "brand")
+    )
+
+    return _match_products(queryset=queryset, q=q)[:SEARCH_RESULTS_LIMIT]
+
+
+def list_matching_products(*, q: str) -> QuerySet[Product]:
+    """Return every public product matching q, unsliced, to filter other models by"""
+
+    return _match_products(queryset=Product.objects.public(), q=q)
 
 
 def get_normalized_product_name(*, product_name: str, brand_name: str | None) -> str:

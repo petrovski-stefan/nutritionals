@@ -16,9 +16,7 @@ from .services import mylistitem as mylistitem_service
 
 class MyListListCreateAPIView(JWTAuthMixin, generics.ListCreateAPIView):
     def get_queryset(self) -> QuerySet[MyList]:
-        return mylist_service.list_mylists_by_user(
-            user=self.request.user, include_products=False
-        )
+        return mylist_service.list_mylists_by_user(user=self.request.user)
 
     def get_serializer_class(self):  # noqa
         if self.request.method == "POST":
@@ -36,9 +34,7 @@ class MyListRetrieveUpdateDestroyAPIView(
     JWTAuthMixin, generics.RetrieveUpdateDestroyAPIView
 ):
     def get_queryset(self) -> QuerySet[MyList]:
-        return mylist_service.list_mylists_by_user(
-            user=self.request.user, include_products=True
-        )
+        return mylist_service.list_mylists_with_items_by_user(user=self.request.user)
 
     def get_serializer_class(self):  # noqa
         if self.request.method == "GET":
