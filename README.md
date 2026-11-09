@@ -63,7 +63,7 @@ Price data is collected by **scheduled scrapers for 4 pharmacy chains** (Zegin, 
 
 **Infrastructure**
 - Docker Compose for dev and prod (web, PostgreSQL, Redis, Celery worker + beat), nginx + gunicorn + WhiteNoise in production
-- Python tooling with **uv**, linted with flake8 + mypy; frontend gated by ESLint + `tsc` strict builds
+- Python tooling with **uv**, linted with ruff + mypy, plus deptry, complexipy and pyscn; frontend gated by ESLint + `tsc` strict builds
 
 ## Tech stack
 
@@ -72,7 +72,7 @@ Price data is collected by **scheduled scrapers for 4 pharmacy chains** (Zegin, 
 | Frontend | React 19, TypeScript, Vite, Tailwind CSS v4, TanStack Query v5, React Hook Form, zod v4, React Router 7, Axios |
 | Backend | Python 3.13, Django 5.2, Django REST Framework, SimpleJWT, Celery 5, BeautifulSoup4, OpenAI API, Pydantic |
 | Data & infra | PostgreSQL, Redis, Docker Compose, nginx, gunicorn, Flower (task monitoring) |
-| Quality | ESLint (strictTypeChecked, SonarJS), Prettier, flake8, mypy, uv |
+| Quality | ESLint (strictTypeChecked, SonarJS), Prettier, ruff, mypy, deptry, complexipy, pyscn, uv |
 
 ## Running locally
 
@@ -99,8 +99,12 @@ npm run dev                                  # http://localhost:5173
 npm run lint && npm run build                # eslint + tsc strict build
 
 # backend
-uv run flake8 --config=setup.cfg
+uv run ruff check
+uv run ruff format --check
 uv run mypy src --config-file=setup.cfg
+uv run deptry src
+uv run complexipy
+uv run pyscn check --select complexity,deadcode,deps src
 ```
 
 ## Project structure

@@ -15,12 +15,23 @@ The Docker Compose commands are in the root `CLAUDE.md`.
 Run on the host, from `backend/`:
 
 ```sh
-uv run flake8 --config=setup.cfg
+uv run ruff check
+uv run ruff format --check
 uv run mypy src --config-file=setup.cfg
+uv run deptry src
+uv run complexipy
+uv run pyscn check --select complexity,deadcode,deps src
 ```
 
-- Both tools have a backlog of pre-existing errors, so only errors in code you touched count as regressions.
-- flake8 line length is 100. Migrations and settings are excluded from flake8 and mypy.
+- ruff replaces flake8. Line length is 100, and migrations are excluded. Config is in `pyproject.toml` (ruff, deptry, complexipy, pyscn) and `setup.cfg` (mypy).
+- complexipy fails on any function with cognitive complexity over 15. pyscn fails on dead code, circular imports and functions longer than 110 lines.
+- Old code has violations that are frozen as backlog, so every check passes on a clean tree. New code must pass without new suppressions:
+  - ruff: per-file `per-file-ignores` and `[tool.ruff.format] exclude` entries in `pyproject.toml`.
+  - mypy: per-module `disable_error_code` sections in `setup.cfg`.
+  - deptry: the `DEP003` ignore. pyscn: the 110-line threshold, which drops to 100 once `scrape_pharmacy_page` is split.
+  - complexipy: `# complexipy: ignore` on `assign_product_to_group`.
+- The backlog shrinks one step at a time. When a file is fixed, delete its backlog entry or ignore comment. Never add or widen one.
+- Code clones are reported with `uv run pyscn check --select clones src`. The report is informational and is not part of the gate.
 - There are no tests yet: every `tests.py` is a stub.
 
 ## Apps
@@ -57,7 +68,7 @@ Most flows have one entry point and one service call, so extra layers would add 
 
 - **Auth:** SimpleJWT via `common/mixins.py`. Use `JWTAuthMixin` for user endpoints and `NoAuthMixin` for public ones. `OptionalAuthMixin` exists, but no view uses it.
 - **Errors:** define `APIException` subclasses with a `default_code` in the app's `exceptions.py`, and raise them from services.
-- **Logging:** `logger = logging.getLogger(__name__)`. Pass values as `%s` arguments, never f-strings (flake8-logging LOG011 fails the check). INFO and above also get `extra={...}` fields such as `product_id` or `pharmacy`, which the production JSON output makes queryable. `extra` keys must not reuse `LogRecord` attributes such as `created`, `name` or `msg`. Every line gets `request_id` and `task_id` from `common/log.py`. Use DEBUG for "nothing changed" lines, and `logger.exception` when a loop catches an error and moves on.
+- **Logging:** `logger = logging.getLogger(__name__)`. Pass values as `%s` arguments, never f-strings (ruff G004 fails the check). INFO and above also get `extra={...}` fields such as `product_id` or `pharmacy`, which the production JSON output makes queryable. `extra` keys must not reuse `LogRecord` attributes such as `created`, `name` or `msg`. Every line gets `request_id` and `task_id` from `common/log.py`. Use DEBUG for "nothing changed" lines, and `logger.exception` when a loop catches an error and moves on.
 - **Models:** `common.models.BaseModel` provides `created_at` and `updated_at`. `updated_at` is `auto_now`, so list it in `update_fields` or it won't be written.
 - **Serializers:** naming differs by app. `users` and `products` use `*InputSerializer` for input, and `mylists` uses per-action names such as `MyListCreateSerializer`. Match the app you're editing.
 - **OpenAI:** only `integrations/openai.py` imports the SDK. Call `get_response()` and handle `AIResponseError`. Calling code for smart search and enrichment lives in `products/ai/`.
