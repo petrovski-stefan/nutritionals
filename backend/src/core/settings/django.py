@@ -199,6 +199,8 @@ LOGGING = {
         "django.request": {"level": "ERROR"},
         # Bots send random Host headers. The 400 still shows in the request line
         "django.security.DisallowedHost": {"handlers": ["discard"], "propagate": False},
+        # integrations/openai.py logs each call with its duration and tokens instead
+        "httpx": {"level": "WARNING"},
     },
 }
 

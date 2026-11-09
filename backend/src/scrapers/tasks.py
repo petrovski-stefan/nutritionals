@@ -1,8 +1,11 @@
 import logging
+from datetime import timedelta
 
 import requests
 from celery import shared_task
+from django.utils import timezone
 from products.models import Pharmacy, PharmacyCatalog
+from products.services import pharmacy as pharmacy_service
 from products.services.product import create_or_update_scraped_product
 
 from .shared.client import get_random_useragent, make_request_and_get_html
@@ -11,6 +14,32 @@ from .shared.imports import load_pharmacy_fns
 from .shared.soup import get_soup
 
 logger = logging.getLogger(__name__)
+
+# Assumes the catalog scrape is scheduled daily, so 36 hours means a run was missed.
+# Raise it if the beat schedule runs less often
+STALE_AFTER_HOURS = 36
+
+
+@shared_task
+def check_scrape_freshness() -> None:
+    """Log an error for each pharmacy with an active catalog that wasn't scraped recently"""
+
+    scraped_before = timezone.now() - timedelta(hours=STALE_AFTER_HOURS)
+    stale_pharmacies = pharmacy_service.list_stale_pharmacies(scraped_before=scraped_before)
+
+    for name, last_scraped_at in stale_pharmacies:
+        logger.error(
+            "(%s) Not scraped since %s, check its catalogs and scraper",
+            name,
+            last_scraped_at or "never",
+            extra={"pharmacy": name, "last_scraped_at": last_scraped_at},
+        )
+
+    if not stale_pharmacies:
+        logger.info(
+            "Every pharmacy with an active catalog was scraped in the last %s hours",
+            STALE_AFTER_HOURS,
+        )
 
 
 @shared_task

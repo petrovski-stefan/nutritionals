@@ -152,7 +152,16 @@ def get_smart_searched_productgroups(*, query: str) -> QuerySet[ProductGroup]:
 
     supplement_keywords = smart_search_ai.convert_query_to_tags(latin_query=latin_query)
 
+    # Queries are anonymous. The cut keeps a pasted wall of text out of the logs
+    logged_query = query[:100]
+
     if not supplement_keywords:
+        logger.info(
+            "Smart search %r: no supplement keywords",
+            logged_query,
+            extra={"query": logged_query, "keyword_count": 0},
+        )
+
         return ProductGroup.objects.none()
 
     candidates = _get_smart_search_candidates(keywords=supplement_keywords)
@@ -166,6 +175,23 @@ def get_smart_searched_productgroups(*, query: str) -> QuerySet[ProductGroup]:
 
     # Keep the AI order, drop repeats and ids that were not offered as candidates
     ranked_group_ids = list(dict.fromkeys(i for i in ai_ranked_ids if i in candidate_ids))
+
+    logger.info(
+        "Smart search %r: %s keywords, %s candidates, AI returned %s ids, kept %s",
+        logged_query,
+        len(supplement_keywords),
+        len(candidates_list),
+        len(ai_ranked_ids),
+        len(ranked_group_ids),
+        extra={
+            "query": logged_query,
+            "keywords": supplement_keywords,
+            "keyword_count": len(supplement_keywords),
+            "candidate_count": len(candidates_list),
+            "ai_id_count": len(ai_ranked_ids),
+            "kept_count": len(ranked_group_ids),
+        },
+    )
 
     if not ranked_group_ids:
         return ProductGroup.objects.none()
