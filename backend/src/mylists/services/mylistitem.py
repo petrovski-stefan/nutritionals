@@ -27,9 +27,6 @@ def create_mylistitem(
     product = get_object_or_404(Product, id=product_id)
 
     if MyListItem.objects.filter(mylist=mylist, product=product).exists():
-        logger.warning(
-            f"({product.id}) {product.name} already exists in ({mylist.id}) {mylist.name}"
-        )
         raise exceptions.ProductInMyListAlreadyExists
 
     mylistitem = MyListItem.objects.create(
@@ -51,10 +48,6 @@ def get_mylistitem(*, user: User, mylist_id: int, product_id: int) -> MyListItem
     ).first()
 
     if not mylistitem:
-        logger.warning(
-            f"MyListItem of mylist ({mylist_id}) and ({product_id}) not found"
-        )
-
         raise exceptions.MyListItemNotFound
 
     return mylistitem

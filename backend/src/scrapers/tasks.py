@@ -1,10 +1,12 @@
 import logging
 
+import requests
 from celery import shared_task
 from products.models import Pharmacy, PharmacyCatalog
 from products.services.product import create_or_update_scraped_product
 
 from .shared.client import get_random_useragent, make_request_and_get_html
+from .shared.exceptions import CardsNotFoundError
 from .shared.imports import load_pharmacy_fns
 from .shared.soup import get_soup
 
@@ -55,12 +57,19 @@ def schedule_catalog_page_scrape(catalog_id: int, pharmacy_name: str) -> None:
 
         category_name = catalog.category.name if catalog.category is not None else ""
 
-        scrape_pharmacy_page.delay(pharmacy_name, url, headers, page_num, category_name)
+        scrape_pharmacy_page.delay(
+            pharmacy_name, url, headers, page_num, category_name, is_first_page=(i == 0)
+        )
 
 
 @shared_task
 def scrape_pharmacy_page(
-    pharmacy_name: str, url: str, headers: dict, page_num: int, category_name: str
+    pharmacy_name: str,
+    url: str,
+    headers: dict,
+    page_num: int,
+    category_name: str,
+    is_first_page: bool = False,
 ) -> None:
     pharmacy = Pharmacy.objects.get(name=pharmacy_name)
 
@@ -78,8 +87,10 @@ def scrape_pharmacy_page(
 
     try:
         html = make_request_and_get_html(url, headers)
-    except Exception as e:
-        logger.warning(f"({pharmacy_name}) Failed to process page {page_num}: {e}")
+    except requests.RequestException as e:
+        logger.warning(
+            "(%s) Page %s request failed: %r - %s", pharmacy_name, page_num, e, url
+        )
 
         return
 
@@ -87,20 +98,72 @@ def scrape_pharmacy_page(
 
     try:
         cards = extract_cards_from_page(soup)
-    except Exception as e:
-        logger.warning(f"({pharmacy_name}) Failed extracting cards: {e}")
+    except CardsNotFoundError:
+        # max_pages is set by hand, so pages past the real last page come back empty
+        if is_first_page:
+            logger.error(
+                "(%s) Page %s has no product cards, check the site and the selectors - %s",
+                pharmacy_name,
+                page_num,
+                url,
+            )
+        else:
+            logger.info(
+                "(%s) Page %s has no product cards, end of catalog - %s",
+                pharmacy_name,
+                page_num,
+                url,
+            )
 
         return
 
     products = get_products_from_cards(cards)
-    to_db = []
+
+    if cards and not products:
+        logger.warning(
+            "(%s) Page %s: none of the %s cards passed validation, check the selectors - %s",
+            pharmacy_name,
+            page_num,
+            len(cards),
+            url,
+        )
+
+        return
+
+    created_count = 0
+    updated_count = 0
+    failed_count = 0
 
     for product_data in products:
-        p = create_or_update_scraped_product(
-            pharmacy=pharmacy, validated_data=product_data, category_name=category_name
-        )
-        to_db.append(p)
+        try:
+            _, created = create_or_update_scraped_product(
+                pharmacy=pharmacy, validated_data=product_data, category_name=category_name
+            )
+        except Exception:
+            # One bad product must not drop the rest of the page
+            logger.exception(
+                "(%s) Page %s: failed to save product %r - %s",
+                pharmacy_name,
+                page_num,
+                product_data["name"],
+                product_data["url"],
+            )
+            failed_count += 1
+
+            continue
+
+        if created:
+            created_count += 1
+        else:
+            updated_count += 1
 
     logger.info(
-        f"({pharmacy_name}) Page: {page_num} Found: {len(products)} To DB: {len(to_db)}"
+        "(%s) Page %s: %s cards, %s valid, %s created, %s updated, %s failed",
+        pharmacy_name,
+        page_num,
+        len(cards),
+        len(products),
+        created_count,
+        updated_count,
+        failed_count,
     )

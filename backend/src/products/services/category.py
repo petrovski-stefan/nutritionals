@@ -25,11 +25,11 @@ def get_category_by_name(*, name: str | None) -> Category | None:
     try:
         obj = Category.objects.get(name=name)
 
-        logger.info(f"Found category ({obj.id}) {obj.name} by name")
+        logger.debug("Found category (%s) %s by name", obj.id, obj.name)
 
         return obj
     except Category.DoesNotExist:
-        logger.info(f"Category {name} does not exist")
+        logger.debug("Category %s does not exist", name)
 
         return None
 

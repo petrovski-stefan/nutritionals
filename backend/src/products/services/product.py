@@ -101,13 +101,14 @@ def _update_scraped_product(
     changes = []
 
     for field in PRIMITIVE_FIELDS_TO_TRACK:
+        old_value = getattr(product, field)
         new_value = getattr(scraped_product, field)
 
-        if new_value != getattr(product, field):
+        if new_value != old_value:
             setattr(product, field, new_value)
 
             fields_to_update.append(field)
-            changes.append(field)
+            changes.append(f"{field} {old_value} -> {new_value}")
 
     if product.brand is None:
         from .brand import infer_brand_from_product_name
@@ -119,7 +120,7 @@ def _update_scraped_product(
         if infered_brand is not None:
             product.brand = infered_brand
             fields_to_update.append("brand")
-            changes.append("brand")
+            changes.append(f"brand -> {infered_brand.name}")
 
     if category_name:
         productcategory_service.add_categories_to_product(
@@ -129,18 +130,26 @@ def _update_scraped_product(
     product.last_scraped_at = last_scraped_at
     product.save(update_fields=fields_to_update)
 
-    logger.info(
-        f"({pharmacy_name}) Updated product ({product.pk}) {product.name}: "
-        f"{', '.join(changes) or '/'}"
-    )
+    if changes:
+        logger.info(
+            "(%s) Updated product (%s) %s: %s",
+            pharmacy_name,
+            product.pk,
+            product.name,
+            ", ".join(changes),
+        )
+    else:
+        logger.debug(
+            "(%s) Product (%s) %s unchanged", pharmacy_name, product.pk, product.name
+        )
 
     return product
 
 
 def create_or_update_scraped_product(
     *, pharmacy: Pharmacy, validated_data: dict, category_name: str | None
-) -> Product:
-    """Create or update a scraped product, assign it to a group and return it"""
+) -> tuple[Product, bool]:
+    """Create or update a scraped product. Return it and whether it was created"""
 
     last_scraped_at = timezone.now()
 
@@ -150,20 +159,24 @@ def create_or_update_scraped_product(
     ).first()
 
     if product is None:
-        return _create_scraped_product(
+        new_product = _create_scraped_product(
             pharmacy=pharmacy,
             last_scraped_at=last_scraped_at,
             scraped_product=scraped_product,
             category_name=category_name,
         )
+
+        return new_product, True
     else:
-        return _update_scraped_product(
+        updated_product = _update_scraped_product(
             product=product,
             scraped_product=scraped_product,
             pharmacy_name=pharmacy.name,
             last_scraped_at=last_scraped_at,
             category_name=category_name,
         )
+
+        return updated_product, False
 
 
 def normalize_search_query(*, q: str) -> str:

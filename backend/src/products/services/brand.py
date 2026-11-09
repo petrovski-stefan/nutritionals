@@ -62,8 +62,11 @@ def get_or_create_brand_by_name(*, name: str | None) -> Brand | None:
 
         return brand
 
-    logger.info(
-        f"Loaded brand ({existing_brand.pk}) {existing_brand.name} - {existing_brand.normalized_name}"  # noqa
+    logger.debug(
+        "Loaded brand (%s) %s - %s",
+        existing_brand.pk,
+        existing_brand.name,
+        existing_brand.normalized_name,
     )
 
     return existing_brand

@@ -1,4 +1,5 @@
 import logging
+from typing import Literal
 
 from common.utils import transliterate_cyrillic_to_latin
 from django.contrib.postgres.search import TrigramSimilarity
@@ -184,11 +185,17 @@ def get_smart_searched_productgroups(*, query: str) -> QuerySet[ProductGroup]:
 
 SCORE_THRESHOLD = 0.7
 
+GroupAssignment = Literal["skipped", "joined", "created"]
 
-def assign_product_to_group(product: Product) -> None:
+
+def assign_product_to_group(product: Product) -> GroupAssignment:
+    """
+    Put an ungrouped product in its best matching public group, or in a new group.
+    Return "skipped" if it already had a group, else "joined" or "created"
+    """
 
     if product.group is not None:
-        return
+        return "skipped"
 
     product_brand_q = Q(brand=product.brand) if product.brand else Q(brand__isnull=True)
     product_category_ids = list(product.categories.values_list("id", flat=True))
@@ -230,6 +237,8 @@ def assign_product_to_group(product: Product) -> None:
                 best_score = total_score
                 best_group = group
 
+    outcome: GroupAssignment
+
     if best_group and best_score >= SCORE_THRESHOLD:
         product.group = best_group
         product.save(update_fields=["group", "updated_at"])
@@ -237,6 +246,8 @@ def assign_product_to_group(product: Product) -> None:
         logger.info(
             f"Assigned {product.name} to group {best_group.name} with score {best_score}"
         )
+
+        outcome = "joined"
 
     else:
         new_group = ProductGroup.objects.create(name=product.name, brand=product.brand)
@@ -246,10 +257,13 @@ def assign_product_to_group(product: Product) -> None:
         logger.info(f"Created group {new_group.name} for product {product.name}")
 
         best_group = new_group
+        outcome = "created"
 
     productgroupcategory_service.assign_unique_categories_to_group(
         category_ids=product_category_ids, group=best_group
     )
+
+    return outcome
 
 
 def filter_by_category_count(
