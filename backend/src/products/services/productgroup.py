@@ -1,4 +1,5 @@
 import logging
+from typing import Literal
 
 from common.utils import transliterate_cyrillic_to_latin
 from django.contrib.postgres.search import TrigramSimilarity
@@ -151,7 +152,16 @@ def get_smart_searched_productgroups(*, query: str) -> QuerySet[ProductGroup]:
 
     supplement_keywords = smart_search_ai.convert_query_to_tags(latin_query=latin_query)
 
+    # Queries are anonymous. The cut keeps a pasted wall of text out of the logs
+    logged_query = query[:100]
+
     if not supplement_keywords:
+        logger.info(
+            "Smart search %r: no supplement keywords",
+            logged_query,
+            extra={"query": logged_query, "keyword_count": 0},
+        )
+
         return ProductGroup.objects.none()
 
     candidates = _get_smart_search_candidates(keywords=supplement_keywords)
@@ -165,6 +175,23 @@ def get_smart_searched_productgroups(*, query: str) -> QuerySet[ProductGroup]:
 
     # Keep the AI order, drop repeats and ids that were not offered as candidates
     ranked_group_ids = list(dict.fromkeys(i for i in ai_ranked_ids if i in candidate_ids))
+
+    logger.info(
+        "Smart search %r: %s keywords, %s candidates, AI returned %s ids, kept %s",
+        logged_query,
+        len(supplement_keywords),
+        len(candidates_list),
+        len(ai_ranked_ids),
+        len(ranked_group_ids),
+        extra={
+            "query": logged_query,
+            "keywords": supplement_keywords,
+            "keyword_count": len(supplement_keywords),
+            "candidate_count": len(candidates_list),
+            "ai_id_count": len(ai_ranked_ids),
+            "kept_count": len(ranked_group_ids),
+        },
+    )
 
     if not ranked_group_ids:
         return ProductGroup.objects.none()
@@ -184,11 +211,17 @@ def get_smart_searched_productgroups(*, query: str) -> QuerySet[ProductGroup]:
 
 SCORE_THRESHOLD = 0.7
 
+GroupAssignment = Literal["skipped", "joined", "created"]
 
-def assign_product_to_group(product: Product) -> None:
+
+def assign_product_to_group(product: Product) -> GroupAssignment:
+    """
+    Put an ungrouped product in its best matching public group, or in a new group.
+    Return "skipped" if it already had a group, else "joined" or "created"
+    """
 
     if product.group is not None:
-        return
+        return "skipped"
 
     product_brand_q = Q(brand=product.brand) if product.brand else Q(brand__isnull=True)
     product_category_ids = list(product.categories.values_list("id", flat=True))
@@ -230,26 +263,50 @@ def assign_product_to_group(product: Product) -> None:
                 best_score = total_score
                 best_group = group
 
+    outcome: GroupAssignment
+
     if best_group and best_score >= SCORE_THRESHOLD:
         product.group = best_group
         product.save(update_fields=["group", "updated_at"])
 
         logger.info(
-            f"Assigned {product.name} to group {best_group.name} with score {best_score}"
+            "Assigned (%s) %s to group (%s) %s with score %.3f",
+            product.pk,
+            product.name,
+            best_group.pk,
+            best_group.name,
+            best_score,
+            extra={
+                "product_id": product.pk,
+                "group_id": best_group.pk,
+                "score": round(best_score, 3),
+            },
         )
+
+        outcome = "joined"
 
     else:
         new_group = ProductGroup.objects.create(name=product.name, brand=product.brand)
         product.group = new_group
         product.save(update_fields=["group", "updated_at"])
 
-        logger.info(f"Created group {new_group.name} for product {product.name}")
+        logger.info(
+            "Created group (%s) %s for product (%s) %s",
+            new_group.pk,
+            new_group.name,
+            product.pk,
+            product.name,
+            extra={"product_id": product.pk, "group_id": new_group.pk},
+        )
 
         best_group = new_group
+        outcome = "created"
 
     productgroupcategory_service.assign_unique_categories_to_group(
         category_ids=product_category_ids, group=best_group
     )
+
+    return outcome
 
 
 def filter_by_category_count(

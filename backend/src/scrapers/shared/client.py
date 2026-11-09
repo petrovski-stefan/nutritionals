@@ -19,16 +19,11 @@ def get_random_useragent() -> str:
 
 
 def make_request_and_get_html(url: str, headers: dict | None = None) -> str:
-    """Get html of the page as string. Raise HTTPError for 4xx status codes"""
+    """Get html of the page as string. Raise requests.RequestException if the request fails"""
 
-    try:
-        response = requests.get(url=url, headers=headers, timeout=15)
-        response.raise_for_status()
+    response = requests.get(url=url, headers=headers, timeout=15)
+    response.raise_for_status()
 
-        logger.info(f"Request succeed ({response.status_code}) - {url}")
+    logger.debug("Request succeeded (%s) - %s", response.status_code, url)
 
-        return response.text
-    except requests.exceptions.HTTPError as e:
-        logger.warning(f"Request failed ({e.response.status_code}) - {url}")
-
-        raise e
+    return response.text

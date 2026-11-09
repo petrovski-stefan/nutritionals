@@ -9,7 +9,7 @@ logger = logging.getLogger(__name__)
 def add_categories_to_product(*, categories: list[str], product: Product) -> None:
 
     if not categories:
-        logger.info(f"No categories to add to ({product.id}) {product.name}")
+        logger.debug("No categories to add to (%s) %s", product.id, product.name)
 
         return
 
@@ -19,16 +19,30 @@ def add_categories_to_product(*, categories: list[str], product: Product) -> Non
         if ProductCategory.objects.filter(
             category__name=clean_c, product=product
         ).exists():
-            logger.info(
-                f"Category {clean_c} already exists in ({product.id}) {product.name}"
+            logger.debug(
+                "Category %s already exists in (%s) %s", clean_c, product.id, product.name
             )
 
             continue
 
         category = category_service.get_category_by_name(name=c)
         if not category:
+            logger.warning(
+                "Category %r does not exist, not added to (%s) %s",
+                c,
+                product.id,
+                product.name,
+                extra={"category": c, "product_id": product.id},
+            )
+
             continue
 
         ProductCategory.objects.create(product=product, category=category)
 
-        logger.info(f"Added category {clean_c} to ({product.id}) {product.name}")
+        logger.info(
+            "Added category %s to (%s) %s",
+            clean_c,
+            product.id,
+            product.name,
+            extra={"category": clean_c, "product_id": product.id},
+        )

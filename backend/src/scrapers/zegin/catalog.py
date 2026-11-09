@@ -1,9 +1,13 @@
+import logging
+
 from bs4 import BeautifulSoup, ResultSet, Tag
 from pydantic import ValidationError
 
 from ..shared import exceptions
 from ..shared.soup import get_stripped_attribute
 from . import selectors, validators
+
+logger = logging.getLogger(__name__)
 
 PRODUCT_FIELD_IN_PRODUCT_CARD_SELECTOR_MAP = {
     "name": selectors.CATALOG_PRODUCT_CARD_NAME,
@@ -85,7 +89,9 @@ def get_products_from_cards(cards: ResultSet[Tag]) -> list[dict]:
         try:
             validated = validators.CatalogProduct(**data).model_dump()
             products.append(validated)
-        except ValidationError:
+        except ValidationError as e:
+            logger.debug("Dropped invalid card %r: %s", data.get("name"), e)
+
             continue
 
     return products

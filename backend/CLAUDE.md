@@ -57,6 +57,7 @@ Most flows have one entry point and one service call, so extra layers would add 
 
 - **Auth:** SimpleJWT via `common/mixins.py`. Use `JWTAuthMixin` for user endpoints and `NoAuthMixin` for public ones. `OptionalAuthMixin` exists, but no view uses it.
 - **Errors:** define `APIException` subclasses with a `default_code` in the app's `exceptions.py`, and raise them from services.
+- **Logging:** `logger = logging.getLogger(__name__)`. Pass values as `%s` arguments, never f-strings (flake8-logging LOG011 fails the check). INFO and above also get `extra={...}` fields such as `product_id` or `pharmacy`, which the production JSON output makes queryable. `extra` keys must not reuse `LogRecord` attributes such as `created`, `name` or `msg`. Every line gets `request_id` and `task_id` from `common/log.py`. Use DEBUG for "nothing changed" lines, and `logger.exception` when a loop catches an error and moves on.
 - **Models:** `common.models.BaseModel` provides `created_at` and `updated_at`. `updated_at` is `auto_now`, so list it in `update_fields` or it won't be written.
 - **Serializers:** naming differs by app. `users` and `products` use `*InputSerializer` for input, and `mylists` uses per-action names such as `MyListCreateSerializer`. Match the app you're editing.
 - **OpenAI:** only `integrations/openai.py` imports the SDK. Call `get_response()` and handle `AIResponseError`. Calling code for smart search and enrichment lives in `products/ai/`.
@@ -67,5 +68,6 @@ Most flows have one entry point and one service call, so extra layers would add 
 - Scrape flow: `schedule_pharmacy_catalogs_scrape` → `schedule_catalog_page_scrape` → `scrape_pharmacy_page` → `create_or_update_scraped_product` (in `products/services/product.py`).
 - Creating a new product makes an OpenAI enrichment call.
 - `products/tasks.py: group_products` assigns products to groups.
+- `scrapers/tasks.py: check_scrape_freshness` logs an ERROR for each pharmacy with an active catalog that hasn't been scraped within `STALE_AFTER_HOURS`. It assumes the catalog scrape runs daily.
 - `Pharmacy` and `PharmacyCatalog` are in `products.models` and are managed through Django admin.
 - Beat uses `DatabaseScheduler`, so schedules live in the database, not in code.

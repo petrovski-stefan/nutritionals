@@ -50,6 +50,7 @@ INSTALLED_APPS += [
 ]
 
 MIDDLEWARE = [
+    "common.middleware.RequestLogMiddleware",
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
@@ -149,34 +150,57 @@ REST_FRAMEWORK = {
     ),
 }
 
+# Logging
+# Every line carries request_id and task_id ("-" when there is none). The console
+# prints text here; production.py switches it to one JSON object per line
+
+# Level of the project's own loggers. DEBUG shows the per-product scrape lines
+LOG_LEVEL = env("LOG_LEVEL", default="INFO")
+
+PROJECT_LOGGERS = ["common", "core", "integrations", "mylists", "products", "scrapers", "users"]
+
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
+    "filters": {
+        "context": {"()": "common.log.ContextFilter"},
+    },
     "formatters": {
-        "simple": {
-            "format": "{levelname} - {asctime} - {name} - {message}",
+        "text": {
+            "format": "{asctime} {levelname:<7} {name} [{request_id:.8}|{task_id:.8}] {message}",
             "style": "{",
-            "datefmt": "%Y-%m-%d %H:%M:%S",
+        },
+        "json": {
+            "()": "pythonjsonlogger.json.JsonFormatter",
+            "fmt": "%(levelname)s %(name)s %(message)s %(request_id)s %(task_id)s",
+            "rename_fields": {"levelname": "level", "name": "logger"},
+            "timestamp": True,  # ISO 8601 in UTC
+            "json_ensure_ascii": False,  # keep Cyrillic product names readable
         },
     },
     "handlers": {
         "console": {
-            "level": "INFO",
             "class": "logging.StreamHandler",
-            "formatter": "simple",
+            "filters": ["context"],
+            "formatter": "text",
         },
+        # A logger with no handler at all falls back to Python's last-resort handler,
+        # which still prints warnings, so silenced loggers point here instead
+        "discard": {"class": "logging.NullHandler"},
     },
+    "root": {"handlers": ["console"], "level": "INFO"},
     "loggers": {
-        "root": {
-            "handlers": ["console"],
-            "level": "INFO",
-            "propagate": True,
-        },
-        "API": {
-            "handlers": ["console"],
-            "level": "INFO",
-            "propagate": False,
-        },
+        **{name: {"level": LOG_LEVEL} for name in PROJECT_LOGGERS},
+        # Listing django drops its default handler, which printed every line twice in dev
+        "django": {"level": "INFO"},
+        # RequestLogMiddleware logs every request instead, in dev and prod alike
+        "django.server": {"handlers": ["discard"], "propagate": False},
+        # 4xx responses are in the request line already. 5xx keep their traceback here
+        "django.request": {"level": "ERROR"},
+        # Bots send random Host headers. The 400 still shows in the request line
+        "django.security.DisallowedHost": {"handlers": ["discard"], "propagate": False},
+        # integrations/openai.py logs each call with its duration and tokens instead
+        "httpx": {"level": "WARNING"},
     },
 }
 

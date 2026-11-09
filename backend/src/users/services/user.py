@@ -1,7 +1,16 @@
+import logging
+from typing import TYPE_CHECKING
+
 from django.contrib.auth import get_user_model
 from rest_framework_simplejwt.tokens import RefreshToken
 
-User = get_user_model()
+logger = logging.getLogger(__name__)
+
+# mypy can't use the get_user_model() result as a type. The project uses the default model
+if TYPE_CHECKING:
+    from django.contrib.auth.models import User
+else:
+    User = get_user_model()
 
 
 def get_token_pair(user: User) -> tuple[str, str]:
@@ -24,5 +33,7 @@ def register_user(*, username: str, password: str) -> tuple[User, str, str]:
 
     user = create_user(username, password)
     access, refresh = get_token_pair(user)
+
+    logger.info("Registered user (%s) %s", user.pk, user.username, extra={"user_id": user.pk})
 
     return user, access, refresh

@@ -108,7 +108,11 @@ def enrich_supplement(
     """
 
     if not categories:
-        logger.warning(f"No categories to classify into, skipping enrichment of {name}")
+        logger.warning(
+            "No categories to classify into, skipping enrichment of %s",
+            name,
+            extra={"product_name": name},
+        )
 
         return "", "", []
 
@@ -121,7 +125,7 @@ def enrich_supplement(
             schema=SupplementEnrichment,
         )
     except AIResponseError as e:
-        logger.warning(f"Enrichment failed for {name}: {e}")
+        logger.warning("Enrichment failed for %s: %s", name, e, extra={"product_name": name})
 
         return "", "", []
 
