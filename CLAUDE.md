@@ -14,9 +14,11 @@ Monorepo orchestrated by Docker Compose. Each side has its own guidance file, wh
 The backend runs **only via Docker Compose**. Do not run `manage.py`, Postgres or Redis on the host:
 
 ```sh
-docker compose -f compose.dev.yaml up                                    # web, database, redis, celery_worker, celery_worker_beat
+docker compose -f compose.dev.yaml up                                    # web, database, redis, celery_worker, celery_worker_beat, flower
 docker compose -f compose.dev.yaml exec web uv run manage.py <command>   # migrate, makemigrations, shell, ...
 ```
+
+Flower (Celery monitoring) is at http://localhost:5555. In production it binds to the server's localhost only, so open it through `ssh -L 5555:localhost:5555 <server>`.
 
 The frontend runs on the host: `npm run dev` in `frontend/`.
 

@@ -81,4 +81,5 @@ Most flows have one entry point and one service call, so extra layers would add 
 - `products/tasks.py: group_products` assigns products to groups.
 - `scrapers/tasks.py: check_scrape_freshness` logs an ERROR for each pharmacy with an active catalog that hasn't been scraped within `STALE_AFTER_HOURS`. It assumes the catalog scrape runs daily.
 - `Pharmacy` and `PharmacyCatalog` are in `products.models` and are managed through Django admin.
+- Flower monitors tasks (`flower` compose service, port 5555). It needs task events, which `core/settings/celery.py` turns on.
 - Beat uses `DatabaseScheduler`, so schedules live in the database, not in code.
