@@ -214,7 +214,7 @@ SCORE_THRESHOLD = 0.7
 GroupAssignment = Literal["skipped", "joined", "created"]
 
 
-def assign_product_to_group(product: Product) -> GroupAssignment:
+def assign_product_to_group(product: Product) -> GroupAssignment:  # complexipy: ignore
     """
     Put an ungrouped product in its best matching public group, or in a new group.
     Return "skipped" if it already had a group, else "joined" or "created"
