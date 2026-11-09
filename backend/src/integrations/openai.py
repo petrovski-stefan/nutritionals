@@ -30,14 +30,20 @@ def get_response(*, instructions: str, input: dict | list | str, schema: type[T]
             text_format=schema,
         )
     except (OpenAIError, ValidationError) as e:
-        logger.warning(f"OpenAI call failed for {schema.__name__}: {e}")
+        logger.warning(
+            "OpenAI call failed for %s: %s", schema.__name__, e, extra={"schema": schema.__name__}
+        )
 
         raise AIResponseError(str(e)) from e
 
     parsed = response.output_parsed
 
     if parsed is None:
-        logger.warning(f"OpenAI returned no parsed output for {schema.__name__}")
+        logger.warning(
+            "OpenAI returned no parsed output for %s",
+            schema.__name__,
+            extra={"schema": schema.__name__},
+        )
 
         raise AIResponseError("OpenAI response has no parsed content")
 

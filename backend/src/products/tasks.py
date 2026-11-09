@@ -19,7 +19,9 @@ def group_products() -> None:
             outcome = productgroup_service.assign_product_to_group(p)
         except Exception:
             # One bad product must not stop the rest from being grouped
-            logger.exception("Failed to group product (%s) %s", p.pk, p.name)
+            logger.exception(
+                "Failed to group product (%s) %s", p.pk, p.name, extra={"product_id": p.pk}
+            )
             outcomes["failed"] += 1
 
             continue
@@ -32,4 +34,10 @@ def group_products() -> None:
         outcomes["created"],
         outcomes["failed"],
         outcomes["skipped"],
+        extra={
+            "joined_count": outcomes["joined"],
+            "new_group_count": outcomes["created"],
+            "failed_count": outcomes["failed"],
+            "skipped_count": outcomes["skipped"],
+        },
     )

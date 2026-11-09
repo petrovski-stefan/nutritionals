@@ -32,10 +32,17 @@ def add_categories_to_product(*, categories: list[str], product: Product) -> Non
                 c,
                 product.id,
                 product.name,
+                extra={"category": c, "product_id": product.id},
             )
 
             continue
 
         ProductCategory.objects.create(product=product, category=category)
 
-        logger.info(f"Added category {clean_c} to ({product.id}) {product.name}")
+        logger.info(
+            "Added category %s to (%s) %s",
+            clean_c,
+            product.id,
+            product.name,
+            extra={"category": clean_c, "product_id": product.id},
+        )

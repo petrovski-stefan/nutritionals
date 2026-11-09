@@ -57,7 +57,11 @@ def get_or_create_brand_by_name(*, name: str | None) -> Brand | None:
     if existing_brand is None:
         brand = Brand.objects.create(name=name, normalized_name=normalized_name)
         logger.info(
-            f"Created brand ({brand.pk}) {brand.name} - {brand.normalized_name}"
+            "Created brand (%s) %s - %s",
+            brand.pk,
+            brand.name,
+            brand.normalized_name,
+            extra={"brand_id": brand.pk},
         )
 
         return brand
@@ -96,7 +100,13 @@ def infer_brand_from_product_name(
 
     brand = Brand.objects.filter(q_filter).first()
     if brand:
-        logger.info(f"Inferred brand ({brand.pk}) {brand.name} from {product_name}")
+        logger.info(
+            "Inferred brand (%s) %s from %s",
+            brand.pk,
+            brand.name,
+            product_name,
+            extra={"brand_id": brand.pk},
+        )
 
         return brand
 
@@ -107,12 +117,18 @@ def infer_brand_from_product_name(
         .first()
     )
 
-    if candidate_to_return_brand:
+    # The query excludes products without a brand, the second check only narrows the type
+    if candidate_to_return_brand and candidate_to_return_brand.brand:
+        inferred_brand = candidate_to_return_brand.brand
         logger.info(
-            f"Inferred brand ({candidate_to_return_brand.brand.pk}) {candidate_to_return_brand.brand.name}"  # noqa
-            f" by normalized name from {candidate_to_return_brand.name}"
+            "Inferred brand (%s) %s by normalized name from %s",
+            inferred_brand.pk,
+            inferred_brand.name,
+            candidate_to_return_brand.name,
+            extra={"brand_id": inferred_brand.pk},
         )
-        return candidate_to_return_brand.brand
+
+        return inferred_brand
 
     return None
 

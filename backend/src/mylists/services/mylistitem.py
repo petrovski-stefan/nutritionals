@@ -37,7 +37,14 @@ def create_mylistitem(
 
     mylist.save(update_fields=["updated_at"])
 
-    logger.info(f"Added ({product.id}) {product.name} to ({mylist.id}) {mylist.name}")
+    logger.info(
+        "Added (%s) %s to list (%s) %s",
+        product.id,
+        product.name,
+        mylist.id,
+        mylist.name,
+        extra={"product_id": product.id, "mylist_id": mylist.id},
+    )
 
     return mylistitem
 

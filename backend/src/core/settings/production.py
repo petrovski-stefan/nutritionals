@@ -10,6 +10,7 @@ CSRF_TRUSTED_ORIGINS = env("DJANGO_CSRF_TRUSTED_ORIGINS", list)
 
 
 MIDDLEWARE = [
+    "common.middleware.RequestLogMiddleware",
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
@@ -24,6 +25,9 @@ MIDDLEWARE = [
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(hours=40),
 }
+
+# One JSON object per line: a traceback stays in one Docker log entry, and jq can query fields
+LOGGING["handlers"]["console"]["formatter"] = "json"
 
 
 STATIC_URL = "/static/"

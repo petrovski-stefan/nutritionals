@@ -24,8 +24,13 @@ def schedule_pharmacy_catalogs_scrape() -> None:
     for catalog_id, pharmacy_name in catalogs:
         schedule_catalog_page_scrape.delay(catalog_id, pharmacy_name)
 
-    unique_pharmacy_names = {n for _, n in catalogs}
-    logger.info(f"Scheduled catalog scrape for: {', '.join(unique_pharmacy_names)}")
+    pharmacy_names = sorted({n for _, n in catalogs})
+    logger.info(
+        "Scheduled %s catalogs for: %s",
+        len(catalogs),
+        ", ".join(pharmacy_names),
+        extra={"catalog_count": len(catalogs), "pharmacies": pharmacy_names},
+    )
 
 
 @shared_task
@@ -38,8 +43,10 @@ def schedule_catalog_page_scrape(catalog_id: int, pharmacy_name: str) -> None:
             *_,
         ) = load_pharmacy_fns(pharmacy_name)
 
-    except ImportError as e:
-        logger.error(e)
+    except ImportError:
+        logger.exception(
+            "(%s) Cannot load the scraper package", pharmacy_name, extra={"pharmacy": pharmacy_name}
+        )
         return
 
     start = 0 if catalog.page_numbering_starts_at_zero else 1
@@ -71,6 +78,8 @@ def scrape_pharmacy_page(
     category_name: str,
     is_first_page: bool = False,
 ) -> None:
+    page_context = {"pharmacy": pharmacy_name, "page": page_num, "url": url}
+
     pharmacy = Pharmacy.objects.get(name=pharmacy_name)
 
     try:
@@ -80,8 +89,8 @@ def scrape_pharmacy_page(
             get_products_from_cards,
         ) = load_pharmacy_fns(pharmacy_name)
 
-    except ImportError as e:
-        logger.error(e)
+    except ImportError:
+        logger.exception("(%s) Cannot load the scraper package", pharmacy_name, extra=page_context)
 
         return
 
@@ -89,7 +98,12 @@ def scrape_pharmacy_page(
         html = make_request_and_get_html(url, headers)
     except requests.RequestException as e:
         logger.warning(
-            "(%s) Page %s request failed: %r - %s", pharmacy_name, page_num, e, url
+            "(%s) Page %s request failed: %r - %s",
+            pharmacy_name,
+            page_num,
+            e,
+            url,
+            extra=page_context,
         )
 
         return
@@ -99,13 +113,18 @@ def scrape_pharmacy_page(
     try:
         cards = extract_cards_from_page(soup)
     except CardsNotFoundError:
-        # max_pages is set by hand, so pages past the real last page come back empty
+        cards = None
+
+    # Logged outside the handler, since the traceback would only show the vendor's raise.
+    # max_pages is set by hand, so pages past the real last page come back empty
+    if cards is None:
         if is_first_page:
             logger.error(
                 "(%s) Page %s has no product cards, check the site and the selectors - %s",
                 pharmacy_name,
                 page_num,
                 url,
+                extra=page_context,
             )
         else:
             logger.info(
@@ -113,6 +132,7 @@ def scrape_pharmacy_page(
                 pharmacy_name,
                 page_num,
                 url,
+                extra=page_context,
             )
 
         return
@@ -126,6 +146,7 @@ def scrape_pharmacy_page(
             page_num,
             len(cards),
             url,
+            extra={**page_context, "card_count": len(cards)},
         )
 
         return
@@ -147,6 +168,11 @@ def scrape_pharmacy_page(
                 page_num,
                 product_data["name"],
                 product_data["url"],
+                extra={
+                    **page_context,
+                    "product_name": product_data["name"],
+                    "product_url": str(product_data["url"]),
+                },
             )
             failed_count += 1
 
@@ -166,4 +192,12 @@ def scrape_pharmacy_page(
         created_count,
         updated_count,
         failed_count,
+        extra={
+            **page_context,
+            "card_count": len(cards),
+            "valid_count": len(products),
+            "created_count": created_count,
+            "updated_count": updated_count,
+            "failed_count": failed_count,
+        },
     )

@@ -244,7 +244,17 @@ def assign_product_to_group(product: Product) -> GroupAssignment:
         product.save(update_fields=["group", "updated_at"])
 
         logger.info(
-            f"Assigned {product.name} to group {best_group.name} with score {best_score}"
+            "Assigned (%s) %s to group (%s) %s with score %.3f",
+            product.pk,
+            product.name,
+            best_group.pk,
+            best_group.name,
+            best_score,
+            extra={
+                "product_id": product.pk,
+                "group_id": best_group.pk,
+                "score": round(best_score, 3),
+            },
         )
 
         outcome = "joined"
@@ -254,7 +264,14 @@ def assign_product_to_group(product: Product) -> GroupAssignment:
         product.group = new_group
         product.save(update_fields=["group", "updated_at"])
 
-        logger.info(f"Created group {new_group.name} for product {product.name}")
+        logger.info(
+            "Created group (%s) %s for product (%s) %s",
+            new_group.pk,
+            new_group.name,
+            product.pk,
+            product.name,
+            extra={"product_id": product.pk, "group_id": new_group.pk},
+        )
 
         best_group = new_group
         outcome = "created"

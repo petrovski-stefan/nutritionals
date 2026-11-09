@@ -79,7 +79,12 @@ def _create_scraped_product(
     )
 
     logger.info(
-        f"({pharmacy.name}) Created product ({product.pk}) {product.name} - {product.normalized_name}"  # noqa
+        "(%s) Created product (%s) %s - %s",
+        pharmacy.name,
+        product.pk,
+        product.name,
+        product.normalized_name,
+        extra={"pharmacy": pharmacy.name, "product_id": product.pk},
     )
 
     return product
@@ -137,6 +142,7 @@ def _update_scraped_product(
             product.pk,
             product.name,
             ", ".join(changes),
+            extra={"pharmacy": pharmacy_name, "product_id": product.pk, "changes": changes},
         )
     else:
         logger.debug(
