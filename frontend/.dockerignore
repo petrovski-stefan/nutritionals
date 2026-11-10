@@ -1,0 +1,11 @@
+# .env is deliberately NOT ignored: vite build reads the VITE_* values from it
+
+node_modules
+dist
+.vscode
+.idea
+*.md
+*.log
+*.local
+Dockerfile.prod
+.dockerignore
