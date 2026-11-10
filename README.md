@@ -62,7 +62,7 @@ Price data is collected by **scheduled scrapers for 4 pharmacy chains** (Zegin, 
 - JWT auth (SimpleJWT) via reusable view mixins (`JWTAuthMixin`, `NoAuthMixin`), category inference and smart search via the OpenAI API behind a single `integrations/` client
 
 **Infrastructure**
-- Docker Compose for dev and prod (web, PostgreSQL, Redis, Celery worker + beat), nginx + gunicorn + WhiteNoise in production
+- Docker Compose for dev and prod (web, PostgreSQL, Redis, Celery worker + beat, Flower), nginx + gunicorn + WhiteNoise in production
 - Python tooling with **uv**, linted with ruff + mypy, plus deptry, complexipy and pyscn; frontend gated by ESLint + `tsc` strict builds
 
 ## Tech stack
@@ -81,7 +81,8 @@ Requires Docker and Node 20+.
 ```sh
 # backend — everything runs in containers
 cp backend/.env.template backend/.env        # fill in values (incl. OPENAI_API_KEY)
-docker compose -f compose.dev.yaml up        # web, postgres, redis, celery worker + beat
+docker compose -f compose.dev.yaml up        # web, postgres, redis, celery worker + beat, flower
+                                             # Flower: http://localhost:5555
 
 docker compose -f compose.dev.yaml exec web uv run manage.py migrate
 

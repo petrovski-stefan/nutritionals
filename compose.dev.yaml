@@ -59,6 +59,25 @@ services:
       - ./backend/mediafiles:/mediafiles
       - uv_venv_cache:/app/.venv
 
+  flower:
+    build:
+      context: backend/
+      dockerfile: Dockerfile.dev
+    env_file:
+      - backend/.env
+    working_dir: /app/src/
+    command: uv run celery -A core flower --port=5555
+    ports:
+      - "5555:5555"
+    depends_on:
+      - redis
+      - celery_worker
+    volumes:
+      - ./backend/src:/app/src
+      - ./backend/uv.lock:/app/uv.lock
+      - ./backend/pyproject.toml:/app/pyproject.toml
+      - uv_venv_cache:/app/.venv
+
   database:
     image: postgres:17
     env_file:
