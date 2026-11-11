@@ -1,9 +1,9 @@
 import logging
 import re
-from functools import reduce
 
 from common.utils import transliterate_cyrillic_to_latin
-from django.db.models import Count, Q, QuerySet
+from django.db.models import Count, QuerySet
+from django.db.models.functions import Length
 
 from ..expressions import public_group_q, public_product_q
 from ..models import Brand, Product
@@ -93,12 +93,13 @@ def infer_brand_from_product_name(
 
     candidates = [" ".join(words[:i]) for i in range(1, min(4, len(words) + 1))]
     normalized_candidates = [get_normalized_brand_name(name=c) for c in candidates]
-    sorted_candidates = sorted(normalized_candidates, key=len, reverse=True)
 
-    q_list = [Q(normalized_name=name) for name in sorted_candidates]
-    q_filter = reduce(lambda a, b: a | b, q_list)
-
-    brand = Brand.objects.filter(q_filter).first()
+    # The longest match wins, so "Now Foods Omega" gets "Now Foods" even if "Now" exists
+    brand = (
+        Brand.objects.filter(normalized_name__in=normalized_candidates)
+        .order_by(Length("normalized_name").desc(), "pk")
+        .first()
+    )
     if brand:
         logger.info(
             "Inferred brand (%s) %s from %s",

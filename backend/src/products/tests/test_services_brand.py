@@ -72,6 +72,17 @@ class TestInferBrandFromProductName:
 
         assert inferred == brand
 
+    @pytest.mark.parametrize("longer_first", [True, False], ids=["longer-first", "shorter-first"])
+    def test_prefers_the_longest_matching_brand(self, longer_first: bool) -> None:
+        names = ["Now Foods", "Now"] if longer_first else ["Now", "Now Foods"]
+        brands = {name: BrandFactory(name=name) for name in names}
+
+        inferred = brand_service.infer_brand_from_product_name(
+            product_name="Now Foods Omega-3 180 caps", normalized_product_name="omega-3 180 caps"
+        )
+
+        assert inferred == brands["Now Foods"]
+
     def test_falls_back_to_a_public_product_with_the_same_normalized_name(self) -> None:
         brand = BrandFactory()
         ProductFactory(normalized_name="vitamin c 1000mg", brand=brand)
