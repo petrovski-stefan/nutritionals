@@ -1,0 +1,63 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+# A new push to the same branch cancels the run that is still in progress
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    # Settings require these at import time and mypy's Django plugin imports settings.
+    # There is no backend/.env in CI, so these are placeholders, not secrets
+    env:
+      DJANGO_SECRET_KEY: ci-placeholder
+      POSTGRES_DB: ci
+      POSTGRES_HOST: localhost
+      POSTGRES_USER: ci
+      POSTGRES_PASSWORD: ci-placeholder
+      CELERY_BROKER_URL: redis://localhost:6379/0
+      OPENAI_API_KEY: ci-placeholder
+    steps:
+      - uses: actions/checkout@v7
+      # setup-uv publishes no moving major tag (no `v10`), so the full version is pinned
+      - uses: astral-sh/setup-uv@v10.3.3
+        with:
+          enable-cache: true
+          cache-dependency-glob: backend/uv.lock
+      # --locked fails if uv.lock is out of date with pyproject.toml
+      - run: uv sync --locked
+      - run: uv run ruff check
+      - run: uv run ruff format --check
+      - run: uv run mypy src --config-file=setup.cfg
+      - run: uv run deptry src
+      - run: uv run complexipy
+      - run: uv run pyscn check --select complexity,deadcode,deps src
+
+  frontend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      # npm ci installs exactly what package-lock.json says and fails if it is out of date
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run build

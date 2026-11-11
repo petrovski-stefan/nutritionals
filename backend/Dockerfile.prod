@@ -1,14 +1,19 @@
 # TODO: The image contains 1 high vulnerability
-FROM python:3.13-slim  
+FROM python:3.13-slim
 
 ENV DJANGO_SETTINGS_MODULE=core.settings.production
+
+# The environment is built once, below. Without this, every `uv run` at container start
+# would sync it again and install the dev group
+ENV UV_NO_SYNC=1
 
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 
 WORKDIR /app
 
-COPY pyproject.toml /app/
+COPY pyproject.toml uv.lock /app/
 
-RUN uv sync
+# --locked installs exactly what uv.lock says and fails if it is out of date with pyproject.toml
+RUN uv sync --locked --no-dev
 
 COPY src/ /app/src/
