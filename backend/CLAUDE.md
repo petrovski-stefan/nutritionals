@@ -32,7 +32,27 @@ uv run pyscn check --select complexity,deadcode,deps src
   - complexipy: `# complexipy: ignore` on `assign_product_to_group`.
 - The backlog shrinks one step at a time. When a file is fixed, delete its backlog entry or ignore comment. Never add or widen one.
 - Code clones are reported with `uv run pyscn check --select clones src`. The report is informational and is not part of the gate.
-- There are no tests yet: every `tests.py` is a stub.
+
+## Tests
+
+pytest with pytest-django, factory_boy, pytest-mock and coverage. They need Postgres (search uses `pg_trgm`), so they run in the `web` container, from the repo root:
+
+```sh
+docker compose -f compose.dev.yaml exec -w /app web uv run pytest          # stack is up
+docker compose -f compose.dev.yaml run --rm -w /app web uv run pytest      # only `database` is up
+... uv run pytest --cov                                                    # with a coverage report
+... uv run pytest src/products/tests/test_views.py -k discounted          # a subset
+```
+
+- `-w /app` matters: coverage reads its config from `pyproject.toml` in the working directory. In Git Bash, prefix the command with `MSYS_NO_PATHCONV=1` or `/app` becomes a Windows path.
+- Config is in `pyproject.toml` (`[tool.pytest.ini_options]`, `[tool.coverage.*]`). Settings are `core/settings/test.py`, passed with `--ds` because the images set `DJANGO_SETTINGS_MODULE`.
+- `--reuse-db` is on by default and still applies new migrations. Pass `--create-db` to rebuild the test database.
+- Warnings are errors. Ignore a third-party warning by its message in `filterwarnings`, never by category.
+- Tests live in `<app>/tests/` packages, one `test_<module>.py` per area. `.dockerignore` keeps them out of the prod image.
+- Build rows with the app's `tests/factories.py` (`ProductFactory(categories=[...])`, `MyListFactory(user=user)`). Test imports follow the app import direction: `mylists` tests may use `products` factories, not the reverse.
+- Shared fixtures are in `src/conftest.py`: `api_client`, `user`, `auth_client` (sends a real JWT for `user`). pytest-django adds `client`, `admin_client` and `db`.
+- `src/conftest.py` makes any real OpenAI or HTTP call fail. Mock the call site with `mocker.patch.object(...)`, e.g. `products.services.product.enrich_supplement` or `productgroup_service.smart_search_ai`.
+- Assert on response codes and `errors[].code`, since the frontend maps those codes. A known bug gets a `pytest.mark.xfail(strict=True, reason="Bug: ...")` test, which fails once the bug is fixed, so the marker gets removed.
 
 ## Apps
 

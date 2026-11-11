@@ -31,13 +31,19 @@ dependencies = [
 [dependency-groups]
 dev = [
     "complexipy==8.0.1",
+    "coverage==7.17.2",
     "deptry==0.25.1",
     "django-extensions==4.1",
     "django-silk==5.4.0",
     "django-stubs==5.2.0",
     "djangorestframework-stubs==3.16.0",
+    "factory-boy==3.3.3",
     "mypy==1.15.0",
     "pyscn==1.32.2",
+    "pytest==9.2.0",
+    "pytest-cov==7.1.0",
+    "pytest-django==4.14.0",
+    "pytest-mock==3.17.0",
     "ruff==0.15.22",
     "types-requests==2.32.4.20250611",
     "werkzeug==3.1.3",
@@ -71,13 +77,15 @@ ignore = [
 
 [tool.ruff.lint.per-file-ignores]
 "src/core/settings/*" = ["F403", "F405"]  # settings layer each other with star imports
+# Tests use plain assert (S101) and fixed passwords for throwaway users (S105, S106)
+"src/**/tests/**" = ["S101", "S105", "S106"]
+"src/conftest.py" = ["S105"]
 # Backlog: existing violations. Fix a file, then delete its line. Don't add new lines.
 "src/core/settings/development.py" = ["RUF005"]
 "src/integrations/openai.py" = ["UP047"]
 "src/mylists/admin.py" = ["I001"]
 "src/mylists/models.py" = ["I001"]
 "src/mylists/services/mylistitem.py" = ["I001"]
-"src/mylists/tests.py" = ["F401"]
 "src/mylists/views.py" = ["I001", "RUF100"]
 "src/products/admin.py" = ["I001"]
 "src/products/ai/smart_search.py" = ["I001"]
@@ -86,7 +94,6 @@ ignore = [
 "src/products/services/brand.py" = ["I001"]
 "src/products/services/product.py" = ["I001"]
 "src/products/services/productgroup.py" = ["I001"]
-"src/products/tests.py" = ["F401"]
 "src/products/validators.py" = ["B904"]
 "src/products/views.py" = ["I001"]
 "src/scrapers/annifarm/__init__.py" = ["RUF022"]
@@ -95,7 +102,6 @@ ignore = [
 "src/scrapers/apteka24/validators.py" = ["UP035"]
 "src/scrapers/shared/validators.py" = ["I001", "UP035"]
 "src/scrapers/tasks.py" = ["I001"]
-"src/scrapers/tests.py" = ["F401"]
 "src/scrapers/vitamini/__init__.py" = ["RUF022"]
 "src/scrapers/vitamini/validators.py" = ["UP035"]
 "src/scrapers/zegin/__init__.py" = ["RUF022"]
@@ -103,7 +109,6 @@ ignore = [
 "src/scrapers/zegin/validators.py" = ["UP035"]
 "src/users/admin.py" = ["F401"]
 "src/users/models.py" = ["F401"]
-"src/users/tests.py" = ["F401"]
 "src/users/views.py" = ["I001"]
 
 [tool.ruff.format]
@@ -144,6 +149,8 @@ exclude = [
 
 [tool.deptry]
 known_first_party = ["common", "core", "integrations", "mylists", "products", "scrapers", "users"]
+# Test code imports the dev group (pytest, factory_boy), which deptry would flag as DEP004
+extend_exclude = ['src/.*/tests/', 'src/conftest.py']
 
 [tool.deptry.per_rule_ignores]
 # Loaded by name (settings strings, CLI, DB engine, broker), never imported.
@@ -171,3 +178,36 @@ function_sloc_critical_threshold = 110
 paths = ["src"]
 exclude = ["**/migrations/**"]
 max-complexity-allowed = 15
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["src"]
+python_files = ["test_*.py"]
+# --ds wins over the DJANGO_SETTINGS_MODULE that the Docker images set.
+# --reuse-db keeps the test database between runs and still applies new migrations.
+# Pass --create-db to rebuild it
+addopts = ["--ds=core.settings.test", "--reuse-db", "--strict-markers", "--strict-config"]
+filterwarnings = [
+    "error",
+    # Admin forms for URLField models. Goes away with Django 6, which defaults to https
+    "ignore:The default scheme will be changed:django.utils.deprecation.RemovedInDjango60Warning",
+]
+
+[tool.coverage.run]
+source = ["src"]
+branch = true
+omit = [
+    "*/migrations/*",
+    "*/tests/*",
+    "src/conftest.py",
+    "src/manage.py",
+    "src/core/asgi.py",
+    "src/core/wsgi.py",
+    "src/core/settings/*",
+]
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = true
+skip_empty = true
+exclude_also = ["if TYPE_CHECKING:"]
