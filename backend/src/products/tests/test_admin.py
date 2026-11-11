@@ -53,6 +53,34 @@ def test_product_is_grouped_filter(admin_client: Client, is_grouped: str) -> Non
     assert other not in response.context["cl"].queryset
 
 
+@pytest.mark.parametrize(
+    "params",
+    [
+        {"is_reviewed__exact": "1"},
+        {"pharmacy__id__exact": "{pharmacy}"},
+        {"q": "magnes"},
+    ],
+    ids=["is_reviewed", "pharmacy", "search"],
+)
+def test_product_is_grouped_filter_combines_with_other_filters(
+    admin_client: Client, params: dict[str, str]
+) -> None:
+    group = ProductGroupFactory()
+    kept = ProductFactory(name="Magnesium citrate", group=group)
+    ProductFactory(name="Magnesium oxide", group=group, is_reviewed=False)
+    ProductFactory(name="Omega 3", group=group, pharmacy=kept.pharmacy, is_reviewed=False)
+    ProductFactory(name="Magnesium glycinate")
+    params = {k: v.format(pharmacy=kept.pharmacy_id) for k, v in params.items()}
+    url = reverse("admin:products_product_changelist")
+
+    response = admin_client.get(url, {"is_grouped": "true", **params})
+
+    names = {p.name for p in response.context["cl"].queryset}
+    assert kept.name in names
+    assert "Magnesium glycinate" not in names
+    assert len(names) < 3, f"{params} was dropped: {sorted(names)}"
+
+
 def test_group_category_count_filter(admin_client: Client) -> None:
     ProductGroupFactory()
     one = ProductGroupFactory(categories=[CategoryFactory()])

@@ -202,14 +202,15 @@ class ProductIsGroupedFilter(admin.filters.SimpleListFilter):
             ("false", "No"),
         ]
 
-    def queryset(self, request, queryset) -> QuerySet[ProductGroup]:
+    def queryset(self, request, queryset) -> QuerySet[Product]:
 
         value = self.value()
 
         if value is not None:
             value_bool = value != "true"
 
-            return Product.objects.filter(group__isnull=value_bool)
+            # Filter the queryset passed in, which already holds the filters applied before
+            return queryset.filter(group__isnull=value_bool)
 
 
 @admin.register(Product)
