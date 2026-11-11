@@ -98,21 +98,24 @@ def test_vitamini_infers_the_brand_from_the_name(name: str, brand: str) -> None:
     assert product["brand"] == brand
 
 
-@pytest.mark.xfail(
-    raises=IndexError,
-    strict=True,
-    reason="Bug: _split_prices indexes an empty list, so a card without a price fails the page",
-)
-def test_vitamini_drops_a_card_without_a_price() -> None:
+def test_vitamini_drops_a_card_without_a_price_and_keeps_the_rest() -> None:
     page = """
-    <main><div class="wd-product">
-      <h3 class="wd-entities-title"><a href="https://vitamini.mk/p/1/">Omega 3</a></h3>
-    </div></main>
+    <main>
+      <div class="wd-product">
+        <h3 class="wd-entities-title"><a href="https://vitamini.mk/p/1/">Omega 3</a></h3>
+      </div>
+      <div class="wd-product">
+        <h3 class="wd-entities-title"><a href="https://vitamini.mk/p/2/">Zinc 25mg</a></h3>
+        <div class="product-wrapper"><span class="price">
+          <span class="amount">700,00 ден</span>
+        </span></div>
+      </div>
+    </main>
     """
 
     cards = vitamini.extract_cards_from_page(get_soup(page))
 
-    assert vitamini.get_products_from_cards(cards) == []
+    assert [p["name"] for p in vitamini.get_products_from_cards(cards)] == ["Zinc 25mg"]
 
 
 def test_zegin_uses_the_original_price_when_not_discounted() -> None:
