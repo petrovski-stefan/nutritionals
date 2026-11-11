@@ -105,7 +105,6 @@ ignore = [
 "src/scrapers/vitamini/__init__.py" = ["RUF022"]
 "src/scrapers/vitamini/validators.py" = ["UP035"]
 "src/scrapers/zegin/__init__.py" = ["RUF022"]
-"src/scrapers/zegin/url.py" = ["RUF100"]
 "src/scrapers/zegin/validators.py" = ["UP035"]
 "src/users/admin.py" = ["F401"]
 "src/users/models.py" = ["F401"]

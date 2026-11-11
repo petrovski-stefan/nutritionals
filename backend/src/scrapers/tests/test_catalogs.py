@@ -135,8 +135,19 @@ def test_woocommerce_catalog_url(package: ModuleType) -> None:
     assert get_url("https://x.mk/c/", 3, None) == "https://x.mk/c/page/3/"
 
 
-def test_zegin_catalog_url() -> None:
-    assert (
-        zegin.get_catalog_url_by_page("https://zegin.com.mk/search", 3, "?q=vitamin")
-        == "https://zegin.com.mk/search?q=vitamin&page=3"
-    )
+ZEGIN_BASE_URL = "https://zegin.com.mk/mk/products?f%5B0%5D=cat%3A9&product="
+
+
+@pytest.mark.parametrize(
+    ("qs_str", "expected"),
+    [
+        ("", f"{ZEGIN_BASE_URL}&page=3"),
+        (None, f"{ZEGIN_BASE_URL}&page=3"),
+        ("&sort=price", f"{ZEGIN_BASE_URL}&sort=price&page=3"),
+    ],
+    ids=["empty", "none", "extra-params"],
+)
+def test_zegin_catalog_url(qs_str: str | None, expected: str) -> None:
+    """The base url already holds the filters, as the catalogs in admin store them"""
+
+    assert zegin.get_catalog_url_by_page(ZEGIN_BASE_URL, 3, qs_str) == expected
