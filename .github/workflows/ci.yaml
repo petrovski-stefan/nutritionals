@@ -29,6 +29,21 @@ jobs:
       POSTGRES_PASSWORD: ci-placeholder
       CELERY_BROKER_URL: redis://localhost:6379/0
       OPENAI_API_KEY: ci-placeholder
+    # The tests need Postgres: search uses pg_trgm, which SQLite lacks
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_DB: ci
+          POSTGRES_USER: ci
+          POSTGRES_PASSWORD: ci-placeholder
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
     steps:
       - uses: actions/checkout@v7
       # setup-uv publishes no moving major tag (no `v10`), so the full version is pinned
@@ -44,6 +59,7 @@ jobs:
       - run: uv run deptry src
       - run: uv run complexipy
       - run: uv run pyscn check --select complexity,deadcode,deps src
+      - run: uv run pytest --cov --create-db
 
   frontend:
     runs-on: ubuntu-latest

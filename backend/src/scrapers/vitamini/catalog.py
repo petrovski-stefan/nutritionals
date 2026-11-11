@@ -51,7 +51,8 @@ def _split_prices(
 ) -> tuple[None, None] | tuple[str, str] | tuple[str, None]:
     """Convert list of prices to tuple of 2 based on what is present"""
 
-    if prices is None:
+    # A card without a price gives an empty list, which validation then drops
+    if not prices:
         return None, None
 
     if len(prices) == 1:

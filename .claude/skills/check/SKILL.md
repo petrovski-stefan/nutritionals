@@ -1,6 +1,6 @@
 ---
 name: check
-description: Run all quality gates for this repo — frontend lint + typecheck/build and backend ruff, mypy, deptry, complexipy and pyscn. Use before declaring a change done or committing.
+description: Run all quality gates for this repo — frontend lint + typecheck/build and backend ruff, mypy, deptry, complexipy, pyscn and pytest. Use before declaring a change done or committing.
 ---
 
 Run the checks relevant to what changed (both sets if the change spans frontend and backend). Run independent commands in parallel.
@@ -21,6 +21,12 @@ uv run mypy src --config-file=setup.cfg
 uv run deptry src
 uv run complexipy
 uv run pyscn check --select complexity,deadcode,deps src
+```
+
+Then the backend tests, from the repo root. They need the `database` container (see `backend/CLAUDE.md`, Tests):
+
+```sh
+docker compose -f compose.dev.yaml run --rm -w /app web uv run pytest
 ```
 
 Report each command's pass/fail. Fix failures caused by the current change; list pre-existing failures separately without fixing them unless asked.

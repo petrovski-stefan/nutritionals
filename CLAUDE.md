@@ -24,7 +24,7 @@ The frontend runs on the host: `npm run dev` in `frontend/`.
 
 ## Checks
 
-There is no CI and there are no tests. Before considering a change done, run the checks for each side you changed. The `/check` skill runs them, and the commands are in each side's `CLAUDE.md`.
+GitHub Actions (`.github/workflows/ci.yaml`) runs the checks and the backend tests on every pull request. Before considering a change done, run the checks for each side you changed. The `/check` skill runs them, and the commands are in each side's `CLAUDE.md`.
 
 ## API contract
 
