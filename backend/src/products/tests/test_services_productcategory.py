@@ -20,6 +20,15 @@ def test_adds_existing_categories() -> None:
     assert set(product.categories.all()) == {vitamins, minerals}
 
 
+def test_strips_the_category_name() -> None:
+    vitamins = CategoryFactory(name="Vitamini")
+    product = ProductFactory()
+
+    productcategory_service.add_categories_to_product(categories=[" Vitamini "], product=product)
+
+    assert list(product.categories.all()) == [vitamins]
+
+
 def test_skips_a_category_the_product_already_has() -> None:
     vitamins = CategoryFactory(name="Vitamini")
     product = ProductFactory(categories=[vitamins])

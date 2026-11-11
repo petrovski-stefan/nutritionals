@@ -25,14 +25,14 @@ def add_categories_to_product(*, categories: list[str], product: Product) -> Non
 
             continue
 
-        category = category_service.get_category_by_name(name=c)
+        category = category_service.get_category_by_name(name=clean_c)
         if not category:
             logger.warning(
                 "Category %r does not exist, not added to (%s) %s",
-                c,
+                clean_c,
                 product.id,
                 product.name,
-                extra={"category": c, "product_id": product.id},
+                extra={"category": clean_c, "product_id": product.id},
             )
 
             continue
