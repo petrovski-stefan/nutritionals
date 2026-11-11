@@ -159,6 +159,23 @@ class TestUpdate:
         assert response.status_code == 400
         assert error_codes(response) == {"unique_together_name_user"}
 
+    def test_rejects_patch(self, auth_client: APIClient, user: User) -> None:
+        mylist = MyListFactory(user=user, name="Old")
+
+        response = auth_client.patch(detail_url(mylist), {"name": "New"}, format="json")
+
+        assert response.status_code == 405
+        assert error_codes(response) == {"method_not_allowed"}
+        mylist.refresh_from_db()
+        assert mylist.name == "Old"
+
+    def test_options_lists_the_allowed_methods(self, auth_client: APIClient, user: User) -> None:
+        response = auth_client.options(detail_url(MyListFactory(user=user)))
+
+        assert response.status_code == 200
+        assert "PATCH" not in response["Allow"]
+        assert {"GET", "PUT", "DELETE"} <= set(response["Allow"].split(", "))
+
     def test_cannot_rename_another_users_list(self, auth_client: APIClient) -> None:
         response = auth_client.put(detail_url(MyListFactory()), {"name": "Mine"}, format="json")
 

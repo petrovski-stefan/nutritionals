@@ -33,6 +33,10 @@ class MyListListCreateAPIView(JWTAuthMixin, generics.ListCreateAPIView):
 class MyListRetrieveUpdateDestroyAPIView(
     JWTAuthMixin, generics.RetrieveUpdateDestroyAPIView
 ):
+    # Renaming is the only update, so there is no PATCH. Without this, PATCH found
+    # no serializer class and failed with a 500
+    http_method_names = ["get", "put", "delete", "head", "options"]
+
     def get_queryset(self) -> QuerySet[MyList]:
         return mylist_service.list_mylists_with_items_by_user(user=self.request.user)
 
