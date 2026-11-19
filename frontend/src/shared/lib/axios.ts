@@ -7,3 +7,7 @@ const axiosInstance = axios.create({
 });
 
 export default axiosInstance;
+
+export const buildAuthConfig = (accessToken: string) => ({
+  headers: { Authorization: `Bearer ${accessToken}` },
+});

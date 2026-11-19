@@ -1,13 +1,9 @@
-import axiosInstance from '@/shared/lib/axios';
+import axiosInstance, { buildAuthConfig } from '@/shared/lib/axios';
 import type { APIResponseSuccessV2 } from '@/shared/types/api';
 
 import type { BackendMyListWithItems, BackendMyListWithItemsCount } from './types';
 
 const BASE_PATH = 'api/v1/mylists/';
-
-const buildAuthConfig = (accessToken: string) => ({
-  headers: { Authorization: `Bearer ${accessToken}` },
-});
 
 const toBackendAddProductPayload = (productId: number, isAddedThroughSmartSearch: boolean) => ({
   product_id: productId,

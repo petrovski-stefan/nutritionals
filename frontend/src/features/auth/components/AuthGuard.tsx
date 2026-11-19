@@ -25,16 +25,17 @@ export default function AuthGuard({ children, mode, redirectTo }: Props) {
   const shouldRedirect = (isGuestOnlyRoute && isLoggedIn) || (isPrivateRoute && !isLoggedIn);
 
   useEffect(() => {
-    const state = location.state as LocationState | null;
+    if (!shouldRedirect) return;
 
-    const from = state?.from?.pathname ?? '/';
-
-    const target = from || redirectTo;
-
-    if (shouldRedirect) {
-      void navigate(target);
+    if (isPrivateRoute) {
+      // Login and register send the user back to `from` once they are signed in
+      void navigate(redirectTo, { state: { from: location } });
+      return;
     }
-  }, [location.state, navigate, shouldRedirect, redirectTo]);
+
+    const state = location.state as LocationState | null;
+    void navigate(state?.from?.pathname ?? redirectTo);
+  }, [location, navigate, shouldRedirect, isPrivateRoute, redirectTo]);
 
   return shouldRedirect ? null : children;
 }

@@ -33,7 +33,14 @@ const routes: Route[] = [
   {
     linkText: 'Паметно пребарување',
     path: '/smart-search',
-    element: <SmartSearch />,
+    element: (
+      <AuthGuard
+        mode="private"
+        redirectTo="/login"
+      >
+        <SmartSearch />
+      </AuthGuard>
+    ),
     showInHeaderMode: 'show',
   },
   {

@@ -1,10 +1,12 @@
-import { NavLink } from 'react-router-dom';
+import { NavLink, useLocation } from 'react-router-dom';
 
 type Props = Readonly<{
   type: 'login' | 'register';
 }>;
 
 export default function AuthPrompt({ type }: Props) {
+  const location = useLocation();
+
   const config = {
     login: {
       message: 'Немате отворено корисничка сметка? ',
@@ -25,6 +27,7 @@ export default function AuthPrompt({ type }: Props) {
       <span>{message}</span>
       <NavLink
         to={to}
+        state={location.state as unknown}
         className="text-accent focus-visible:outline-accent rounded font-medium hover:underline focus-visible:outline-2 focus-visible:outline-offset-2"
       >
         {actionText}

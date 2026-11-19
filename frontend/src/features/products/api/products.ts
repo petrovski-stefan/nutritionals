@@ -1,14 +1,18 @@
 import type { BackendProductGroup } from '@/features/products/types/productgroups';
-import axiosInstance from '@/shared/lib/axios';
+import axiosInstance, { buildAuthConfig } from '@/shared/lib/axios';
 import type { APIResponseSuccessV2 } from '@/shared/types/api';
 
 const PRODUCTS_BASE_PATH = 'api/v1/products/';
 
-export const smartSearchProductGroups = async (searchQuery: string) => {
+export const smartSearchProductGroups = async (searchQuery: string, accessToken: string) => {
   const url = `${PRODUCTS_BASE_PATH}smart-search/`;
-  const response = await axiosInstance.post(url, {
-    query: searchQuery,
-  });
+  const response = await axiosInstance.post(
+    url,
+    {
+      query: searchQuery,
+    },
+    buildAuthConfig(accessToken)
+  );
 
   return (response.data as APIResponseSuccessV2<BackendProductGroup[]>).data;
 };

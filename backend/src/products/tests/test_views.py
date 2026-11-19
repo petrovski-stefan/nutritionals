@@ -152,23 +152,32 @@ class TestSmartSearch:
     def smart_search_ai(self, mocker: MockerFixture) -> MagicMock:
         return mocker.patch.object(productgroup_service, "smart_search_ai")
 
-    def test_returns_the_ranked_groups(
+    def test_requires_authentication(
         self, api_client: APIClient, smart_search_ai: MagicMock
+    ) -> None:
+        response = api_client.post(SMART_SEARCH_URL, {"query": "for sleep"}, format="json")
+
+        assert response.status_code == 401
+        assert errors(response) == {(None, "not_authenticated")}
+        smart_search_ai.convert_query_to_tags.assert_not_called()
+
+    def test_returns_the_ranked_groups(
+        self, auth_client: APIClient, smart_search_ai: MagicMock
     ) -> None:
         group = ProductGroupFactory()
         ProductFactory(group=group, normalized_name="melatonin 5mg")
         smart_search_ai.convert_query_to_tags.return_value = ["melatonin"]
         smart_search_ai.smart_search.return_value = [group.pk]
 
-        response = api_client.post(SMART_SEARCH_URL, {"query": "for sleep"}, format="json")
+        response = auth_client.post(SMART_SEARCH_URL, {"query": "for sleep"}, format="json")
 
         assert [g["id"] for g in data(response)] == [group.pk]
 
     @pytest.mark.parametrize(
         ("query", "code"), [("ab", "min_length"), ("x" * 101, "max_length"), ("", "blank")]
     )
-    def test_validates_the_query(self, api_client: APIClient, query: str, code: str) -> None:
-        response = api_client.post(SMART_SEARCH_URL, {"query": query}, format="json")
+    def test_validates_the_query(self, auth_client: APIClient, query: str, code: str) -> None:
+        response = auth_client.post(SMART_SEARCH_URL, {"query": query}, format="json")
 
         assert response.status_code == 400
         assert errors(response) == {("query", code)}
