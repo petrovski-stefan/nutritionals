@@ -1,4 +1,4 @@
-from common.mixins import NoAuthMixin
+from common.mixins import JWTAuthMixin, NoAuthMixin
 from django.db.models import QuerySet
 from rest_framework.generics import ListAPIView
 from rest_framework.request import Request
@@ -43,7 +43,7 @@ class DiscountedProductGroupListAPIView(NoAuthMixin, APIView):
         )
 
 
-class SmartSearchAPIView(NoAuthMixin, APIView):
+class SmartSearchAPIView(JWTAuthMixin, APIView):
     def post(self, request: Request) -> Response:
         input_serializer = ProductSmartSearchInputSerializer(data=request.data)
         input_serializer.is_valid(raise_exception=True)
