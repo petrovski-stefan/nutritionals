@@ -6,6 +6,7 @@ import Card from '@/components/ui/Card';
 import StateMessage from '@/components/ui/StateMessage';
 import { useAuthContext } from '@/context/AuthContext';
 import CreateUpdateMyListModal from '@/features/my-lists/components/CreateUpdateMyListModal';
+import DeleteMyListModal from '@/features/my-lists/components/DeleteMyListModal';
 import MyList from '@/features/my-lists/components/MyList';
 import MyListItem from '@/features/my-lists/components/MyListItem';
 import useDeleteMyList from '@/features/my-lists/hooks/useDeleteMyList';
@@ -14,12 +15,13 @@ import useMyLists from '@/features/my-lists/hooks/useMyLists';
 import useRemoveProductFromMyList from '@/features/my-lists/hooks/useRemoveProductFromMyList';
 import type { BackendMyListWithItems } from '@/features/my-lists/types';
 
-type EditMyList = Pick<BackendMyListWithItems, 'id' | 'name'>;
+type SelectedMyList = Pick<BackendMyListWithItems, 'id' | 'name'>;
 
 export default function MyLists() {
   const [myListIdToView, setMyListIdToView] = useState<number | null>(null);
   const [isCreateUpdateMyListModalOpen, setIsCreateUpdateMyListModalOpen] = useState(false);
-  const [myListToEdit, setMyListToEdit] = useState<EditMyList | null>(null);
+  const [myListToEdit, setMyListToEdit] = useState<SelectedMyList | null>(null);
+  const [myListToDelete, setMyListToDelete] = useState<SelectedMyList | null>(null);
 
   const { accessToken } = useAuthContext();
 
@@ -37,6 +39,8 @@ export default function MyLists() {
   );
 
   const handleViewMyList = (myListId: number) => {
+    // A failed removal belongs to the list it happened in
+    removeProductFromMyList.reset();
     setMyListIdToView(myListId);
   };
 
@@ -55,7 +59,21 @@ export default function MyLists() {
     setIsCreateUpdateMyListModalOpen(true);
   };
 
-  const handleDeleteMyList = (myListId: number) => {
+  const handleDeleteMyList = (myListId: number, myListName: string) => {
+    deleteMyList.reset();
+    setMyListToDelete({ id: myListId, name: myListName });
+  };
+
+  const handleCloseDeleteMyList = () => {
+    deleteMyList.reset();
+    setMyListToDelete(null);
+  };
+
+  const handleConfirmDeleteMyList = () => {
+    if (myListToDelete === null) return;
+
+    const myListId = myListToDelete.id;
+
     deleteMyList.mutate(
       { myListId },
       {
@@ -63,6 +81,7 @@ export default function MyLists() {
           if (myListIdToView === myListId) {
             setMyListIdToView(null);
           }
+          setMyListToDelete(null);
         },
       }
     );
@@ -94,6 +113,16 @@ export default function MyLists() {
           mode={myListToEdit ? 'update' : 'create'}
           myListToUpdate={myListToEdit ?? undefined}
           existingNames={existingNames}
+        />
+      )}
+
+      {myListToDelete !== null && (
+        <DeleteMyListModal
+          myListName={myListToDelete.name}
+          isPending={deleteMyList.isPending}
+          isError={deleteMyList.isError}
+          onConfirm={handleConfirmDeleteMyList}
+          onClose={handleCloseDeleteMyList}
         />
       )}
 
@@ -176,11 +205,26 @@ export default function MyLists() {
               </li>
             )}
 
+            {isThereSelectedMyList && removeProductFromMyList.isError && (
+              <li>
+                <p
+                  role="alert"
+                  className="text-danger p-4 text-center text-sm"
+                >
+                  Суплементот не беше отстранет од листата. Обидете се повторно.
+                </p>
+              </li>
+            )}
+
             {isThereSelectedMyList &&
               selectedMyListItemsLength > 0 &&
               myListItems.map((item) => (
                 <MyListItem
                   key={item.id}
+                  isRemoving={
+                    removeProductFromMyList.isPending &&
+                    removeProductFromMyList.variables.productId === item.product_id
+                  }
                   handleDeleteProductMyList={() => {
                     handleRemoveProductFromMyList(myListIdToView, item.product_id);
                   }}

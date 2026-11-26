@@ -63,6 +63,7 @@ export default function Home() {
           <Card className="relative flex items-center p-2">
             <Input
               type="text"
+              aria-label="Пребарај суплементи"
               placeholder="Пребарај суплементи..."
               value={searchQuery}
               className="border-0 pr-12"

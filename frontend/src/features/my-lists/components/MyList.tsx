@@ -8,7 +8,7 @@ type Props = Readonly<
   BackendMyListWithItemsCount & {
     isMyListCurrentlyViewed: boolean;
     handleMyListToView: (myListId: number) => void;
-    handleDeleteMyList: (myListId: number) => void;
+    handleDeleteMyList: (myListId: number, myListName: string) => void;
     handleClickMyListToEdit: (myListId: number, myListName: string) => void;
   }
 >;
@@ -91,7 +91,7 @@ export default function MyList({
             variant="danger"
             size="sm"
             onClick={() => {
-              handleDeleteMyList(id);
+              handleDeleteMyList(id, name);
             }}
           >
             <TrashIcon className="h-4 w-4" />

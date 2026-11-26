@@ -9,6 +9,7 @@ import { formatPrice } from '@/shared/utils/prices';
 
 type Props = Readonly<
   BackendMyListItem & {
+    isRemoving: boolean;
     handleDeleteProductMyList: () => void;
   }
 >;
@@ -24,6 +25,7 @@ export default function MyListItem({
   product_url,
   product_pharmacy_name,
   created_at,
+  isRemoving,
   handleDeleteProductMyList,
 }: Props) {
   const lastScrapedAtDate = new Date(product_last_scraped_at);
@@ -33,11 +35,12 @@ export default function MyListItem({
   const scrapedDateClasses = isPossiblyUnavailable ? 'text-warning' : 'text-text-muted';
 
   const deleteButton = (
-    <Tooltip text="Избриши">
+    <Tooltip text="Отстрани од листата">
       <IconButton
-        label="Избриши"
+        label="Отстрани од листата"
         variant="danger"
         size="sm"
+        disabled={isRemoving}
         onClick={handleDeleteProductMyList}
       >
         <XIcon className="h-4 w-4" />

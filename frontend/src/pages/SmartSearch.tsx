@@ -56,6 +56,7 @@ export default function SmartSearch() {
               <div className="relative flex-1">
                 <Input
                   type="text"
+                  aria-label="Опишете ја вашата цел"
                   placeholder="Опишете ја вашата цел ... (пр., посилен имунитет)"
                   maxLength={100}
                   className="pr-11"
