@@ -9,17 +9,19 @@ Run from `frontend/`:
 ```sh
 npm run dev
 npm run lint
+npm run knip                  # unused files, exports and dependencies
 npm run build                 # tsc -b (the type check), then vite build
 npx prettier --write <file>   # there is no npm script for Prettier
 ```
 
-- Run `lint` and `build` before considering a change done. There is no test runner yet.
+- Run `lint`, `knip` and `build` before considering a change done. There is no test runner yet.
 - Env file: `frontend/.env` (example: `frontend/.env.example`).
 
 ## Code style
 
 - **Prettier:** single quotes, width 100, one JSX attribute per line, Tailwind class sorting. `.prettierrc` forces the TypeScript parser, so only run it on `.ts` and `.tsx` files.
-- **ESLint:** `strictTypeChecked`, sonarjs, simple-import-sort and TanStack Query `flat/recommended-strict`.
+- **ESLint:** `strictTypeChecked`, sonarjs, jsx-a11y `recommended`, simple-import-sort, TanStack Query `flat/recommended-strict` and `switch-exhaustiveness-check`.
+- **Knip:** fails on unused files, exports and dependencies. Delete dead code rather than ignoring it.
 - **tsconfig:** `exactOptionalPropertyTypes`, `noUncheckedIndexedAccess`, `noPropertyAccessFromIndexSignature` and `noUncheckedSideEffectImports`. Expect stricter errors than in typical React projects.
 - **Imports:** use the `@/` alias for anything outside the current directory. Only sibling `./` imports stay relative. No `../` paths.
 

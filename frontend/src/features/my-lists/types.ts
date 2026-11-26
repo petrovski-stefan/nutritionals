@@ -14,7 +14,7 @@ export type BackendMyListItem = {
   updated_at: string;
 };
 
-export type BaseBackendMyList = {
+type BaseBackendMyList = {
   id: number;
   name: string;
   created_at: string;

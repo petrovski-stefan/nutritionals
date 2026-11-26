@@ -8,6 +8,7 @@ import simpleImportSort from 'eslint-plugin-simple-import-sort';
 import sonarjs from 'eslint-plugin-sonarjs';
 import react from 'eslint-plugin-react';
 import pluginQuery from '@tanstack/eslint-plugin-query';
+import jsxA11y from 'eslint-plugin-jsx-a11y';
 
 export default tseslint.config([
   globalIgnores(['dist']),
@@ -17,6 +18,7 @@ export default tseslint.config([
       js.configs.recommended,
       tseslint.configs.strictTypeChecked,
       react.configs.flat.recommended,
+      jsxA11y.flatConfigs.recommended,
       reactHooks.configs['recommended-latest'],
       reactRefresh.configs.vite,
       sonarjs.configs.recommended,
@@ -30,12 +32,16 @@ export default tseslint.config([
         tsconfigRootDir: import.meta.dirname,
       },
     },
+    settings: {
+      react: { version: 'detect' },
+    },
     plugins: {
       'simple-import-sort': simpleImportSort,
     },
     rules: {
       'simple-import-sort/imports': 'error',
       'simple-import-sort/exports': 'error',
+      '@typescript-eslint/switch-exhaustiveness-check': 'error',
       '@typescript-eslint/no-unused-vars': [
         'warn',
         {

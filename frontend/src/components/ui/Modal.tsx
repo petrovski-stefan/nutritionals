@@ -36,17 +36,18 @@ export default function Modal({ title, onClose, size = 'md', children }: Props) 
   }, [onClose]);
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm"
-      onClick={onClose}
-    >
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      {/* Mouse-only shortcut: keyboard users close with Escape or the close button */}
+      <div
+        aria-hidden="true"
+        className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+        onClick={onClose}
+      />
+
       <div
         role="dialog"
         aria-modal="true"
-        className={`border-border bg-surface-raised max-h-[85vh] w-full overflow-y-auto rounded-xl border p-6 shadow-lg ${SIZE_CLASSES[size]}`}
-        onClick={(e) => {
-          e.stopPropagation();
-        }}
+        className={`border-border bg-surface-raised relative max-h-[85vh] w-full overflow-y-auto rounded-xl border p-6 shadow-lg ${SIZE_CLASSES[size]}`}
       >
         <div className="border-border mb-5 flex items-start justify-between gap-4 border-b pb-3">
           <h2 className="text-text text-xl font-semibold">{title}</h2>

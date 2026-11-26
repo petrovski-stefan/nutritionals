@@ -1,6 +1,6 @@
 ---
 name: check
-description: Run all quality gates for this repo — frontend lint + typecheck/build and backend ruff, mypy, deptry, complexipy, pyscn and pytest. Use before declaring a change done or committing.
+description: Run all quality gates for this repo — frontend lint, knip and typecheck/build, and backend ruff, mypy, deptry, complexipy, pyscn and pytest. Use before declaring a change done or committing.
 ---
 
 Run the checks relevant to what changed (both sets if the change spans frontend and backend). Run independent commands in parallel.
@@ -9,6 +9,7 @@ Run the checks relevant to what changed (both sets if the change spans frontend 
 
 ```sh
 npm run lint
+npm run knip       # unused files, exports and dependencies
 npm run build      # runs tsc -b (the type check) then vite build
 ```
 
