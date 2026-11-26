@@ -29,6 +29,11 @@ export type BackendMyListWithItems = BaseBackendMyList & {
   items: BackendMyListItem[];
 };
 
+// Router state that tells the My Lists page which list to open on arrival
+export type MyListsLocationState = {
+  openMyListId?: number;
+};
+
 export type ProductToMyList = {
   productId: number;
   productName: string;

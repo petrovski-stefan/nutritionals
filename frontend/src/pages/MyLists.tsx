@@ -1,5 +1,6 @@
 import { ArrowLeftIcon, PlusIcon } from 'lucide-react';
 import { useMemo, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 
 import SectionCtaLink from '@/components/home/SectionCtaLink';
 import Button from '@/components/ui/Button';
@@ -18,7 +19,7 @@ import useDeleteMyList from '@/features/my-lists/hooks/useDeleteMyList';
 import useMyList from '@/features/my-lists/hooks/useMyList';
 import useMyLists from '@/features/my-lists/hooks/useMyLists';
 import useRemoveProductFromMyList from '@/features/my-lists/hooks/useRemoveProductFromMyList';
-import type { BackendMyListWithItems } from '@/features/my-lists/types';
+import type { BackendMyListWithItems, MyListsLocationState } from '@/features/my-lists/types';
 
 type SelectedMyList = Pick<BackendMyListWithItems, 'id' | 'name'>;
 
@@ -27,7 +28,11 @@ type ItemToRemove = { productId: number; productName: string };
 const SKELETON_ROWS = 3;
 
 export default function MyLists() {
-  const [myListIdToView, setMyListIdToView] = useState<number | null>(null);
+  const location = useLocation();
+  // Arriving from "Отвори ја листата" opens that list right away
+  const [myListIdToView, setMyListIdToView] = useState<number | null>(
+    () => (location.state as MyListsLocationState | null)?.openMyListId ?? null
+  );
   const [isCreateUpdateMyListModalOpen, setIsCreateUpdateMyListModalOpen] = useState(false);
   const [myListToEdit, setMyListToEdit] = useState<SelectedMyList | null>(null);
   const [myListToDelete, setMyListToDelete] = useState<SelectedMyList | null>(null);
