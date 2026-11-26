@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <!-- The header green from src/index.css, with a slanted N echoing the italic logo -->
+  <rect width="32" height="32" rx="7" fill="#276b2b"/>
+  <path transform="translate(2.8 0) skewX(-10)" fill="#ffffff" d="M9 24V8h3.6l7 10.6V8H23v16h-3.6l-7-10.6V24z"/>
+</svg>
