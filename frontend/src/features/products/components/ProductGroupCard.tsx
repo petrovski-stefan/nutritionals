@@ -34,10 +34,7 @@ export default function ProductGroupCard({ productGroup, handleClickAddProductTo
   const offersId = `group-card-offers-${String(productGroup.id)}`;
 
   return (
-    <Card
-      hover
-      className="flex w-full flex-col p-4"
-    >
+    <Card className="flex w-full flex-col p-4">
       <h3 className="text-text line-clamp-2 text-lg font-semibold">{productGroup.name}</h3>
 
       {productGroup.brand_name && (

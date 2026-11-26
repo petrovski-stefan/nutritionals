@@ -5,8 +5,8 @@
   - Radius: cards/modals/dropdown panels `rounded-xl`; inputs/buttons `rounded-lg`;
     badges/pills/icon-buttons `rounded-full`; inline text links (their focus ring), tooltips
     and checkboxes `rounded`. Nothing else.
-  - Shadow: resting cards `shadow-sm`; hover/dropdowns/sticky header `shadow-md`;
-    modal panel `shadow-lg`. In dark mode depth comes from `border-border` +
+  - Shadow: cards `shadow-sm`, with no hover lift (only their buttons are clickable);
+    dropdowns/sticky header `shadow-md`; modal panel `shadow-lg`. In dark mode depth comes from `border-border` +
     `bg-surface-raised`, so cards/modals always keep a 1px border.
   - Type ramp: h1 `text-2xl sm:text-3xl font-bold`; h2 `text-xl sm:text-2xl font-semibold`;
     h3 `text-lg font-semibold`; body `text-base text-text`; secondary `text-sm text-text-muted`;
@@ -39,7 +39,6 @@
   --text-muted: #5f6660;
 
   --primary: #276b2b;
-  --secondary: #2196f3;
   --accent: #c2410c;
   --header: #276b2b;
   --on-fill: #ffffff;
@@ -61,7 +60,6 @@
   --text-muted: #a3aaa4;
 
   --primary: #4caf50;
-  --secondary: #64b5f6;
   --accent: #ffa040;
   --header: #276b2b;
   --on-fill: #141614;
@@ -72,10 +70,16 @@
   --danger: #f47472;
 }
 
+/* Until ThemeContext sets data-theme, the saved theme is unknown: let the browser canvas follow
+   the OS so OS-dark users don't see a white flash while the app loads. A user who picked the
+   opposite of their OS still sees it briefly; avoiding that needs an inline script in index.html */
+:root:not([data-theme]) {
+  color-scheme: light dark;
+}
+
 /* `inline` is required: utilities compile to the underlying var and flip under .dark */
 @theme inline {
   --color-primary: var(--primary);
-  --color-secondary: var(--secondary);
   --color-accent: var(--accent);
   --color-header: var(--header);
   --color-on-fill: var(--on-fill);

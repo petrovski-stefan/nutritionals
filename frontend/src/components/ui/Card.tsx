@@ -2,16 +2,13 @@ import type { PropsWithChildren } from 'react';
 
 type Props = Readonly<
   PropsWithChildren & {
-    hover?: boolean;
     className?: string;
   }
 >;
 
-export default function Card({ hover = false, className = '', children }: Props) {
+export default function Card({ className = '', children }: Props) {
   return (
-    <div
-      className={`border-border bg-surface-raised rounded-xl border shadow-sm ${hover ? 'transition-shadow hover:shadow-md' : ''} ${className}`}
-    >
+    <div className={`border-border bg-surface-raised rounded-xl border shadow-sm ${className}`}>
       {children}
     </div>
   );

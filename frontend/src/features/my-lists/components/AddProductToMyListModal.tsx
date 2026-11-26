@@ -135,7 +135,7 @@ export default function AddProductToMyListModal({
 
           {isMutationPending && (
             <div className="mb-3 flex justify-center">
-              <Spinner size="sm" />
+              <Spinner />
             </div>
           )}
 

@@ -17,10 +17,7 @@ export default function SupportedPharmacyCard({
   const lastScrapedAt = last_scraped_at ? formatDate(last_scraped_at) : '/';
 
   return (
-    <Card
-      hover
-      className="flex aspect-square w-full flex-col items-center justify-center gap-3 p-4 sm:size-48"
-    >
+    <Card className="flex aspect-square w-full flex-col items-center justify-center gap-3 p-4 sm:size-48">
       <p className="line-clamp-2 text-center text-lg font-semibold">
         <a
           href={homepage}

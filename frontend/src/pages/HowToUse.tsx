@@ -3,7 +3,7 @@ export default function HowToUse() {
     <div className="px-4 py-8 sm:px-6 sm:py-12">
       <title>Упатство за користење | Nutriceni</title>
 
-      <div className="border-border bg-surface-raised mx-auto max-w-4xl rounded-xl border p-6 shadow-sm sm:p-8">
+      <div className="border-border bg-surface-raised mx-auto max-w-2xl rounded-xl border p-6 shadow-sm sm:p-8">
         <header className="mb-6">
           <h1 className="text-text text-2xl font-bold sm:text-3xl">Упатство за користење</h1>
         </header>

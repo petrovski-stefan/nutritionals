@@ -44,7 +44,7 @@ export default function Button({
       className={`inline-flex items-center justify-center gap-2 rounded-lg font-semibold transition duration-150 ease-out focus-visible:outline-2 focus-visible:outline-offset-2 enabled:active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 motion-reduce:transition-none ${VARIANT_CLASSES[variant]} ${SIZE_CLASSES[size]} ${className}`}
       {...rest}
     >
-      {isPending && <Spinner size="sm" />}
+      {isPending && <Spinner />}
       {children}
     </button>
   );
