@@ -43,22 +43,22 @@ export default function FiltersSidebar({
 
   const { data: categories, isError: categoriesIsError } = useCategories();
 
-  const brandFilterCheckboxes = (brands || []).map(({ id, name }) => (
+  const brandFilterCheckboxes = (brands ?? []).map(({ id, name }) => (
     <Checkbox
       key={name}
       label={name}
-      checked={filters['brandIds'].includes(id)}
+      checked={filters.brandIds.includes(id)}
       onChange={(isChecked) => {
         handleFilterValueChange('brandIds', id, isChecked);
       }}
     />
   ));
 
-  const categoryFilterCheckboxes = (categories || []).map(({ id, name }) => (
+  const categoryFilterCheckboxes = (categories ?? []).map(({ id, name }) => (
     <Checkbox
       key={name}
       label={name}
-      checked={filters['categoryIds'].includes(id)}
+      checked={filters.categoryIds.includes(id)}
       onChange={(isChecked) => {
         handleFilterValueChange('categoryIds', id, isChecked);
       }}
@@ -92,7 +92,7 @@ export default function FiltersSidebar({
   };
 
   const handleClearFilters = () => {
-    if (filters['brandIds'].length === 0 && filters['categoryIds'].length === 0) {
+    if (filters.brandIds.length === 0 && filters.categoryIds.length === 0) {
       return;
     }
     setFilters({ brandIds: [], categoryIds: [] });

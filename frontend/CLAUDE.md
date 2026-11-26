@@ -9,19 +9,21 @@ Run from `frontend/`:
 ```sh
 npm run dev
 npm run lint
+npm run knip                  # unused files, exports and dependencies
 npm run build                 # tsc -b (the type check), then vite build
 npx prettier --write <file>   # there is no npm script for Prettier
 ```
 
-- Run `lint` and `build` before considering a change done. There is no test runner yet.
+- Run `lint`, `knip` and `build` before considering a change done. There is no test runner yet.
 - Env file: `frontend/.env` (example: `frontend/.env.example`).
 
 ## Code style
 
 - **Prettier:** single quotes, width 100, one JSX attribute per line, Tailwind class sorting. `.prettierrc` forces the TypeScript parser, so only run it on `.ts` and `.tsx` files.
-- **ESLint:** `strictTypeChecked`, sonarjs, simple-import-sort and TanStack Query `flat/recommended-strict`.
+- **ESLint:** `strictTypeChecked` and `stylisticTypeChecked` (types use `type`, not `interface`), sonarjs, jsx-a11y `recommended`, simple-import-sort, TanStack Query `flat/recommended-strict`, `switch-exhaustiveness-check` and import-x (`no-cycle`, `no-restricted-paths`).
+- **Knip:** fails on unused files, exports and dependencies. Delete dead code rather than ignoring it.
 - **tsconfig:** `exactOptionalPropertyTypes`, `noUncheckedIndexedAccess`, `noPropertyAccessFromIndexSignature` and `noUncheckedSideEffectImports`. Expect stricter errors than in typical React projects.
-- **Imports:** use the `@/` alias for anything outside the current directory. Only sibling `./` imports stay relative. No `../` paths.
+- **Imports:** use the `@/` alias for anything outside the current directory. Only sibling `./` imports stay relative. No `../` paths (`no-restricted-imports` fails on them).
 
 ## Structure
 
@@ -38,7 +40,7 @@ Imports go one way: `pages/` → `features/` → `components/`, `context/`, `sha
 ## Features
 
 - A feature is `src/features/<feature>/` with flat `api.ts`, `types.ts`, `schemas.ts` (zod), `errorMessages.ts` and `queries.ts`, plus `components/` and `hooks/`. Include only the files it needs. A flat file may become a same-named directory (`api/`, `types/`) when it genuinely needs splitting, as in `products`.
-- **Dependency rule:** features import other features in one documented direction only, currently `products → my-lists`. Cycles are forbidden. Anything two features need goes in `shared/` (logic), `components/` (UI) or `context/` (app-wide state).
+- **Dependency rule:** features import other features in one documented direction only, currently `products → my-lists`. Cycles are forbidden. Lint enforces this and the folder direction above through `importZones` in `eslint.config.js`; change `ALLOWED_FEATURE_IMPORTS` there when the documented direction changes. Anything two features need goes in `shared/` (logic), `components/` (UI) or `context/` (app-wide state).
 - **API:** `api.ts` files map camelCase fields to snake_case payloads and unwrap the response. Hooks import them as a namespace: `import * as MyListService from '@/features/my-lists/api'`.
 - **Data fetching:** use TanStack Query. Keys come from the feature's `queries.ts` factory (`myListKeys`, `productKeys`, `pharmacyKeys`). Never inline key arrays in hooks.
 - **Auth token:** `shared/lib/axios.ts` has no interceptors, so `api.ts` functions take `accessToken` as an argument. It comes from `useAuthContext()`.

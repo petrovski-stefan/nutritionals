@@ -25,7 +25,7 @@ export type BackendDiscountedGroups = {
 };
 
 export type GroupFilterValue = {
-  brandIds: Array<number>;
+  brandIds: number[];
   categoryIds: number[];
 };
 
