@@ -40,14 +40,14 @@ export default function Modal({ title, onClose, size = 'md', children }: Props) 
       {/* Mouse-only shortcut: keyboard users close with Escape or the close button */}
       <div
         aria-hidden="true"
-        className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+        className="absolute inset-0 bg-black/50 backdrop-blur-sm transition-opacity duration-200 ease-out motion-reduce:transition-none starting:opacity-0"
         onClick={onClose}
       />
 
       <div
         role="dialog"
         aria-modal="true"
-        className={`border-border bg-surface-raised relative max-h-[85vh] w-full overflow-y-auto rounded-xl border p-6 shadow-lg ${SIZE_CLASSES[size]}`}
+        className={`border-border bg-surface-raised relative max-h-[85vh] w-full overflow-y-auto rounded-xl border p-6 shadow-lg transition duration-200 ease-out motion-reduce:transition-none starting:scale-95 starting:opacity-0 ${SIZE_CLASSES[size]}`}
       >
         <div className="border-border mb-5 flex items-start justify-between gap-4 border-b pb-3">
           <h2 className="text-text text-xl font-semibold">{title}</h2>

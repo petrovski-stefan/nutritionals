@@ -45,7 +45,6 @@ export default function LoginForm() {
       >
         <Input
           type="text"
-          placeholder="Внесете го вашето корисничко име"
           {...register('username')}
         />
       </Field>
@@ -54,15 +53,11 @@ export default function LoginForm() {
         label="Лозинка"
         error={errors.password?.message}
       >
-        <PasswordInput
-          placeholder="Внесете ја вашата лозинка"
-          {...register('password')}
-        />
+        <PasswordInput {...register('password')} />
       </Field>
 
       <Button
         type="submit"
-        variant="accent"
         isPending={isPending}
         className="w-full"
       >

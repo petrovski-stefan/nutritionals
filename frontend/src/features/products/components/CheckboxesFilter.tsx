@@ -24,7 +24,7 @@ export default function CheckboxesFilter({
   const toggleLabel = isDisplayed ? 'Затвори' : 'Отвори';
 
   return (
-    <div className="border-border bg-surface-raised max-h-96 overflow-x-hidden overflow-y-auto rounded-xl border p-3">
+    <div className="border-border max-h-96 overflow-x-hidden overflow-y-auto border-t pt-4">
       <div className="mb-2 flex items-center justify-between">
         <span className="text-text font-semibold">{filterTitle}</span>
 
@@ -49,7 +49,11 @@ export default function CheckboxesFilter({
         </Tooltip>
       </div>
 
-      {isDisplayed && <div className="mt-2 flex flex-col gap-2 pl-1">{checkboxes}</div>}
+      {isDisplayed && (
+        <div className="mt-1 flex flex-col pl-1 transition-opacity duration-200 ease-out motion-reduce:transition-none starting:opacity-0">
+          {checkboxes}
+        </div>
+      )}
     </div>
   );
 }

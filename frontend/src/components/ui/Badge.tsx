@@ -3,7 +3,7 @@ import type { PropsWithChildren } from 'react';
 type Variant = 'accent' | 'neutral' | 'success' | 'warning' | 'danger' | 'info';
 
 const VARIANT_CLASSES: Record<Variant, string> = {
-  accent: 'bg-accent/15 text-accent',
+  accent: 'bg-accent text-on-fill',
   neutral: 'bg-surface-sunken text-text-muted border border-border',
   success: 'bg-success/15 text-success',
   warning: 'bg-warning/15 text-warning',

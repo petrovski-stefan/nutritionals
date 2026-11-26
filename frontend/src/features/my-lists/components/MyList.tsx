@@ -3,12 +3,13 @@ import { Edit2Icon, EyeIcon, TrashIcon } from 'lucide-react';
 import IconButton from '@/components/ui/IconButton';
 import Tooltip from '@/components/ui/Tooltip';
 import type { BackendMyListWithItemsCount } from '@/features/my-lists/types';
+import { formatDate } from '@/shared/utils/dates';
 
 type Props = Readonly<
   BackendMyListWithItemsCount & {
     isMyListCurrentlyViewed: boolean;
     handleMyListToView: (myListId: number) => void;
-    handleDeleteMyList: (myListId: number) => void;
+    handleDeleteMyList: (myListId: number, myListName: string) => void;
     handleClickMyListToEdit: (myListId: number, myListName: string) => void;
   }
 >;
@@ -44,8 +45,8 @@ export default function MyList({
           {items_count === 1 && '1 суплемент'}
           {items_count > 1 && `${String(items_count)} суплементи`}
         </p>
-        <p className="text-text-muted mt-1 text-xs italic">
-          Последно ажурирана на: {new Date(updated_at).toLocaleDateString('en-GB')}
+        <p className="text-text-muted mt-1 text-xs">
+          Последно ажурирана на: {formatDate(updated_at)}
         </p>
       </div>
 
@@ -91,7 +92,7 @@ export default function MyList({
             variant="danger"
             size="sm"
             onClick={() => {
-              handleDeleteMyList(id);
+              handleDeleteMyList(id, name);
             }}
           >
             <TrashIcon className="h-4 w-4" />

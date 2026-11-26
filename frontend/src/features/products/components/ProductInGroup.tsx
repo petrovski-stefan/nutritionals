@@ -4,7 +4,7 @@ import Badge from '@/components/ui/Badge';
 import IconButton from '@/components/ui/IconButton';
 import Tooltip from '@/components/ui/Tooltip';
 import type { BackendProduct } from '@/features/products/types/products';
-import { checkIsPossiblyUnavailable } from '@/shared/utils/dates';
+import { checkIsPossiblyUnavailable, formatDate } from '@/shared/utils/dates';
 import { formatPrice } from '@/shared/utils/prices';
 
 type Props = Readonly<
@@ -30,19 +30,10 @@ export default function ProductInGroup({
 }: Props) {
   const lastScrapedAtDate = new Date(last_scraped_at);
   const isPossiblyUnavailable = checkIsPossiblyUnavailable(lastScrapedAtDate);
-  const lastScrapedAt = new Date(last_scraped_at).toLocaleDateString('en-GB');
+  const lastScrapedAt = formatDate(last_scraped_at);
 
   return (
-    <div className="border-border hover:bg-surface-sunken relative flex items-center justify-between gap-3 border-b py-3 transition-colors last:border-0">
-      {!!discount_percent && (
-        <Badge
-          variant="accent"
-          className="absolute top-1 right-0"
-        >
-          -{discount_percent}%
-        </Badge>
-      )}
-
+    <div className="border-border hover:bg-surface-sunken flex items-center justify-between gap-3 border-b py-3 transition-colors last:border-0">
       <div className="flex min-w-0 flex-col">
         <a
           href={url}
@@ -52,7 +43,7 @@ export default function ProductInGroup({
         >
           {pharmacy_name}
         </a>
-        <p className={`text-sm ${isPossiblyUnavailable ? 'text-danger' : 'text-text-muted'}`}>
+        <p className={`text-sm ${isPossiblyUnavailable ? 'text-warning' : 'text-text-muted'}`}>
           {`Ажурирано: ${lastScrapedAt}`}
         </p>
       </div>
@@ -60,11 +51,18 @@ export default function ProductInGroup({
       <div className="flex shrink-0 items-center gap-3">
         {discount_price ? (
           <div className="flex flex-col items-end">
-            <p className="text-text-muted text-sm line-through">{formatPrice(price)}</p>
-            <p className="text-accent text-lg font-semibold">{formatPrice(discount_price)}</p>
+            <div className="flex items-center gap-1.5">
+              {!!discount_percent && <Badge variant="accent">-{discount_percent}%</Badge>}
+              <p className="text-text-muted text-sm tabular-nums line-through">
+                {formatPrice(price)}
+              </p>
+            </div>
+            <p className="text-accent text-lg font-semibold tabular-nums">
+              {formatPrice(discount_price)}
+            </p>
           </div>
         ) : (
-          <p className="text-primary text-lg font-semibold">{formatPrice(price)}</p>
+          <p className="text-primary text-lg font-semibold tabular-nums">{formatPrice(price)}</p>
         )}
 
         <Tooltip
@@ -73,7 +71,7 @@ export default function ProductInGroup({
         >
           <IconButton
             label="Додај во листа"
-            variant="accentGhost"
+            variant="primaryGhost"
             size="sm"
             onClick={() => {
               handleClickAddProductToMyList(id, name, pharmacy_name);

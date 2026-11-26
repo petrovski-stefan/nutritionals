@@ -19,7 +19,7 @@ export default function PasswordInput({ className = '', ...rest }: Props) {
     <div className="relative">
       <Input
         type={isVisible ? 'text' : 'password'}
-        className={`pr-11 ${className}`}
+        className={`pr-11 pointer-coarse:pr-12 ${className}`}
         {...rest}
       />
       <IconButton

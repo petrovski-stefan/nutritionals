@@ -33,10 +33,18 @@ const benefits: Benefit[] = [
 export default function AuthBenefits() {
   return (
     <div className="w-full max-w-md p-4 sm:p-6">
+      {/* Transparent WebP (background removed), 2x the displayed size for sharp retina screens.
+          lazy: hidden below lg, and browsers skip hidden lazy images, so phones don't download it.
+          width/height + fixed h-72 reserve the space, so the list below doesn't jump when it loads.
+          Dark mode adds a light panel behind it (tokens in index.css); light mode has none */}
       <img
         src={authIllustration}
         alt=""
-        className="mx-auto mb-6 hidden max-h-72 w-auto object-contain lg:block"
+        width={387}
+        height={576}
+        loading="lazy"
+        decoding="async"
+        className="bg-illustration-panel mx-auto mb-6 hidden h-72 w-auto rounded-xl p-(--illustration-panel-padding) lg:block"
       />
       <ul className="space-y-4">
         {benefits.map(({ icon: Icon, title, description, badge }) => (

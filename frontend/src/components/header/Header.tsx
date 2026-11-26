@@ -41,7 +41,7 @@ export default function Header() {
       <div className="mx-auto flex h-16 w-full max-w-7xl items-center justify-between gap-4 px-4 sm:px-6">
         <Link
           to="/"
-          className="text-accent hover:text-accent/80 focus-visible:outline-accent text-2xl font-bold italic transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 sm:text-3xl"
+          className="text-2xl font-bold text-white italic transition-colors hover:text-white/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white sm:text-3xl"
         >
           Nutriceni
         </Link>
@@ -51,8 +51,8 @@ export default function Header() {
         <div className="flex items-center gap-2">
           {isLoggedIn && (
             <>
-              <p className="flex max-w-[160px] items-center rounded-full bg-white/15 px-3 py-1.5 text-sm text-white sm:max-w-none">
-                <span className="mr-1 hidden sm:inline">Добредојде, </span>
+              <p className="hidden items-center rounded-full bg-white/15 px-3 py-1.5 text-sm text-white sm:flex">
+                <span className="mr-1">Добредојде, </span>
                 <span className="truncate font-medium">{username}</span>
               </p>
 
@@ -91,8 +91,14 @@ export default function Header() {
       {mobileMenuOpen && (
         <nav
           id="mobile-nav"
-          className="border-t border-white/20 px-4 py-3 md:hidden"
+          className="border-t border-white/20 px-4 py-3 transition duration-200 ease-out motion-reduce:transition-none md:hidden starting:-translate-y-1 starting:opacity-0"
         >
+          {/* Below sm the header has no room for the username, so the menu shows it */}
+          {isLoggedIn && (
+            <p className="truncate px-3 pb-2 text-sm text-white/90 sm:hidden">
+              Најавени сте како <span className="font-medium text-white">{username}</span>
+            </p>
+          )}
           <div className="flex flex-col gap-1">{menuItemsLinks}</div>
         </nav>
       )}

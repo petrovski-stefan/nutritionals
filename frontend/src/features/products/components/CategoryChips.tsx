@@ -7,12 +7,12 @@ type Props = Readonly<{
 }>;
 
 const CHIP_BASE_CLASSES =
-  'focus-visible:outline-primary rounded-full border px-3 py-1.5 text-sm font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2';
+  'focus-visible:outline-primary shrink-0 whitespace-nowrap rounded-full border px-3 py-1.5 text-sm pointer-coarse:py-2.5 font-medium transition duration-150 ease-out focus-visible:outline-2 active:scale-95 motion-reduce:transition-none focus-visible:outline-offset-2';
 
 const getChipClasses = (isSelected: boolean) =>
   isSelected
     ? `${CHIP_BASE_CLASSES} border-primary bg-primary/10 text-primary`
-    : `${CHIP_BASE_CLASSES} border-border text-text-muted hover:border-primary hover:text-primary hover:cursor-pointer`;
+    : `${CHIP_BASE_CLASSES} border-border text-text-muted hover:border-primary hover:text-primary`;
 
 export default function CategoryChips({ categories, selectedCategoryId, onSelect }: Props) {
   if (categories.length === 0) {
@@ -20,7 +20,8 @@ export default function CategoryChips({ categories, selectedCategoryId, onSelect
   }
 
   return (
-    <div className="mb-6 flex flex-wrap justify-center gap-2">
+    // py-1 leaves room for the focus ring inside the scrolling row
+    <div className="mb-6 flex gap-2 overflow-x-auto py-1 max-sm:-mx-4 max-sm:px-4 sm:flex-wrap sm:justify-center sm:overflow-visible">
       <button
         type="button"
         className={getChipClasses(selectedCategoryId === null)}

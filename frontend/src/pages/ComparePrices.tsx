@@ -69,8 +69,23 @@ export default function ComparePrices() {
     setCurrentPage(1);
   };
 
+  // Back to page 1: the old page number may not exist once the filters change
+  const handleClearFilters = () => {
+    setFilters(filtersDefault);
+    setCurrentPage(1);
+  };
+
+  const handleResetSearch = () => {
+    setSearchQuery('');
+    setSubmittedQuery('');
+    setFilters(filtersDefault);
+    setCurrentPage(1);
+  };
+
+  const hasActiveSearch =
+    submittedQuery !== '' || filters.brandIds.length > 0 || filters.categoryIds.length > 0;
+
   const handleClickPagination = (back: boolean) => {
-    // eslint-disable-next-line  sonarjs/no-selector-parameter
     if (back) {
       if (currentPage === 1) {
         return;
@@ -83,10 +98,15 @@ export default function ComparePrices() {
       }
       setCurrentPage((prev) => prev + 1);
     }
+
+    // Otherwise the next page opens where the old one was scrolled to: at its bottom
+    window.scrollTo(0, 0);
   };
 
   return (
     <div className="mx-auto grid w-full max-w-[96rem] items-start gap-6 px-4 py-8 sm:px-6 md:grid-cols-[280px_1fr]">
+      <title>Спореди цени | Nutriceni</title>
+
       <FiltersSidebar
         handleSearchFormSubmit={handleSearchFormSubmit}
         inputSearchQuery={searchQuery}
@@ -94,7 +114,7 @@ export default function ComparePrices() {
         handleFilterValueChange={handleFilterChange}
         handleClearInputSearchQuery={handleClearInputSearchQuery}
         filters={filters}
-        setFilters={setFilters}
+        handleClearFilters={handleClearFilters}
       />
 
       <ProductsGrid
@@ -104,6 +124,12 @@ export default function ComparePrices() {
         handlePaginationClick={handleClickPagination}
         isPending={productGroupsQuery.isPending}
         isError={productGroupsQuery.isError}
+        isRefetching={productGroupsQuery.isFetching}
+        handleRetry={() => {
+          void productGroupsQuery.refetch();
+        }}
+        hasActiveSearch={hasActiveSearch}
+        handleResetSearch={handleResetSearch}
       />
     </div>
   );

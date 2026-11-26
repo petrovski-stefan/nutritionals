@@ -1,7 +1,10 @@
 import { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
+import Button from '@/components/ui/Button';
+import LoadingStatus from '@/components/ui/LoadingStatus';
 import Modal from '@/components/ui/Modal';
+import RetryButton from '@/components/ui/RetryButton';
 import StateMessage from '@/components/ui/StateMessage';
 import { useAuthContext } from '@/context/AuthContext';
 import AddProductToMyListModal from '@/features/my-lists/components/AddProductToMyListModal';
@@ -9,12 +12,16 @@ import type { ProductToMyList } from '@/features/my-lists/types';
 import type { BackendProductGroup } from '@/features/products/types/productgroups';
 
 import ProductGroupCard from './ProductGroupCard';
+import ProductGroupCardSkeleton from './ProductGroupCardSkeleton';
+
+const SKELETON_CARDS = 3;
 
 type Props = Readonly<{
   query: string;
   groups: BackendProductGroup[];
   isPending: boolean;
   isError: boolean;
+  handleRetry: () => void;
   onClose: () => void;
 }>;
 
@@ -23,6 +30,7 @@ export default function SmartSearchResultsModal({
   groups,
   isPending,
   isError,
+  handleRetry,
   onClose,
 }: Props) {
   const [productToMyList, setProductToMyList] = useState<ProductToMyList | null>(null);
@@ -48,12 +56,12 @@ export default function SmartSearchResultsModal({
   };
 
   const getTitle = (): string => {
-    if (isPending) return 'Се вчитува ...';
+    if (isPending) return 'Паметниот асистент бара суплементи ...';
     if (isError) return 'Паметно пребарување';
     if (hasGroups) {
       return `Паметниот асистент пронајде ${String(groupsLength)} производи за вашето барање: "${query}".`;
     }
-    return `Паметниот асистент не пронајде производи за вашето барање "${query}". Обидете се повторно.`;
+    return `Не се пронајдени производи за „${query}“`;
   };
 
   if (productToMyList !== null) {
@@ -75,17 +83,36 @@ export default function SmartSearchResultsModal({
       size="xl"
     >
       {isPending && (
-        <StateMessage
-          variant="loading"
-          className="py-10"
-        />
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <LoadingStatus message="Паметниот асистент бара суплементи ..." />
+          {Array.from({ length: SKELETON_CARDS }, (_, index) => (
+            <ProductGroupCardSkeleton key={index} />
+          ))}
+        </div>
       )}
 
       {!isPending && isError && (
         <StateMessage
           variant="error"
-          message="Се случи неочекувана грешка."
-        />
+          message="Паметното пребарување не успеа. Проверете ја врската и обидете се повторно."
+        >
+          <RetryButton onRetry={handleRetry} />
+        </StateMessage>
+      )}
+
+      {!isPending && !isError && !hasGroups && (
+        <StateMessage
+          variant="empty"
+          message="Пробајте да ја опишете целта со други зборови, на пример „подобар сон“ или „повеќе енергија“."
+        >
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={onClose}
+          >
+            Ново пребарување
+          </Button>
+        </StateMessage>
       )}
 
       {!isPending && !isError && hasGroups && (

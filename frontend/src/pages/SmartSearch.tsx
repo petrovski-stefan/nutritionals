@@ -43,6 +43,8 @@ export default function SmartSearch() {
 
   return (
     <div className="flex flex-col items-center">
+      <title>Паметно пребарување | Nutriceni</title>
+
       <Section>
         <h1 className="text-text mx-auto max-w-2xl text-center text-lg font-semibold sm:text-xl md:text-2xl">
           Опишете ја вашата цел, а паметниот асистент ќе ги пронајде најдобрите суплементи за вас.
@@ -56,9 +58,10 @@ export default function SmartSearch() {
               <div className="relative flex-1">
                 <Input
                   type="text"
-                  placeholder="Опишете ја вашата цел ... (пр., посилен имунитет)"
+                  aria-label="Опишете ја вашата цел"
+                  placeholder="пр. посилен имунитет"
                   maxLength={100}
-                  className="pr-11"
+                  className="pr-11 pointer-coarse:pr-12"
                   {...register('query')}
                 />
 
@@ -111,6 +114,9 @@ export default function SmartSearch() {
           groups={smartSearch.data ?? []}
           isPending={smartSearch.isPending}
           isError={smartSearch.isError}
+          handleRetry={() => {
+            if (smartSearch.variables) smartSearch.mutate(smartSearch.variables);
+          }}
           onClose={handleResultsModalOnClose}
         />
       )}

@@ -7,6 +7,7 @@ import Home from '@/pages/Home';
 import HowToUse from '@/pages/HowToUse';
 import Login from '@/pages/Login';
 import MyLists from '@/pages/MyLists';
+import NotFound from '@/pages/NotFound';
 import Register from '@/pages/Register';
 import SmartSearch from '@/pages/SmartSearch';
 
@@ -94,6 +95,12 @@ const routes: Route[] = [
       </AuthGuard>
     ),
     showInHeaderMode: 'showIfAuthOnly',
+  },
+  {
+    linkText: 'Страницата не постои',
+    path: '*',
+    element: <NotFound />,
+    showInHeaderMode: 'hide',
   },
 ];
 

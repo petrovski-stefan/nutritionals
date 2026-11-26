@@ -1,4 +1,5 @@
 import Card from '@/components/ui/Card';
+import { formatDate } from '@/shared/utils/dates';
 
 type Props = Readonly<{
   name: string;
@@ -13,21 +14,16 @@ export default function SupportedPharmacyCard({
   num_products,
   last_scraped_at,
 }: Props) {
-  const lastScrapedAt = last_scraped_at
-    ? new Date(last_scraped_at).toLocaleDateString('en-GB')
-    : '/';
+  const lastScrapedAt = last_scraped_at ? formatDate(last_scraped_at) : '/';
 
   return (
-    <Card
-      hover
-      className="flex size-44 flex-col items-center justify-center gap-3 p-4 sm:size-48"
-    >
-      <p className="line-clamp-2 text-center text-xl font-semibold sm:text-2xl">
+    <Card className="flex aspect-square w-full flex-col items-center justify-center gap-3 p-4 sm:size-48">
+      <p className="line-clamp-2 text-center text-lg font-semibold">
         <a
           href={homepage}
           target="_blank"
           rel="noopener noreferrer"
-          className="text-primary hover:text-accent focus-visible:outline-primary rounded transition-colors hover:underline focus-visible:outline-2 focus-visible:outline-offset-2"
+          className="text-primary focus-visible:outline-primary rounded transition-colors hover:underline focus-visible:outline-2 focus-visible:outline-offset-2"
         >
           {name}
         </a>

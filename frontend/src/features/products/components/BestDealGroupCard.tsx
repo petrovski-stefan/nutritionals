@@ -8,16 +8,14 @@ import { formatPrice } from '@/shared/utils/prices';
 type Props = Readonly<{
   group: BackendDiscountedProductGroup;
   onOpenOffers: (group: BackendDiscountedProductGroup) => void;
+  className?: string;
 }>;
 
-export default function BestDealGroupCard({ group, onOpenOffers }: Props) {
+export default function BestDealGroupCard({ group, onOpenOffers, className = '' }: Props) {
   const { name, brand_name, best_discount_percent, lowest_price, offer_count } = group;
 
   return (
-    <Card
-      hover
-      className="flex w-44 flex-col items-center p-4 sm:w-48"
-    >
+    <Card className={`flex w-full flex-col items-center p-4 sm:w-48 ${className}`}>
       <div className="mb-2 flex w-full justify-center">
         <Badge variant="accent">-{best_discount_percent}%</Badge>
       </div>
@@ -28,20 +26,22 @@ export default function BestDealGroupCard({ group, onOpenOffers }: Props) {
 
       <div className="mb-3 flex min-h-10 w-full flex-col items-center gap-1">
         {brand_name && <p className="text-text-muted truncate text-xs">{brand_name}</p>}
-        <p className="text-accent truncate text-center text-lg font-bold">
+        <p className="text-accent truncate text-center text-lg font-bold tabular-nums">
           од {formatPrice(lowest_price)}
         </p>
       </div>
 
       <button
         type="button"
-        className="bg-primary/10 text-primary hover:bg-primary/20 hover:text-accent focus-visible:outline-primary flex w-full items-center justify-center gap-1 rounded-lg px-3 py-2 text-xs font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2"
+        className="bg-primary/10 text-primary hover:bg-primary/15 focus-visible:outline-primary mt-auto flex w-full items-center justify-center gap-1 rounded-lg px-3 py-2 text-xs font-medium transition duration-150 ease-out focus-visible:outline-2 focus-visible:outline-offset-2 active:scale-[0.98] motion-reduce:transition-none pointer-coarse:py-3"
         onClick={() => {
           onOpenOffers(group);
         }}
       >
         <TagIcon className="h-4 w-4 shrink-0" />
-        <span className="truncate">Спореди {offer_count} понуди</span>
+        <span className="text-center leading-tight">
+          {offer_count === 1 ? 'Види ја понудата' : `Спореди ${String(offer_count)} понуди`}
+        </span>
       </button>
     </Card>
   );

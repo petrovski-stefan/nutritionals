@@ -1,10 +1,15 @@
-import { SearchIcon, XIcon } from 'lucide-react';
-import { type FormEvent, useState } from 'react';
+import { SearchIcon, SlidersHorizontalIcon, XIcon } from 'lucide-react';
+import { type FormEvent, type ReactNode, useState } from 'react';
 
+import Badge from '@/components/ui/Badge';
+import Button from '@/components/ui/Button';
 import Card from '@/components/ui/Card';
 import Checkbox from '@/components/ui/Checkbox';
 import IconButton from '@/components/ui/IconButton';
 import Input from '@/components/ui/Input';
+import RetryButton from '@/components/ui/RetryButton';
+import Skeleton from '@/components/ui/Skeleton';
+import StateMessage from '@/components/ui/StateMessage';
 import Tooltip from '@/components/ui/Tooltip';
 import useBrands from '@/features/products/hooks/useBrands';
 import useCategories from '@/features/products/hooks/useCategories';
@@ -20,12 +25,60 @@ type Props = Readonly<{
   handleFilterValueChange: (key: keyof GroupFilterValue, value: number, isChecked: boolean) => void;
   handleClearInputSearchQuery: () => void;
   filters: GroupFilterValue;
-  setFilters: (value: GroupFilterValue) => void;
+  handleClearFilters: () => void;
 }>;
 
 const filterDisplayedInitialValue = {
   categories: true,
   brands: false,
+};
+
+// Varied widths so the placeholder reads as a list of filter labels
+const FILTER_SKELETON_WIDTHS = ['w-3/4', 'w-1/2', 'w-2/3', 'w-3/5', 'w-2/5'];
+
+type FilterContentArgs = {
+  isPending: boolean;
+  isError: boolean;
+  isRetrying: boolean;
+  onRetry: () => void;
+  errorMessage: string;
+  checkboxes: ReactNode[];
+};
+
+const getFilterContent = ({
+  isPending,
+  isError,
+  isRetrying,
+  onRetry,
+  errorMessage,
+  checkboxes,
+}: FilterContentArgs): ReactNode[] => {
+  if (isPending) {
+    return FILTER_SKELETON_WIDTHS.map((width) => (
+      <Skeleton
+        key={width}
+        className={`h-5 ${width}`}
+      />
+    ));
+  }
+
+  if (isError) {
+    return [
+      <StateMessage
+        key="error"
+        variant="error"
+        message={errorMessage}
+        className="p-2"
+      >
+        <RetryButton
+          onRetry={onRetry}
+          isRetrying={isRetrying}
+        />
+      </StateMessage>,
+    ];
+  }
+
+  return checkboxes;
 };
 
 export default function FiltersSidebar({
@@ -35,13 +88,15 @@ export default function FiltersSidebar({
   handleFilterValueChange,
   handleClearInputSearchQuery,
   filters,
-  setFilters,
+  handleClearFilters,
 }: Props) {
   const [isFilterDisplayed, setIsFilterDisplayed] = useState(filterDisplayedInitialValue);
+  const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false);
 
-  const { data: brands, isError: brandsIsError } = useBrands();
-
-  const { data: categories, isError: categoriesIsError } = useCategories();
+  const brandsQuery = useBrands();
+  const categoriesQuery = useCategories();
+  const brands = brandsQuery.data;
+  const categories = categoriesQuery.data;
 
   const brandFilterCheckboxes = (brands ?? []).map(({ id, name }) => (
     <Checkbox
@@ -65,38 +120,34 @@ export default function FiltersSidebar({
     />
   ));
 
-  const categoriesContent = categoriesIsError
-    ? [
-        <p
-          key="categories-error"
-          className="text-danger text-sm"
-        >
-          Се случи неочекувана грешка
-        </p>,
-      ]
-    : categoryFilterCheckboxes;
+  const categoriesContent = getFilterContent({
+    isPending: categoriesQuery.isPending,
+    isError: categoriesQuery.isError,
+    isRetrying: categoriesQuery.isFetching,
+    onRetry: () => {
+      void categoriesQuery.refetch();
+    },
+    errorMessage: 'Категориите не можеа да се вчитаат.',
+    checkboxes: categoryFilterCheckboxes,
+  });
 
-  const brandsContent = brandsIsError
-    ? [
-        <p
-          key="brands-error"
-          className="text-danger text-sm"
-        >
-          Се случи неочекувана грешка
-        </p>,
-      ]
-    : brandFilterCheckboxes;
+  const brandsContent = getFilterContent({
+    isPending: brandsQuery.isPending,
+    isError: brandsQuery.isError,
+    isRetrying: brandsQuery.isFetching,
+    onRetry: () => {
+      void brandsQuery.refetch();
+    },
+    errorMessage: 'Брендовите не можеа да се вчитаат.',
+    checkboxes: brandFilterCheckboxes,
+  });
 
   const handleFilterDisplayToggle = (key: keyof GroupFilterDisplay) => {
     setIsFilterDisplayed((prev) => ({ ...prev, [key]: !prev[key] }));
   };
 
-  const handleClearFilters = () => {
-    if (filters.brandIds.length === 0 && filters.categoryIds.length === 0) {
-      return;
-    }
-    setFilters({ brandIds: [], categoryIds: [] });
-  };
+  const activeFiltersCount = filters.brandIds.length + filters.categoryIds.length;
+  const hasActiveFilters = activeFiltersCount > 0;
 
   return (
     <Card className="flex h-fit flex-col gap-5 p-5 md:sticky md:top-20">
@@ -107,9 +158,10 @@ export default function FiltersSidebar({
         <Input
           type="text"
           name="query"
-          placeholder="Пример. Vitamin C"
+          aria-label="Пребарај суплементи"
+          placeholder="пр. Vitamin C"
           value={inputSearchQuery || ''}
-          className="pr-20 text-sm"
+          className="pr-20 pointer-coarse:pr-24"
           onChange={(e) => {
             setInputSearchQuery(e.target.value);
           }}
@@ -140,31 +192,57 @@ export default function FiltersSidebar({
         </div>
       </form>
 
-      <div className="text-center">
-        <button
-          onClick={handleClearFilters}
-          className="text-info hover:text-accent focus-visible:outline-primary cursor-pointer rounded text-sm font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2"
-        >
-          [Избриши ги сите филтери]
-        </button>
-      </div>
-
-      <div className="flex flex-col gap-5">
-        <CheckboxesFilter
-          filterTitle="Филтрирај по категорија"
-          filterType="categories"
-          checkboxes={categoriesContent}
-          handleFilterDisplayToggle={handleFilterDisplayToggle}
-          isFilterDisplayed={isFilterDisplayed}
+      {/* Below md the filters stay closed, so the results start on the first screen */}
+      <Button
+        variant="outline"
+        className="w-full md:hidden"
+        aria-expanded={isMobileFiltersOpen}
+        aria-controls="compare-filters"
+        onClick={() => {
+          setIsMobileFiltersOpen((prev) => !prev);
+        }}
+      >
+        <SlidersHorizontalIcon
+          aria-hidden="true"
+          className="h-4 w-4"
         />
+        {isMobileFiltersOpen ? 'Сокриј ги филтрите' : 'Филтри'}
+        {hasActiveFilters && <Badge variant="success">{activeFiltersCount}</Badge>}
+      </Button>
 
-        <CheckboxesFilter
-          filterTitle="Филтрирај по бренд"
-          filterType="brands"
-          checkboxes={brandsContent}
-          handleFilterDisplayToggle={handleFilterDisplayToggle}
-          isFilterDisplayed={isFilterDisplayed}
-        />
+      <div
+        id="compare-filters"
+        className={`${isMobileFiltersOpen ? 'flex' : 'hidden'} flex-col gap-5 md:flex`}
+      >
+        <div className="text-center">
+          {/* Disabled rather than hidden, so the filter lists do not jump when the first one is set */}
+          <button
+            type="button"
+            disabled={!hasActiveFilters}
+            onClick={handleClearFilters}
+            className="text-info focus-visible:outline-primary rounded px-2 py-2 text-sm font-medium transition duration-150 ease-out focus-visible:outline-2 focus-visible:outline-offset-2 enabled:hover:underline enabled:active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 motion-reduce:transition-none"
+          >
+            Исчисти ги филтрите
+          </button>
+        </div>
+
+        <div className="flex flex-col gap-5">
+          <CheckboxesFilter
+            filterTitle="Филтрирај по категорија"
+            filterType="categories"
+            checkboxes={categoriesContent}
+            handleFilterDisplayToggle={handleFilterDisplayToggle}
+            isFilterDisplayed={isFilterDisplayed}
+          />
+
+          <CheckboxesFilter
+            filterTitle="Филтрирај по бренд"
+            filterType="brands"
+            checkboxes={brandsContent}
+            handleFilterDisplayToggle={handleFilterDisplayToggle}
+            isFilterDisplayed={isFilterDisplayed}
+          />
+        </div>
       </div>
     </Card>
   );

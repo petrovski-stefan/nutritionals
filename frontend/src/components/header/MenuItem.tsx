@@ -7,7 +7,7 @@ type Props = Readonly<{
 }>;
 
 const BASE_CLASSES =
-  'block rounded-lg px-3 py-2 text-sm font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white';
+  'block rounded-lg px-3 py-2 text-sm pointer-coarse:py-3 font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white';
 
 export default function MenuItem({ path, linkText, handleLinkClick }: Props) {
   return (
@@ -17,7 +17,7 @@ export default function MenuItem({ path, linkText, handleLinkClick }: Props) {
       className={({ isActive }) =>
         `${BASE_CLASSES} ${
           isActive
-            ? 'text-accent bg-white/15 font-bold'
+            ? 'bg-white/15 font-bold text-white'
             : 'text-white/90 hover:bg-white/10 hover:text-white'
         }`
       }
