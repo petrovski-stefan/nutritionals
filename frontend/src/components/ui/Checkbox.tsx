@@ -16,7 +16,7 @@ export default function Checkbox({ label, checked, onChange, className = '' }: P
         onChange={(e) => {
           onChange(e.target.checked);
         }}
-        className="accent-primary border-border focus-visible:outline-primary h-4 w-4 rounded focus-visible:outline-2 focus-visible:outline-offset-2"
+        className="accent-primary border-border focus-visible:outline-primary h-4 w-4 cursor-pointer rounded focus-visible:outline-2 focus-visible:outline-offset-2"
       />
       <span>{label}</span>
     </label>

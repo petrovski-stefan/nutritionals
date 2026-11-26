@@ -12,7 +12,7 @@ const CHIP_BASE_CLASSES =
 const getChipClasses = (isSelected: boolean) =>
   isSelected
     ? `${CHIP_BASE_CLASSES} border-primary bg-primary/10 text-primary`
-    : `${CHIP_BASE_CLASSES} border-border text-text-muted hover:border-primary hover:text-primary hover:cursor-pointer`;
+    : `${CHIP_BASE_CLASSES} border-border text-text-muted hover:border-primary hover:text-primary`;
 
 export default function CategoryChips({ categories, selectedCategoryId, onSelect }: Props) {
   if (categories.length === 0) {

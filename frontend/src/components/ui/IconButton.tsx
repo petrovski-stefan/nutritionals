@@ -40,7 +40,7 @@ export default function IconButton({
     <button
       type={type}
       aria-label={label}
-      className={`inline-flex cursor-pointer items-center justify-center rounded-full transition duration-150 ease-out focus-visible:outline-2 focus-visible:outline-offset-2 enabled:active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 motion-reduce:transition-none ${VARIANT_CLASSES[variant]} ${SIZE_CLASSES[size]} ${className}`}
+      className={`inline-flex items-center justify-center rounded-full transition duration-150 ease-out focus-visible:outline-2 focus-visible:outline-offset-2 enabled:active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 motion-reduce:transition-none ${VARIANT_CLASSES[variant]} ${SIZE_CLASSES[size]} ${className}`}
       {...rest}
     >
       {children}

@@ -90,3 +90,12 @@
   --color-warning: var(--warning);
   --color-danger: var(--danger);
 }
+
+/* Tailwind v4 gives buttons the default cursor; restore the pointer for every clickable
+   button, including raw <button> elements. Disabled ones keep `disabled:cursor-not-allowed` */
+@layer base {
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+}

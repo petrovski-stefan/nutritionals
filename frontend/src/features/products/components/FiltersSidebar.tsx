@@ -220,7 +220,7 @@ export default function FiltersSidebar({
             type="button"
             disabled={!hasActiveFilters}
             onClick={handleClearFilters}
-            className="text-info focus-visible:outline-primary cursor-pointer rounded px-2 py-2 text-sm font-medium transition duration-150 ease-out focus-visible:outline-2 focus-visible:outline-offset-2 enabled:hover:underline enabled:active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 motion-reduce:transition-none"
+            className="text-info focus-visible:outline-primary rounded px-2 py-2 text-sm font-medium transition duration-150 ease-out focus-visible:outline-2 focus-visible:outline-offset-2 enabled:hover:underline enabled:active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 motion-reduce:transition-none"
           >
             Исчисти ги филтрите
           </button>
