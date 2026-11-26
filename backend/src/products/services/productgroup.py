@@ -6,8 +6,11 @@ from django.contrib.postgres.search import TrigramSimilarity
 from django.db.models import (
     Case,
     Count,
+    F,
     Max,
     Min,
+    OrderBy,
+    OuterRef,
     Prefetch,
     Q,
     QuerySet,
@@ -37,16 +40,68 @@ def _public_products_prefetch() -> Prefetch:
     )
 
 
-def list_productgroups(*, q: str | None = None) -> QuerySet[ProductGroup]:
+# "price": lowest current price first. "discount": best discount first
+ProductGroupOrdering = Literal["price", "discount"]
+
+
+def _lowest_price_subquery() -> Subquery:
+    """
+    The group's lowest current price over all its public products. A subquery, not an
+    aggregate: when searching, the group's product join is narrowed to the matching products,
+    but the price shown and sorted on is the cheapest of every offer
+    """
+
+    return Subquery(
+        Product.objects.public()
+        .filter(group=OuterRef("pk"))
+        .annotate(current_price=Coalesce("discount_price", "price"))
+        .order_by("current_price")
+        .values("current_price")[:1]
+    )
+
+
+def _best_discount_subquery() -> Subquery:
+    """The best discount percent among the group's public discounted products"""
+
+    return Subquery(
+        Product.objects.public()
+        .filter(group=OuterRef("pk"), discount_price__isnull=False)
+        .annotate(percent=discount_percent())
+        .order_by("-percent")
+        .values("percent")[:1]
+    )
+
+
+def _ordering_annotations(
+    *, ordering: ProductGroupOrdering
+) -> tuple[dict[str, Subquery], list[OrderBy | str]]:
+    """What the ordering sorts on, and the order. Groups without a value go last; id breaks ties"""
+
+    if ordering == "price":
+        return (
+            {"lowest_price": _lowest_price_subquery()},
+            [F("lowest_price").asc(nulls_last=True), "id"],
+        )
+
+    return (
+        {"best_discount_percent": _best_discount_subquery()},
+        [F("best_discount_percent").desc(nulls_last=True), "id"],
+    )
+
+
+def list_productgroups(
+    *, q: str | None = None, ordering: ProductGroupOrdering | None = None
+) -> QuerySet[ProductGroup]:
     """
     Return public groups for the group list endpoint, ordered by product count, then id.
     With a non-blank q, keep only the groups holding a public product that matches q,
-    ordered by their best matching product, then by how many products match
+    ordered by their best matching product, then by how many products match.
+    An explicit ordering (price, discount) replaces either default order
     """
 
     qs = ProductGroup.objects.public()
     # id breaks ties, so a group can't move between pages from one request to the next
-    ordering = ["-product_count", "id"]
+    default_ordering: list[OrderBy | str] = ["-product_count", "id"]
 
     if q and q.strip():
         latin_q = product_service.normalize_search_query(q=q)
@@ -63,13 +118,18 @@ def list_productgroups(*, q: str | None = None) -> QuerySet[ProductGroup]:
                 best_match_score=Max(search_match_score(latin_q=latin_q, prefix="product__"))
             )
         )
-        ordering = ["-best_match_score", "-product_count", "id"]
+        default_ordering = ["-best_match_score", "-product_count", "id"]
+
+    order_by: list[OrderBy | str] = default_ordering
+    if ordering is not None:
+        annotations, order_by = _ordering_annotations(ordering=ordering)
+        qs = qs.annotate(**annotations)
 
     return (
         qs.with_product_count()
         .select_related("brand")
         .prefetch_related(_public_products_prefetch(), "categories")
-        .order_by(*ordering)
+        .order_by(*order_by)
     )
 
 

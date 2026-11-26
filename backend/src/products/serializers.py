@@ -1,6 +1,9 @@
+from typing import get_args
+
 from rest_framework import serializers
 
 from .models import Brand, Category, Pharmacy, Product, ProductGroup
+from .services.productgroup import ProductGroupOrdering
 
 
 class BrandListSerializer(serializers.ModelSerializer):
@@ -71,6 +74,13 @@ class DiscountedProductGroupsInputSerializer(serializers.Serializer):
         source="category",
         required=False,
         write_only=True,
+    )
+
+
+class ProductGroupListInputSerializer(serializers.Serializer):
+    # Absent: the default order (best match when searching, otherwise most offers)
+    ordering = serializers.ChoiceField(
+        choices=get_args(ProductGroupOrdering), required=False, write_only=True
     )
 
 

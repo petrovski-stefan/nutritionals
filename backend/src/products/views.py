@@ -14,6 +14,7 @@ from .serializers import (
     DiscountedProductGroupSerializer,
     DiscountedProductGroupsInputSerializer,
     PharmacyListSerializer,
+    ProductGroupListInputSerializer,
     ProductGroupListSerializer,
     ProductSmartSearchInputSerializer,
 )
@@ -87,6 +88,10 @@ class ProductGroupListAPIView(NoAuthMixin, ListAPIView):
     pagination_class = ProductGroupPagePagination
 
     def get_queryset(self) -> QuerySet:
-        q = self.request.query_params.get("q", None)
+        input_serializer = ProductGroupListInputSerializer(data=self.request.query_params)
+        input_serializer.is_valid(raise_exception=True)
 
-        return productgroup_service.list_productgroups(q=q)
+        q = self.request.query_params.get("q", None)
+        ordering = input_serializer.validated_data.get("ordering")
+
+        return productgroup_service.list_productgroups(q=q, ordering=ordering)

@@ -81,6 +81,29 @@ class TestProductGroupList:
         assert first["next"] is not None
         assert {g["id"] for g in first["results"]}.isdisjoint(g["id"] for g in second["results"])
 
+    def test_takes_a_page_size_capped_at_24(self, api_client: APIClient) -> None:
+        ProductGroupFactory.create_batch(25)
+
+        twelve = data(api_client.get(GROUPS_URL, {"page_size": 12}))
+        capped = data(api_client.get(GROUPS_URL, {"page_size": 100}))
+
+        assert (len(twelve["results"]), len(capped["results"])) == (12, 24)
+
+    def test_orders_by_price(self, api_client: APIClient) -> None:
+        dear, cheap = ProductGroupFactory(), ProductGroupFactory()
+        ProductFactory(group=dear, price=900.0)
+        ProductFactory(group=cheap, price=100.0)
+
+        page = data(api_client.get(GROUPS_URL, {"ordering": "price"}))
+
+        assert [g["id"] for g in page["results"]] == [cheap.pk, dear.pk]
+
+    def test_rejects_an_unknown_ordering(self, api_client: APIClient) -> None:
+        response = api_client.get(GROUPS_URL, {"ordering": "name"})
+
+        assert response.status_code == 400
+        assert errors(response) == {("ordering", "invalid_choice")}
+
     def test_filters_by_brands(self, api_client: APIClient) -> None:
         first, second = BrandFactory(), BrandFactory()
         kept = [ProductGroupFactory(brand=first), ProductGroupFactory(brand=second)]

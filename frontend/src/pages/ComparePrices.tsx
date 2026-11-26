@@ -5,7 +5,7 @@ import FiltersSidebar from '@/features/products/components/FiltersSidebar';
 import ProductsGrid from '@/features/products/components/ProductsGrid';
 import useCompareSearchParams from '@/features/products/hooks/useCompareSearchParams';
 import useProductGroups from '@/features/products/hooks/useProductGroups';
-import { MIN_SEARCH_QUERY_LENGTH } from '@/features/products/schemas';
+import { type GroupOrdering, MIN_SEARCH_QUERY_LENGTH } from '@/features/products/schemas';
 import type { GroupFilterValue } from '@/features/products/types/productgroups';
 
 const filtersDefault: GroupFilterValue = {
@@ -13,12 +13,14 @@ const filtersDefault: GroupFilterValue = {
   categoryIds: [],
 };
 
-const PAGE_SIZE = 6;
+// Four rows of three on wide screens; the API allows up to 24
+const PAGE_SIZE = 12;
 
 export default function ComparePrices() {
   const {
     query: submittedQuery,
     filters,
+    ordering,
     page: currentPage,
     updateSearchParams,
   } = useCompareSearchParams();
@@ -34,7 +36,11 @@ export default function ComparePrices() {
     setSearchQuery(submittedQuery);
   }
 
-  const productGroupsQuery = useProductGroups(submittedQuery, filters, currentPage);
+  const productGroupsQuery = useProductGroups(submittedQuery, filters, {
+    page: currentPage,
+    pageSize: PAGE_SIZE,
+    ordering,
+  });
 
   const groups = productGroupsQuery.data?.results ?? [];
   const totalCount = productGroupsQuery.data?.count ?? 0;
@@ -77,6 +83,10 @@ export default function ComparePrices() {
   const handleResetSearch = () => {
     setSearchQuery('');
     updateSearchParams({ query: '', filters: filtersDefault, page: 1 });
+  };
+
+  const handleSortChange = (nextOrdering: GroupOrdering | null) => {
+    updateSearchParams({ ordering: nextOrdering, page: 1 });
   };
 
   const hasActiveSearch =
@@ -123,6 +133,8 @@ export default function ComparePrices() {
         groups={groups}
         totalCount={totalCount}
         query={submittedQuery}
+        ordering={ordering}
+        handleSortChange={handleSortChange}
         totalPages={totalPages}
         currentPage={currentPage}
         handlePaginationClick={handleClickPagination}
