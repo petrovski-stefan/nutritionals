@@ -35,7 +35,7 @@ export default function BestDealGroupCard({ group, onOpenOffers }: Props) {
 
       <button
         type="button"
-        className="bg-primary/10 text-primary hover:bg-primary/15 focus-visible:outline-primary mt-auto flex w-full items-center justify-center gap-1 rounded-lg px-3 py-2 text-xs font-medium transition duration-150 ease-out focus-visible:outline-2 focus-visible:outline-offset-2 active:scale-[0.98] motion-reduce:transition-none"
+        className="bg-primary/10 text-primary hover:bg-primary/15 focus-visible:outline-primary mt-auto flex w-full items-center justify-center gap-1 rounded-lg px-3 py-2 text-xs font-medium transition duration-150 ease-out focus-visible:outline-2 focus-visible:outline-offset-2 active:scale-[0.98] motion-reduce:transition-none pointer-coarse:py-3"
         onClick={() => {
           onOpenOffers(group);
         }}

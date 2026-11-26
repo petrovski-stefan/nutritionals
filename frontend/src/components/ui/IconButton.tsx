@@ -15,8 +15,8 @@ const VARIANT_CLASSES: Record<Variant, string> = {
 };
 
 const SIZE_CLASSES: Record<Size, string> = {
-  sm: 'p-1.5',
-  md: 'p-2',
+  sm: 'p-1.5 pointer-coarse:p-2.5',
+  md: 'p-2 pointer-coarse:p-3',
 };
 
 type Props = Readonly<

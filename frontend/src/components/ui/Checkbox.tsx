@@ -8,7 +8,7 @@ type Props = Readonly<{
 export default function Checkbox({ label, checked, onChange, className = '' }: Props) {
   return (
     <label
-      className={`text-text hover:text-primary flex cursor-pointer items-center gap-2 text-sm transition-colors ${className}`}
+      className={`text-text hover:text-primary flex cursor-pointer items-center gap-2 py-1.5 text-sm transition-colors ${className}`}
     >
       <input
         type="checkbox"

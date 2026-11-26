@@ -7,7 +7,7 @@ type Props = Readonly<{
 }>;
 
 const CHIP_BASE_CLASSES =
-  'focus-visible:outline-primary rounded-full border px-3 py-1.5 text-sm font-medium transition duration-150 ease-out focus-visible:outline-2 active:scale-95 motion-reduce:transition-none focus-visible:outline-offset-2';
+  'focus-visible:outline-primary rounded-full border px-3 py-1.5 text-sm pointer-coarse:py-2.5 font-medium transition duration-150 ease-out focus-visible:outline-2 active:scale-95 motion-reduce:transition-none focus-visible:outline-offset-2';
 
 const getChipClasses = (isSelected: boolean) =>
   isSelected

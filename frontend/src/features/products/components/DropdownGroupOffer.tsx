@@ -22,7 +22,7 @@ export default function DropdownGroupOffer({
           href={url}
           target="_blank"
           rel="noopener noreferrer"
-          className="text-primary focus-visible:outline-primary truncate rounded text-sm font-medium hover:underline focus-visible:outline-2 focus-visible:outline-offset-2"
+          className="text-primary focus-visible:outline-primary truncate rounded py-1 text-sm font-medium hover:underline focus-visible:outline-2 focus-visible:outline-offset-2"
         >
           {pharmacy_name}
         </a>

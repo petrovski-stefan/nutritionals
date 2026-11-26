@@ -28,7 +28,7 @@ export default function AuthPrompt({ type }: Props) {
       <NavLink
         to={to}
         state={location.state as unknown}
-        className="text-info focus-visible:outline-primary rounded font-medium hover:underline focus-visible:outline-2 focus-visible:outline-offset-2"
+        className="text-info focus-visible:outline-primary inline-block rounded py-2 font-medium hover:underline focus-visible:outline-2 focus-visible:outline-offset-2"
       >
         {actionText}
       </NavLink>

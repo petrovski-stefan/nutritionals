@@ -84,7 +84,7 @@ export default function Home() {
               aria-label="Пребарај суплементи"
               placeholder="Пребарај суплементи..."
               value={searchQuery}
-              className="border-0 pr-12"
+              className="border-0 pr-12 pointer-coarse:pr-16"
               onChange={(e) => {
                 setSearchQuery(e.target.value);
               }}
