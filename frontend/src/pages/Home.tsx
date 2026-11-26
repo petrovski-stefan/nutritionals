@@ -3,21 +3,33 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 
 import PriceTransparencySection from '@/components/home/PriceTransparencySection';
+import SectionCtaLink from '@/components/home/SectionCtaLink';
 import Section from '@/components/layout/Section';
 import Card from '@/components/ui/Card';
 import IconButton from '@/components/ui/IconButton';
 import Input from '@/components/ui/Input';
+import LoadingStatus from '@/components/ui/LoadingStatus';
+import RetryButton from '@/components/ui/RetryButton';
 import StateMessage from '@/components/ui/StateMessage';
 import Tooltip from '@/components/ui/Tooltip';
 import SupportedPharmacyCard from '@/features/pharmacies/components/SupportedPharmacyCard';
+import SupportedPharmacyCardSkeleton from '@/features/pharmacies/components/SupportedPharmacyCardSkeleton';
 import usePharmacies from '@/features/pharmacies/hooks/usePharmacies';
 import BestDealGroupCard from '@/features/products/components/BestDealGroupCard';
+import BestDealGroupCardSkeleton from '@/features/products/components/BestDealGroupCardSkeleton';
 import CategoryChips from '@/features/products/components/CategoryChips';
+import CategoryChipsSkeleton from '@/features/products/components/CategoryChipsSkeleton';
 import DropdownProductGroup from '@/features/products/components/DropdownProductGroup';
+import DropdownProductGroupSkeleton from '@/features/products/components/DropdownProductGroupSkeleton';
 import GroupOffersModal from '@/features/products/components/GroupOffersModal';
 import useDiscountedProductGroups from '@/features/products/hooks/useDiscountedProductGroups';
 import useProductGroupsSearch from '@/features/products/hooks/useProductGroupsSearch';
 import type { BackendDiscountedProductGroup } from '@/features/products/types/productgroups';
+
+// Skeleton counts approximate a typical first load of each section
+const SKELETON_SEARCH_ROWS = 3;
+const SKELETON_DEAL_CARDS = 6;
+const SKELETON_PHARMACY_CARDS = 4;
 
 export default function Home() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -29,6 +41,8 @@ export default function Home() {
     isError: pharmaciesIsError,
     isPending: pharmaciesIsPending,
     isSuccess: pharmaciesIsSuccess,
+    isFetching: pharmaciesIsFetching,
+    refetch: refetchPharmacies,
   } = usePharmacies();
 
   const {
@@ -36,6 +50,8 @@ export default function Home() {
     isError: discountedGroupsIsError,
     isPending: discountedGroupsIsPending,
     isSuccess: discountedGroupsIsSuccess,
+    isFetching: discountedGroupsIsFetching,
+    refetch: refetchDiscountedGroups,
   } = useDiscountedProductGroups(selectedCategoryId);
 
   const shouldSearch = searchQuery.length > 2;
@@ -45,6 +61,8 @@ export default function Home() {
     isSuccess: groupsSearchIsSuccess,
     isPending: groupsSearchIsPending,
     isError: groupsSearchIsError,
+    isFetching: groupsSearchIsFetching,
+    refetch: refetchGroupsSearch,
   } = useProductGroupsSearch(searchQuery, shouldSearch);
 
   return (
@@ -104,13 +122,29 @@ export default function Home() {
               {groupsSearchIsSuccess && searchedGroups.results.length === 0 && (
                 <StateMessage
                   variant="empty"
-                  message="Не беа пронајдени производи со вашето пребарување. Обидете се повторно."
+                  message={`Нема производи за „${searchQuery}“. Пробајте со друг збор или со паметното пребарување.`}
                 />
               )}
 
-              {groupsSearchIsPending && <StateMessage variant="loading" />}
+              {groupsSearchIsPending && (
+                <>
+                  <LoadingStatus />
+                  {Array.from({ length: SKELETON_SEARCH_ROWS }, (_, index) => (
+                    <DropdownProductGroupSkeleton key={index} />
+                  ))}
+                </>
+              )}
 
-              {groupsSearchIsError && <StateMessage variant="error" />}
+              {groupsSearchIsError && (
+                <StateMessage variant="error">
+                  <RetryButton
+                    onRetry={() => {
+                      void refetchGroupsSearch();
+                    }}
+                    isRetrying={groupsSearchIsFetching}
+                  />
+                </StateMessage>
+              )}
             </div>
           )}
         </div>
@@ -152,13 +186,34 @@ export default function Home() {
         {discountedGroupsIsSuccess && discountedGroups.results.length === 0 && (
           <StateMessage
             variant="empty"
-            message="Денес нема суплементи на попуст. Проверете утре повторно."
-          />
+            message="Денес нема суплементи на попуст. Цените се ажурираат секој ден."
+          >
+            <SectionCtaLink to="/compare">Спореди ги сите цени</SectionCtaLink>
+          </StateMessage>
         )}
 
-        {discountedGroupsIsPending && <StateMessage variant="loading" />}
+        {discountedGroupsIsPending && (
+          <>
+            <LoadingStatus />
+            <CategoryChipsSkeleton />
+            <div className="flex flex-wrap justify-center gap-5">
+              {Array.from({ length: SKELETON_DEAL_CARDS }, (_, index) => (
+                <BestDealGroupCardSkeleton key={index} />
+              ))}
+            </div>
+          </>
+        )}
 
-        {discountedGroupsIsError && <StateMessage variant="error" />}
+        {discountedGroupsIsError && (
+          <StateMessage variant="error">
+            <RetryButton
+              onRetry={() => {
+                void refetchDiscountedGroups();
+              }}
+              isRetrying={discountedGroupsIsFetching}
+            />
+          </StateMessage>
+        )}
       </Section>
 
       {openedGroup !== null && (
@@ -187,9 +242,32 @@ export default function Home() {
           </div>
         )}
 
-        {pharmaciesIsPending && <StateMessage variant="loading" />}
+        {pharmaciesIsSuccess && pharmacies.length === 0 && (
+          <StateMessage
+            variant="empty"
+            message="Моментално нема поддржани аптеки."
+          />
+        )}
 
-        {pharmaciesIsError && <StateMessage variant="error" />}
+        {pharmaciesIsPending && (
+          <div className="flex flex-wrap justify-center gap-5">
+            <LoadingStatus />
+            {Array.from({ length: SKELETON_PHARMACY_CARDS }, (_, index) => (
+              <SupportedPharmacyCardSkeleton key={index} />
+            ))}
+          </div>
+        )}
+
+        {pharmaciesIsError && (
+          <StateMessage variant="error">
+            <RetryButton
+              onRetry={() => {
+                void refetchPharmacies();
+              }}
+              isRetrying={pharmaciesIsFetching}
+            />
+          </StateMessage>
+        )}
       </Section>
     </div>
   );

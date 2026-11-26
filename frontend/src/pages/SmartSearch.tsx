@@ -112,6 +112,9 @@ export default function SmartSearch() {
           groups={smartSearch.data ?? []}
           isPending={smartSearch.isPending}
           isError={smartSearch.isError}
+          handleRetry={() => {
+            if (smartSearch.variables) smartSearch.mutate(smartSearch.variables);
+          }}
           onClose={handleResultsModalOnClose}
         />
       )}

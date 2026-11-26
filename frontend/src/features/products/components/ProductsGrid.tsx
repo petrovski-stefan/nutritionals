@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 import Button from '@/components/ui/Button';
+import LoadingStatus from '@/components/ui/LoadingStatus';
+import RetryButton from '@/components/ui/RetryButton';
 import StateMessage from '@/components/ui/StateMessage';
 import { useAuthContext } from '@/context/AuthContext';
 import AddProductToMyListModal from '@/features/my-lists/components/AddProductToMyListModal';
@@ -9,6 +11,10 @@ import type { ProductToMyList } from '@/features/my-lists/types';
 import type { BackendProductGroup } from '@/features/products/types/productgroups';
 
 import ProductGroupCard from './ProductGroupCard';
+import ProductGroupCardSkeleton from './ProductGroupCardSkeleton';
+
+// Matches the page size of the product-groups endpoint
+const SKELETON_CARDS = 6;
 
 type Props = Readonly<{
   groups: BackendProductGroup[];
@@ -17,6 +23,10 @@ type Props = Readonly<{
   handlePaginationClick: (back: boolean) => void;
   isPending: boolean;
   isError: boolean;
+  isRefetching: boolean;
+  handleRetry: () => void;
+  hasActiveSearch: boolean;
+  handleResetSearch: () => void;
 }>;
 
 export default function ProductsGrid({
@@ -26,6 +36,10 @@ export default function ProductsGrid({
   handlePaginationClick,
   isPending,
   isError,
+  isRefetching,
+  handleRetry,
+  hasActiveSearch,
+  handleResetSearch,
 }: Props) {
   const [productToMyList, setProductToMyList] = useState<ProductToMyList | null>(null);
 
@@ -72,22 +86,40 @@ export default function ProductsGrid({
       {!isPending && !isError && groups.length === 0 && (
         <StateMessage
           variant="empty"
-          message="Нема резултати за вашето пребарување."
-        />
+          message={
+            hasActiveSearch
+              ? 'Нема производи што одговараат на пребарувањето и филтрите.'
+              : 'Моментално нема производи.'
+          }
+        >
+          {hasActiveSearch && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleResetSearch}
+            >
+              Исчисти пребарување и филтри
+            </Button>
+          )}
+        </StateMessage>
       )}
 
       {isPending && (
-        <StateMessage
-          variant="loading"
-          className="py-16"
-        />
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3">
+          <LoadingStatus />
+          {Array.from({ length: SKELETON_CARDS }, (_, index) => (
+            <ProductGroupCardSkeleton key={index} />
+          ))}
+        </div>
       )}
 
       {isError && (
-        <StateMessage
-          variant="error"
-          message="Се случи неочекувана грешка"
-        />
+        <StateMessage variant="error">
+          <RetryButton
+            onRetry={handleRetry}
+            isRetrying={isRefetching}
+          />
+        </StateMessage>
       )}
 
       {!isPending && !isError && groups.length > 0 && (

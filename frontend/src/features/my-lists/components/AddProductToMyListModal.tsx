@@ -2,7 +2,10 @@ import { FolderPlusIcon } from 'lucide-react';
 import { useMemo, useState } from 'react';
 
 import Button from '@/components/ui/Button';
+import LoadingStatus from '@/components/ui/LoadingStatus';
 import Modal from '@/components/ui/Modal';
+import RetryButton from '@/components/ui/RetryButton';
+import Skeleton from '@/components/ui/Skeleton';
 import Spinner from '@/components/ui/Spinner';
 import StateMessage from '@/components/ui/StateMessage';
 import { useAuthContext } from '@/context/AuthContext';
@@ -13,6 +16,8 @@ import useMyLists from '@/features/my-lists/hooks/useMyLists';
 import type { ProductToMyList } from '@/features/my-lists/types';
 
 import MyListNameForm from './MyListNameForm';
+
+const SKELETON_LIST_BUTTONS = 3;
 
 type Props = Readonly<{
   productToMyList: ProductToMyList;
@@ -86,8 +91,15 @@ export default function AddProductToMyListModal({
       {myListsQuery.isError && (
         <StateMessage
           variant="error"
-          message="Се случи неочекувана грешка"
-        />
+          message="Листите не можеа да се вчитаат."
+        >
+          <RetryButton
+            onRetry={() => {
+              void myListsQuery.refetch();
+            }}
+            isRetrying={myListsQuery.isFetching}
+          />
+        </StateMessage>
       )}
       {addProductErrorMessage && (
         <StateMessage
@@ -98,10 +110,15 @@ export default function AddProductToMyListModal({
       )}
 
       {myListsQuery.isPending && (
-        <StateMessage
-          variant="loading"
-          className="p-4"
-        />
+        <div className="mb-4 flex flex-col gap-2">
+          <LoadingStatus />
+          {Array.from({ length: SKELETON_LIST_BUTTONS }, (_, index) => (
+            <Skeleton
+              key={index}
+              className="h-10 w-full"
+            />
+          ))}
+        </div>
       )}
 
       {isMutationPending && (

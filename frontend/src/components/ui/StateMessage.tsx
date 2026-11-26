@@ -1,15 +1,14 @@
-import Spinner from './Spinner';
+import type { ReactNode } from 'react';
 
-type Variant = 'loading' | 'empty' | 'error';
+// Loading states use skeletons (Skeleton + LoadingStatus), not this component
+type Variant = 'empty' | 'error';
 
 const DEFAULT_MESSAGES: Record<Variant, string> = {
-  loading: 'Се вчитува ...',
   empty: 'Нема резултати.',
-  error: 'Се случи неочекувана грешка. Обидете се повторно.',
+  error: 'Податоците не можеа да се вчитаат. Проверете ја врската и обидете се повторно.',
 };
 
 const TEXT_CLASSES: Record<Variant, string> = {
-  loading: 'text-text-muted',
   empty: 'text-text-muted',
   error: 'text-danger',
 };
@@ -18,13 +17,20 @@ type Props = Readonly<{
   variant: Variant;
   message?: string;
   className?: string;
+  // The next step: a RetryButton for errors, a link or button for empty states
+  children?: ReactNode;
 }>;
 
-export default function StateMessage({ variant, message, className = '' }: Props) {
+export default function StateMessage({ variant, message, className = '', children }: Props) {
   return (
     <div className={`flex flex-col items-center justify-center gap-3 p-6 text-center ${className}`}>
-      {variant === 'loading' && <Spinner />}
-      <p className={`text-sm ${TEXT_CLASSES[variant]}`}>{message ?? DEFAULT_MESSAGES[variant]}</p>
+      <p
+        role={variant === 'error' ? 'alert' : undefined}
+        className={`text-sm ${TEXT_CLASSES[variant]}`}
+      >
+        {message ?? DEFAULT_MESSAGES[variant]}
+      </p>
+      {children}
     </div>
   );
 }

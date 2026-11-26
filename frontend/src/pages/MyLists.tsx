@@ -1,14 +1,19 @@
 import { PlusIcon } from 'lucide-react';
 import { useMemo, useState } from 'react';
 
+import SectionCtaLink from '@/components/home/SectionCtaLink';
 import Button from '@/components/ui/Button';
 import Card from '@/components/ui/Card';
+import LoadingStatus from '@/components/ui/LoadingStatus';
+import RetryButton from '@/components/ui/RetryButton';
 import StateMessage from '@/components/ui/StateMessage';
 import { useAuthContext } from '@/context/AuthContext';
 import CreateUpdateMyListModal from '@/features/my-lists/components/CreateUpdateMyListModal';
 import DeleteMyListModal from '@/features/my-lists/components/DeleteMyListModal';
 import MyList from '@/features/my-lists/components/MyList';
 import MyListItem from '@/features/my-lists/components/MyListItem';
+import MyListItemSkeleton from '@/features/my-lists/components/MyListItemSkeleton';
+import MyListSkeleton from '@/features/my-lists/components/MyListSkeleton';
 import useDeleteMyList from '@/features/my-lists/hooks/useDeleteMyList';
 import useMyList from '@/features/my-lists/hooks/useMyList';
 import useMyLists from '@/features/my-lists/hooks/useMyLists';
@@ -16,6 +21,8 @@ import useRemoveProductFromMyList from '@/features/my-lists/hooks/useRemoveProdu
 import type { BackendMyListWithItems } from '@/features/my-lists/types';
 
 type SelectedMyList = Pick<BackendMyListWithItems, 'id' | 'name'>;
+
+const SKELETON_ROWS = 3;
 
 export default function MyLists() {
   const [myListIdToView, setMyListIdToView] = useState<number | null>(null);
@@ -145,23 +152,40 @@ export default function MyLists() {
               <li>
                 <StateMessage
                   variant="empty"
-                  message="Моментално немате креирано листи."
-                />
+                  message="Сè уште немате листи. Креирајте листа за да ги следите цените на суплементите што ве интересираат."
+                >
+                  <Button
+                    size="sm"
+                    onClick={handleClickCreateNewMyList}
+                  >
+                    <PlusIcon className="h-4 w-4" />
+                    Креирај листа
+                  </Button>
+                </StateMessage>
               </li>
             )}
 
             {myListsQuery.isPending && (
-              <li>
-                <StateMessage variant="loading" />
-              </li>
+              <>
+                <li>
+                  <LoadingStatus />
+                </li>
+                {Array.from({ length: SKELETON_ROWS }, (_, index) => (
+                  <MyListSkeleton key={index} />
+                ))}
+              </>
             )}
 
             {myListsQuery.isError && (
               <li>
-                <StateMessage
-                  variant="error"
-                  message="Се случи неочекувана грешка."
-                />
+                <StateMessage variant="error">
+                  <RetryButton
+                    onRetry={() => {
+                      void myListsQuery.refetch();
+                    }}
+                    isRetrying={myListsQuery.isFetching}
+                  />
+                </StateMessage>
               </li>
             )}
           </ul>
@@ -179,20 +203,26 @@ export default function MyLists() {
             )}
 
             {isThereSelectedMyList && myListQuery.isPending && (
-              <li>
-                <StateMessage
-                  variant="loading"
-                  message="Се вчитува ..."
-                />
-              </li>
+              <>
+                <li>
+                  <LoadingStatus />
+                </li>
+                {Array.from({ length: SKELETON_ROWS }, (_, index) => (
+                  <MyListItemSkeleton key={index} />
+                ))}
+              </>
             )}
 
             {isThereSelectedMyList && myListQuery.isError && (
               <li>
-                <StateMessage
-                  variant="error"
-                  message="Се случи неочекувана грешка."
-                />
+                <StateMessage variant="error">
+                  <RetryButton
+                    onRetry={() => {
+                      void myListQuery.refetch();
+                    }}
+                    isRetrying={myListQuery.isFetching}
+                  />
+                </StateMessage>
               </li>
             )}
 
@@ -200,8 +230,13 @@ export default function MyLists() {
               <li>
                 <StateMessage
                   variant="empty"
-                  message="Листата е празна."
-                />
+                  message="Листата е празна. Додадете суплементи со ѕвездичката до секоја понуда, од „Спореди цени“ или од „Паметно пребарување“."
+                >
+                  <div className="flex flex-wrap justify-center gap-x-6 gap-y-2">
+                    <SectionCtaLink to="/compare">Спореди цени</SectionCtaLink>
+                    <SectionCtaLink to="/smart-search">Паметно пребарување</SectionCtaLink>
+                  </div>
+                </StateMessage>
               </li>
             )}
 

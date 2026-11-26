@@ -69,6 +69,16 @@ export default function ComparePrices() {
     setCurrentPage(1);
   };
 
+  const handleResetSearch = () => {
+    setSearchQuery('');
+    setSubmittedQuery('');
+    setFilters(filtersDefault);
+    setCurrentPage(1);
+  };
+
+  const hasActiveSearch =
+    submittedQuery !== '' || filters.brandIds.length > 0 || filters.categoryIds.length > 0;
+
   const handleClickPagination = (back: boolean) => {
     // eslint-disable-next-line  sonarjs/no-selector-parameter
     if (back) {
@@ -104,6 +114,12 @@ export default function ComparePrices() {
         handlePaginationClick={handleClickPagination}
         isPending={productGroupsQuery.isPending}
         isError={productGroupsQuery.isError}
+        isRefetching={productGroupsQuery.isFetching}
+        handleRetry={() => {
+          void productGroupsQuery.refetch();
+        }}
+        hasActiveSearch={hasActiveSearch}
+        handleResetSearch={handleResetSearch}
       />
     </div>
   );

@@ -26,9 +26,9 @@ These defaults hold unless the user asks for something else in chat:
 
 Every view that shows data from a query handles four states: loading, empty, error and success. Use TanStack Query's `isPending`, `isError` and `isSuccess`.
 
-1. **Loading:** a skeleton with the same size and layout as the content, so nothing jumps when data arrives. Build it from a `components/ui/Skeleton.tsx` primitive (`bg-surface-sunken animate-pulse motion-reduce:animate-none rounded-*`), and create that primitive the first time it's needed. Spinners are only for inline actions: a pending button, or a mutation inside a modal.
+1. **Loading:** a skeleton with the same size and layout as the content, so nothing jumps when data arrives. Build it from `components/ui/Skeleton.tsx`, put one `components/ui/LoadingStatus.tsx` in the loading region so screen readers hear that it's loading, and give each card or row its own `<Name>Skeleton.tsx` with the same frame. Spinners are only for inline actions: a pending button, or a mutation inside a modal.
 2. **Empty:** say why the view is empty and what to do next. Put the action right there, for example a "Креирај листа" button when the user has no lists.
-3. **Error:** shown inline where the data would be, in plain language, with a way to retry when retrying makes sense (`refetch`). Form errors go below their field.
+3. **Error:** shown inline where the data would be, in plain language, with `components/ui/RetryButton.tsx` passed as `StateMessage` children when retrying makes sense (`refetch`, or the same mutation again). Form errors go below their field.
 4. **Success:** content that is laid out well with real data of every length. Check long Macedonian product names, missing brands and 0 offers.
 
 ## Interaction and motion

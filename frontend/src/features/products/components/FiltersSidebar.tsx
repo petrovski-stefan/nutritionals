@@ -1,10 +1,13 @@
 import { SearchIcon, XIcon } from 'lucide-react';
-import { type FormEvent, useState } from 'react';
+import { type FormEvent, type ReactNode, useState } from 'react';
 
 import Card from '@/components/ui/Card';
 import Checkbox from '@/components/ui/Checkbox';
 import IconButton from '@/components/ui/IconButton';
 import Input from '@/components/ui/Input';
+import RetryButton from '@/components/ui/RetryButton';
+import Skeleton from '@/components/ui/Skeleton';
+import StateMessage from '@/components/ui/StateMessage';
 import Tooltip from '@/components/ui/Tooltip';
 import useBrands from '@/features/products/hooks/useBrands';
 import useCategories from '@/features/products/hooks/useCategories';
@@ -28,6 +31,54 @@ const filterDisplayedInitialValue = {
   brands: false,
 };
 
+// Varied widths so the placeholder reads as a list of filter labels
+const FILTER_SKELETON_WIDTHS = ['w-3/4', 'w-1/2', 'w-2/3', 'w-3/5', 'w-2/5'];
+
+type FilterContentArgs = {
+  isPending: boolean;
+  isError: boolean;
+  isRetrying: boolean;
+  onRetry: () => void;
+  errorMessage: string;
+  checkboxes: ReactNode[];
+};
+
+const getFilterContent = ({
+  isPending,
+  isError,
+  isRetrying,
+  onRetry,
+  errorMessage,
+  checkboxes,
+}: FilterContentArgs): ReactNode[] => {
+  if (isPending) {
+    return FILTER_SKELETON_WIDTHS.map((width) => (
+      <Skeleton
+        key={width}
+        className={`h-5 ${width}`}
+      />
+    ));
+  }
+
+  if (isError) {
+    return [
+      <StateMessage
+        key="error"
+        variant="error"
+        message={errorMessage}
+        className="p-2"
+      >
+        <RetryButton
+          onRetry={onRetry}
+          isRetrying={isRetrying}
+        />
+      </StateMessage>,
+    ];
+  }
+
+  return checkboxes;
+};
+
 export default function FiltersSidebar({
   inputSearchQuery,
   setInputSearchQuery,
@@ -39,9 +90,10 @@ export default function FiltersSidebar({
 }: Props) {
   const [isFilterDisplayed, setIsFilterDisplayed] = useState(filterDisplayedInitialValue);
 
-  const { data: brands, isError: brandsIsError } = useBrands();
-
-  const { data: categories, isError: categoriesIsError } = useCategories();
+  const brandsQuery = useBrands();
+  const categoriesQuery = useCategories();
+  const brands = brandsQuery.data;
+  const categories = categoriesQuery.data;
 
   const brandFilterCheckboxes = (brands ?? []).map(({ id, name }) => (
     <Checkbox
@@ -65,27 +117,27 @@ export default function FiltersSidebar({
     />
   ));
 
-  const categoriesContent = categoriesIsError
-    ? [
-        <p
-          key="categories-error"
-          className="text-danger text-sm"
-        >
-          Се случи неочекувана грешка
-        </p>,
-      ]
-    : categoryFilterCheckboxes;
+  const categoriesContent = getFilterContent({
+    isPending: categoriesQuery.isPending,
+    isError: categoriesQuery.isError,
+    isRetrying: categoriesQuery.isFetching,
+    onRetry: () => {
+      void categoriesQuery.refetch();
+    },
+    errorMessage: 'Категориите не можеа да се вчитаат.',
+    checkboxes: categoryFilterCheckboxes,
+  });
 
-  const brandsContent = brandsIsError
-    ? [
-        <p
-          key="brands-error"
-          className="text-danger text-sm"
-        >
-          Се случи неочекувана грешка
-        </p>,
-      ]
-    : brandFilterCheckboxes;
+  const brandsContent = getFilterContent({
+    isPending: brandsQuery.isPending,
+    isError: brandsQuery.isError,
+    isRetrying: brandsQuery.isFetching,
+    onRetry: () => {
+      void brandsQuery.refetch();
+    },
+    errorMessage: 'Брендовите не можеа да се вчитаат.',
+    checkboxes: brandFilterCheckboxes,
+  });
 
   const handleFilterDisplayToggle = (key: keyof GroupFilterDisplay) => {
     setIsFilterDisplayed((prev) => ({ ...prev, [key]: !prev[key] }));
