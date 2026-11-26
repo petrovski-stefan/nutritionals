@@ -6,6 +6,8 @@ import RegisterForm from '@/features/auth/components/RegisterForm';
 export default function Register() {
   return (
     <AuthLayout>
+      <title>Регистрација | Nutriceni</title>
+
       <AuthFormContainer title="Регистрација">
         <RegisterForm />
         <AuthPrompt type="register" />

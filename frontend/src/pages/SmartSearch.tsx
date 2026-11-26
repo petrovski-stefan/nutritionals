@@ -43,6 +43,8 @@ export default function SmartSearch() {
 
   return (
     <div className="flex flex-col items-center">
+      <title>Паметно пребарување | Nutriceni</title>
+
       <Section>
         <h1 className="text-text mx-auto max-w-2xl text-center text-lg font-semibold sm:text-xl md:text-2xl">
           Опишете ја вашата цел, а паметниот асистент ќе ги пронајде најдобрите суплементи за вас.

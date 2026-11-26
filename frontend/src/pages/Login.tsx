@@ -6,6 +6,8 @@ import LoginForm from '@/features/auth/components/LoginForm';
 export default function Login() {
   return (
     <AuthLayout>
+      <title>Најава | Nutriceni</title>
+
       <AuthFormContainer title="Најава">
         <LoginForm />
         <AuthPrompt type="login" />

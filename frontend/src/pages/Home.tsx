@@ -77,6 +77,8 @@ export default function Home() {
 
   return (
     <div>
+      <title>Nutriceni | Агрегатор за цени на суплементи</title>
+
       <Section center={true}>
         <h1 className="text-text text-center text-2xl font-bold sm:text-3xl">
           Пронајдете ги најдобрите цени на суплементи од локалните аптеки.
