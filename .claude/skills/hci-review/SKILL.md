@@ -41,8 +41,8 @@ Check both sides of the breakpoints where this layout actually changes, not a ge
 | 320 | Narrowest phones; also what 1280px at 400% zoom looks like (WCAG 1.4.10 reflow) |
 | 375 | Standard phone; the in-store case |
 | 639 / 640 | `sm`: Home deals and pharmacies switch from a 2-column grid, the deals cap and scrolling chip row end |
-| 767 / 768 | `md`: header nav replaces the menu button, Compare sidebar and filters button, My Lists list/detail switch |
-| 1023 / 1024 | `lg`: auth pages go two-column with the illustration, Smart Search results go to 3 columns |
+| 767 / 768 | `md`: Compare sidebar and filters button, My Lists list/detail switch |
+| 1023 / 1024 | `lg`: header nav replaces the menu button, auth pages go two-column with the illustration, Smart Search results go to 3 columns |
 | 1279 / 1280 | `xl`: Compare results go to 3 columns |
 | 1440 | Large desktop: grid widths, empty side areas |
 
@@ -151,6 +151,7 @@ Whitespace is not waste. Space that groups, separates or gives text room to read
 - **Sentences:** formal "Вие": Обидете се повторно, Изберете листа, Најавете се за да продолжите.
 - **One word per concept:** суплемент (product), понуда (offer at one pharmacy), аптека, листа, паметно пребарување, попуст.
 - Errors say what happened and what to do next. No emoji.
+- **Sign-in notices** name the feature or action and say it is for logged-in users, in one pattern: "Паметното пребарување е достапно за најавени корисници.", "Зачувувањето суплементи во листа е достапно за најавени корисници." Not "За да ..., потребна е сметка."
 
 ## Severity
 

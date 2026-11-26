@@ -1,6 +1,6 @@
 import Badge from '@/components/ui/Badge';
+import LastUpdated from '@/components/ui/LastUpdated';
 import type { BackendProduct } from '@/features/products/types/products';
-import { checkIsPossiblyUnavailable, formatDate } from '@/shared/utils/dates';
 import { formatPrice } from '@/shared/utils/prices';
 
 export default function DropdownGroupOffer({
@@ -11,10 +11,6 @@ export default function DropdownGroupOffer({
   url,
   last_scraped_at,
 }: Readonly<BackendProduct>) {
-  const lastScrapedAtDate = new Date(last_scraped_at);
-  const isPossiblyUnavailable = checkIsPossiblyUnavailable(lastScrapedAtDate);
-  const lastScrapedAt = formatDate(last_scraped_at);
-
   return (
     <div className="border-border flex items-center justify-between gap-3 border-b py-2 last:border-0">
       <div className="flex min-w-0 flex-col">
@@ -26,9 +22,10 @@ export default function DropdownGroupOffer({
         >
           {pharmacy_name}
         </a>
-        <p className={`text-xs ${isPossiblyUnavailable ? 'text-warning' : 'text-text-muted'}`}>
-          {`Ажурирано: ${lastScrapedAt}`}
-        </p>
+        <LastUpdated
+          isoDate={last_scraped_at}
+          className="text-xs"
+        />
       </div>
 
       <div className="flex shrink-0 items-center gap-2">

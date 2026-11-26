@@ -46,7 +46,7 @@ export default function Header() {
           Nutriceni
         </Link>
 
-        <nav className="hidden items-center gap-1 md:flex">{menuItemsLinks}</nav>
+        <nav className="hidden items-center gap-1 lg:flex">{menuItemsLinks}</nav>
 
         <div className="flex items-center gap-2">
           {isLoggedIn && (
@@ -76,7 +76,7 @@ export default function Header() {
           <IconButton
             label="Мени"
             variant="onPrimary"
-            className="md:hidden"
+            className="lg:hidden"
             aria-expanded={mobileMenuOpen}
             aria-controls="mobile-nav"
             onClick={() => {
@@ -91,7 +91,7 @@ export default function Header() {
       {mobileMenuOpen && (
         <nav
           id="mobile-nav"
-          className="border-t border-white/20 px-4 py-3 transition duration-200 ease-out motion-reduce:transition-none md:hidden starting:-translate-y-1 starting:opacity-0"
+          className="border-t border-white/20 px-4 py-3 transition duration-200 ease-out motion-reduce:transition-none lg:hidden starting:-translate-y-1 starting:opacity-0"
         >
           {/* Below sm the header has no room for the username, so the menu shows it */}
           {isLoggedIn && (

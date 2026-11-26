@@ -24,6 +24,7 @@ export default function CategoryChips({ categories, selectedCategoryId, onSelect
     <div className="mb-6 flex gap-2 overflow-x-auto py-1 max-sm:-mx-4 max-sm:px-4 sm:flex-wrap sm:justify-center sm:overflow-visible">
       <button
         type="button"
+        aria-pressed={selectedCategoryId === null}
         className={getChipClasses(selectedCategoryId === null)}
         onClick={() => {
           onSelect(null);
@@ -36,6 +37,7 @@ export default function CategoryChips({ categories, selectedCategoryId, onSelect
         <button
           key={category.id}
           type="button"
+          aria-pressed={selectedCategoryId === category.id}
           className={getChipClasses(selectedCategoryId === category.id)}
           onClick={() => {
             onSelect(category.id);

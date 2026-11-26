@@ -1,15 +1,11 @@
 import { useLocation } from 'react-router-dom';
 
-type LocationState = {
-  from?: {
-    pathname?: string;
-  };
-};
+import type { AuthRedirectState } from '@/shared/types/navigation';
 
 const useLocationFrom = () => {
   const location = useLocation();
 
-  const from = (location.state as LocationState | null)?.from?.pathname ?? '/';
+  const from = (location.state as AuthRedirectState | null)?.from?.pathname ?? '/';
 
   return { from };
 };

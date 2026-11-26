@@ -2,9 +2,9 @@ import { StarIcon } from 'lucide-react';
 
 import Badge from '@/components/ui/Badge';
 import IconButton from '@/components/ui/IconButton';
+import LastUpdated from '@/components/ui/LastUpdated';
 import Tooltip from '@/components/ui/Tooltip';
 import type { BackendProduct } from '@/features/products/types/products';
-import { checkIsPossiblyUnavailable, formatDate } from '@/shared/utils/dates';
 import { formatPrice } from '@/shared/utils/prices';
 
 type Props = Readonly<
@@ -28,10 +28,6 @@ export default function ProductInGroup({
   url,
   handleClickAddProductToMyList,
 }: Props) {
-  const lastScrapedAtDate = new Date(last_scraped_at);
-  const isPossiblyUnavailable = checkIsPossiblyUnavailable(lastScrapedAtDate);
-  const lastScrapedAt = formatDate(last_scraped_at);
-
   return (
     <div className="border-border hover:bg-surface-sunken flex items-center justify-between gap-3 border-b py-3 transition-colors last:border-0">
       <div className="flex min-w-0 flex-col">
@@ -43,9 +39,10 @@ export default function ProductInGroup({
         >
           {pharmacy_name}
         </a>
-        <p className={`text-sm ${isPossiblyUnavailable ? 'text-warning' : 'text-text-muted'}`}>
-          {`Ажурирано: ${lastScrapedAt}`}
-        </p>
+        <LastUpdated
+          isoDate={last_scraped_at}
+          className="text-sm"
+        />
       </div>
 
       <div className="flex shrink-0 items-center gap-3">

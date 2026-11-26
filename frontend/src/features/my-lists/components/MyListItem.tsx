@@ -2,9 +2,10 @@ import { BrainIcon, XIcon } from 'lucide-react';
 
 import Badge from '@/components/ui/Badge';
 import IconButton from '@/components/ui/IconButton';
+import LastUpdated from '@/components/ui/LastUpdated';
 import Tooltip from '@/components/ui/Tooltip';
 import type { BackendMyListItem } from '@/features/my-lists/types';
-import { checkIsPossiblyUnavailable, formatDate } from '@/shared/utils/dates';
+import { formatDate } from '@/shared/utils/dates';
 import { formatPrice } from '@/shared/utils/prices';
 
 type Props = Readonly<
@@ -26,12 +27,6 @@ export default function MyListItem({
   created_at,
   handleDeleteProductMyList,
 }: Props) {
-  const lastScrapedAtDate = new Date(product_last_scraped_at);
-  const isPossiblyUnavailable = checkIsPossiblyUnavailable(lastScrapedAtDate);
-  const lastScrapedAt = formatDate(product_last_scraped_at);
-
-  const scrapedDateClasses = isPossiblyUnavailable ? 'text-warning' : 'text-text-muted';
-
   const deleteButton = (
     <Tooltip text="Отстрани од листата">
       <IconButton
@@ -107,14 +102,18 @@ export default function MyListItem({
           {deleteButton}
         </div>
 
-        <p className={`mt-2 text-right text-xs ${scrapedDateClasses}`}>
-          Цената е последно ажурирана на: {lastScrapedAt}
-        </p>
+        <LastUpdated
+          isoDate={product_last_scraped_at}
+          label="Цената е последно ажурирана на"
+          className="mt-2 text-right text-xs"
+        />
       </div>
 
-      <p className={`text-left text-xs md:hidden ${scrapedDateClasses}`}>
-        Цената е последно ажурирана на: {lastScrapedAt}
-      </p>
+      <LastUpdated
+        isoDate={product_last_scraped_at}
+        label="Цената е последно ажурирана на"
+        className="text-left text-xs md:hidden"
+      />
     </li>
   );
 }

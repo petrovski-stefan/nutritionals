@@ -38,6 +38,7 @@ const routes: Route[] = [
       <AuthGuard
         mode="private"
         redirectTo="/login"
+        reason="smart-search"
       >
         <SmartSearch />
       </AuthGuard>
@@ -68,7 +69,7 @@ const routes: Route[] = [
         <Login />
       </AuthGuard>
     ),
-    showInHeaderMode: 'hide',
+    showInHeaderMode: 'showIfNotAuthOnly',
   },
   {
     linkText: 'Приклучи се',
@@ -89,7 +90,8 @@ const routes: Route[] = [
     element: (
       <AuthGuard
         mode="private"
-        redirectTo="/register"
+        redirectTo="/login"
+        reason="my-lists"
       >
         <MyLists />
       </AuthGuard>

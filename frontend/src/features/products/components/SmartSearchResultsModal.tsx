@@ -10,6 +10,7 @@ import { useAuthContext } from '@/context/AuthContext';
 import AddProductToMyListModal from '@/features/my-lists/components/AddProductToMyListModal';
 import type { ProductToMyList } from '@/features/my-lists/types';
 import type { BackendProductGroup } from '@/features/products/types/productgroups';
+import type { AuthRedirectState } from '@/shared/types/navigation';
 
 import ProductGroupCard from './ProductGroupCard';
 import ProductGroupCardSkeleton from './ProductGroupCardSkeleton';
@@ -49,7 +50,8 @@ export default function SmartSearchResultsModal({
     pharmacyName: string
   ) => {
     if (!isLoggedIn) {
-      void navigate('/login', { state: { from: location } });
+      const state: AuthRedirectState = { from: location, reason: 'add-to-list' };
+      void navigate('/login', { state });
       return;
     }
     setProductToMyList({ productId, productName, pharmacyName });

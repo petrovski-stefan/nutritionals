@@ -15,7 +15,11 @@ export default function DropdownProductGroup({ productGroup }: Props) {
   const offersId = `group-offers-${String(productGroup.id)}`;
 
   const offersCount = productGroup.products.length;
-  const offerPrices = productGroup.products.map(getEffectivePrice);
+  // The API returns offers in no particular order
+  const offers = [...productGroup.products].sort(
+    (a, b) => getEffectivePrice(a) - getEffectivePrice(b)
+  );
+  const offerPrices = offers.map(getEffectivePrice);
   const minPrice = offerPrices.length > 0 ? Math.min(...offerPrices) : null;
 
   return (
@@ -55,7 +59,7 @@ export default function DropdownProductGroup({ productGroup }: Props) {
           id={offersId}
           className="px-3 pb-2 transition-opacity duration-200 ease-out motion-reduce:transition-none starting:opacity-0"
         >
-          {productGroup.products.map((product) => (
+          {offers.map((product) => (
             <DropdownGroupOffer
               key={product.id}
               {...product}
