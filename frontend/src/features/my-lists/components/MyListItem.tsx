@@ -30,7 +30,7 @@ export default function MyListItem({
   const isPossiblyUnavailable = checkIsPossiblyUnavailable(lastScrapedAtDate);
   const lastScrapedAt = new Date(product_last_scraped_at).toLocaleDateString('en-GB');
 
-  const scrapedDateClasses = isPossiblyUnavailable ? 'text-danger' : 'text-warning';
+  const scrapedDateClasses = isPossiblyUnavailable ? 'text-warning' : 'text-text-muted';
 
   const deleteButton = (
     <Tooltip text="Избриши">
@@ -84,7 +84,7 @@ export default function MyListItem({
             href={product_url}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-text hover:decoration-accent focus-visible:outline-primary rounded break-words hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 md:truncate"
+            className="text-text focus-visible:outline-primary rounded break-words hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 md:truncate"
           >
             {product_name}
           </a>

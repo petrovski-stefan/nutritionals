@@ -41,7 +41,7 @@ export default function Header() {
       <div className="mx-auto flex h-16 w-full max-w-7xl items-center justify-between gap-4 px-4 sm:px-6">
         <Link
           to="/"
-          className="text-accent hover:text-accent/80 focus-visible:outline-accent text-2xl font-bold italic transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 sm:text-3xl"
+          className="text-2xl font-bold text-white italic transition-colors hover:text-white/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white sm:text-3xl"
         >
           Nutriceni
         </Link>

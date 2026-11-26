@@ -8,7 +8,7 @@ Adapted from the community "design-taste-frontend" skill. Only the rules that fi
 ## Ground rules
 
 - `frontend/src/index.css` is the design system. Its top comment sets radius, shadow, type ramp, spacing and focus. Follow it, and change a rule there before using a new value anywhere else.
-- Colors come only from the semantic tokens (`bg-surface`, `text-text-muted`, `border-border`, `text-accent`, ...). No raw palette classes (`text-gray-600`, `border-slate-200`), no `dark:` variants and no arbitrary radii. Existing exceptions: `text-white` on filled buttons and the header, and `bg-black/50` on the modal backdrop.
+- Colors come only from the semantic tokens (`bg-surface`, `text-text-muted`, `border-border`, `text-accent`, ...). No raw palette classes (`text-gray-600`, `border-slate-200`), no `dark:` variants and no arbitrary radii. Text on a filled `bg-primary`/`bg-danger`/... background uses `text-on-fill`. Existing exceptions: `text-white` and `bg-white/*` inside the always-dark header, and `bg-black/50` on the modal backdrop.
 - Change a color by editing its token in `index.css`, in both `:root` and `.dark`. Text needs at least 4.5:1 contrast against its surface, and icons and borders that carry meaning need 3:1.
 - Icons come from `lucide-react` (already installed), at the sizes already used (`h-4 w-4` in small controls, `h-5 w-5` in regular ones). Don't add a second icon set.
 - No new dependencies (animation libraries, UI kits, fonts) without asking the user first. Tailwind and CSS cover everything below.

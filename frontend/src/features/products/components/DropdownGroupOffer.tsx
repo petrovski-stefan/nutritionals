@@ -26,7 +26,7 @@ export default function DropdownGroupOffer({
         >
           {pharmacy_name}
         </a>
-        <p className={`text-xs ${isPossiblyUnavailable ? 'text-danger' : 'text-text-muted'}`}>
+        <p className={`text-xs ${isPossiblyUnavailable ? 'text-warning' : 'text-text-muted'}`}>
           {`Ажурирано: ${lastScrapedAt}`}
         </p>
       </div>

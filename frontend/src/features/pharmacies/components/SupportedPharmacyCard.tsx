@@ -27,7 +27,7 @@ export default function SupportedPharmacyCard({
           href={homepage}
           target="_blank"
           rel="noopener noreferrer"
-          className="text-primary hover:text-accent focus-visible:outline-primary rounded transition-colors hover:underline focus-visible:outline-2 focus-visible:outline-offset-2"
+          className="text-primary focus-visible:outline-primary rounded transition-colors hover:underline focus-visible:outline-2 focus-visible:outline-offset-2"
         >
           {name}
         </a>

@@ -62,7 +62,6 @@ export default function LoginForm() {
 
       <Button
         type="submit"
-        variant="accent"
         isPending={isPending}
         className="w-full"
       >

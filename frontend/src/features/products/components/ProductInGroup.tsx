@@ -52,7 +52,7 @@ export default function ProductInGroup({
         >
           {pharmacy_name}
         </a>
-        <p className={`text-sm ${isPossiblyUnavailable ? 'text-danger' : 'text-text-muted'}`}>
+        <p className={`text-sm ${isPossiblyUnavailable ? 'text-warning' : 'text-text-muted'}`}>
           {`Ажурирано: ${lastScrapedAt}`}
         </p>
       </div>
@@ -73,7 +73,7 @@ export default function ProductInGroup({
         >
           <IconButton
             label="Додај во листа"
-            variant="accentGhost"
+            variant="primaryGhost"
             size="sm"
             onClick={() => {
               handleClickAddProductToMyList(id, name, pharmacy_name);

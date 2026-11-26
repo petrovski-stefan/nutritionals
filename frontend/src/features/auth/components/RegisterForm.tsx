@@ -72,7 +72,6 @@ export default function RegisterForm() {
 
       <Button
         type="submit"
-        variant="accent"
         isPending={isPending}
         className="w-full"
       >

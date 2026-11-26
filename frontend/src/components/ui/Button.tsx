@@ -2,16 +2,15 @@ import type { ButtonHTMLAttributes } from 'react';
 
 import Spinner from './Spinner';
 
-type Variant = 'primary' | 'accent' | 'outline' | 'ghost' | 'danger';
+type Variant = 'primary' | 'outline' | 'ghost' | 'danger';
 type Size = 'sm' | 'md' | 'lg';
 
 const VARIANT_CLASSES: Record<Variant, string> = {
-  primary: 'bg-primary text-white hover:bg-primary/90 focus-visible:outline-primary',
-  accent: 'bg-accent text-white hover:bg-accent/90 focus-visible:outline-accent',
+  primary: 'bg-primary text-on-fill hover:bg-primary/90 focus-visible:outline-primary',
   outline:
     'border border-border bg-surface-raised text-text hover:bg-surface-sunken focus-visible:outline-primary',
   ghost: 'text-text-muted hover:bg-surface-sunken hover:text-text focus-visible:outline-primary',
-  danger: 'bg-danger text-white hover:bg-danger/90 focus-visible:outline-danger',
+  danger: 'bg-danger text-on-fill hover:bg-danger/90 focus-visible:outline-danger',
 };
 
 const SIZE_CLASSES: Record<Size, string> = {

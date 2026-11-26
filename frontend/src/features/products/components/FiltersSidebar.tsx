@@ -143,7 +143,7 @@ export default function FiltersSidebar({
       <div className="text-center">
         <button
           onClick={handleClearFilters}
-          className="text-info hover:text-accent focus-visible:outline-primary cursor-pointer rounded text-sm font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2"
+          className="text-info focus-visible:outline-primary cursor-pointer rounded text-sm font-medium transition-colors hover:underline focus-visible:outline-2 focus-visible:outline-offset-2"
         >
           [Избриши ги сите филтери]
         </button>

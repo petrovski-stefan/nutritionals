@@ -1,15 +1,16 @@
 import type { ButtonHTMLAttributes } from 'react';
 
-type Variant = 'ghost' | 'accentGhost' | 'filled' | 'danger' | 'info' | 'warning' | 'onPrimary';
+type Variant = 'ghost' | 'primaryGhost' | 'filled' | 'danger' | 'info' | 'warning' | 'onPrimary';
 type Size = 'sm' | 'md';
 
 const VARIANT_CLASSES: Record<Variant, string> = {
   ghost: 'text-text-muted hover:bg-surface-sunken hover:text-text focus-visible:outline-primary',
-  accentGhost: 'text-text-muted hover:bg-accent/10 hover:text-accent focus-visible:outline-accent',
-  filled: 'bg-accent text-white hover:bg-accent/90 focus-visible:outline-accent',
-  danger: 'bg-danger text-white hover:bg-danger/90 focus-visible:outline-danger',
-  info: 'bg-info text-white hover:bg-info/90 focus-visible:outline-info',
-  warning: 'bg-warning text-white hover:bg-warning/90 focus-visible:outline-warning',
+  primaryGhost:
+    'text-text-muted hover:bg-primary/10 hover:text-primary focus-visible:outline-primary',
+  filled: 'bg-primary text-on-fill hover:bg-primary/90 focus-visible:outline-primary',
+  danger: 'bg-danger text-on-fill hover:bg-danger/90 focus-visible:outline-danger',
+  info: 'bg-info text-on-fill hover:bg-info/90 focus-visible:outline-info',
+  warning: 'bg-warning text-on-fill hover:bg-warning/90 focus-visible:outline-warning',
   onPrimary: 'text-white hover:bg-white/15 focus-visible:outline-white',
 };
 

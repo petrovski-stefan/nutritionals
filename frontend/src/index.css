@@ -16,11 +16,15 @@
   - Focus: every interactive element gets
     `focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary`
     (danger actions: `outline-danger`).
-  - Semantic roles: `info` = links & "view" actions; `warning` = stale prices;
-    `danger` = delete/errors; star/favorite hover = `accent`.
+  - Semantic roles: `primary` = brand & main actions; `accent` = savings only (discount
+    badges, discounted prices); `info` = links & "view" actions; `warning` = stale prices;
+    `danger` = delete/errors.
+  - Contrast: every color token passes 4.5:1 as text on all three surfaces and as the fill
+    behind `text-on-fill` (white in light mode, near-black in dark mode). Re-check both
+    themes when changing a value.
 */
 
-/* Dark variant: class strategy on <html> (set by the inline script in index.html) */
+/* Dark variant: class strategy on <html> (set by ThemeContext) */
 @custom-variant dark (&:where(.dark, .dark *));
 
 :root {
@@ -33,15 +37,16 @@
   --text: #212121;
   --text-muted: #5f6660;
 
-  --primary: #43a047;
+  --primary: #276b2b;
   --secondary: #2196f3;
-  --accent: #fb8c00;
-  --header: #43a047;
+  --accent: #c2410c;
+  --header: #276b2b;
+  --on-fill: #ffffff;
 
-  --success: #43a047;
-  --info: #1e88e5;
-  --warning: #b26a00;
-  --danger: #d32f2f;
+  --success: #276b2b;
+  --info: #1569b4;
+  --warning: #965900;
+  --danger: #c22929;
 }
 
 .dark {
@@ -57,12 +62,13 @@
   --primary: #4caf50;
   --secondary: #64b5f6;
   --accent: #ffa040;
-  --header: #2e7d32;
+  --header: #276b2b;
+  --on-fill: #141614;
 
   --success: #4caf50;
   --info: #64b5f6;
   --warning: #ffb74d;
-  --danger: #ef5350;
+  --danger: #f47472;
 }
 
 /* `inline` is required: utilities compile to the underlying var and flip under .dark */
@@ -71,6 +77,7 @@
   --color-secondary: var(--secondary);
   --color-accent: var(--accent);
   --color-header: var(--header);
+  --color-on-fill: var(--on-fill);
   --color-surface: var(--surface);
   --color-surface-raised: var(--surface-raised);
   --color-surface-sunken: var(--surface-sunken);

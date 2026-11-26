@@ -10,7 +10,7 @@ export default function SectionCtaLink({ to, children }: Props) {
   return (
     <Link
       to={to}
-      className="text-primary hover:text-accent focus-visible:outline-primary group inline-flex items-center gap-2 rounded text-base font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2"
+      className="text-primary focus-visible:outline-primary group inline-flex items-center gap-2 rounded text-base font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2"
     >
       {children}
       <ArrowRightIcon

@@ -28,7 +28,7 @@ export default function ProductGroupCard({ productGroup, handleClickAddProductTo
         )}
 
         <p className="text-text-muted text-sm">
-          <span className="text-accent font-semibold">{productsLength}</span> понуди
+          <span className="text-text font-semibold">{productsLength}</span> понуди
         </p>
       </div>
 

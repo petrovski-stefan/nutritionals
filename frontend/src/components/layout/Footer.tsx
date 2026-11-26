@@ -4,7 +4,7 @@ const email = import.meta.env['VITE_WEBSITE_EMAIL'] as string;
 const websiteUrl = import.meta.env['VITE_WEBSITE_URL'] as string;
 
 const LINK_CLASSES =
-  'hover:text-accent focus-visible:outline-primary rounded transition-colors hover:underline focus-visible:outline-2 focus-visible:outline-offset-2';
+  'hover:text-primary focus-visible:outline-primary rounded transition-colors hover:underline focus-visible:outline-2 focus-visible:outline-offset-2';
 
 export default function Footer() {
   return (

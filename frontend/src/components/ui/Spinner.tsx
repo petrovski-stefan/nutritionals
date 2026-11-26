@@ -16,7 +16,7 @@ export default function Spinner({ size = 'md', className = '' }: Props) {
     <div
       role="status"
       aria-label="Се вчитува"
-      className={`border-border border-t-accent animate-spin rounded-full ${SIZE_CLASSES[size]} ${className}`}
+      className={`border-border border-t-primary animate-spin rounded-full ${SIZE_CLASSES[size]} ${className}`}
     />
   );
 }
