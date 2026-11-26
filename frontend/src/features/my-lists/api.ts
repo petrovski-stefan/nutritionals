@@ -45,7 +45,7 @@ export const addProductToMyList = async (
   myListId: number,
   productId: number,
   accessToken: string,
-  isAddedThroughSmartSearch: boolean = false
+  isAddedThroughSmartSearch = false
 ) => {
   const url = `${BASE_PATH}${String(myListId)}/products/`;
   const response = await axiosInstance.post(

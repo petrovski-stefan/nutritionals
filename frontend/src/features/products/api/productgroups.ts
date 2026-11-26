@@ -11,7 +11,7 @@ export const getProductGroups = async (
   searchQuery: string,
   categoryIds: number[],
   brandIds: number[],
-  page: number = 1
+  page = 1
 ) => {
   const params = new URLSearchParams();
 
