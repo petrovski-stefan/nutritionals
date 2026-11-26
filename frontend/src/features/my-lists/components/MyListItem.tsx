@@ -1,10 +1,12 @@
 import { BrainIcon, XIcon } from 'lucide-react';
 
 import Badge from '@/components/ui/Badge';
+import ExternalLink from '@/components/ui/ExternalLink';
 import IconButton from '@/components/ui/IconButton';
+import LastUpdated from '@/components/ui/LastUpdated';
 import Tooltip from '@/components/ui/Tooltip';
 import type { BackendMyListItem } from '@/features/my-lists/types';
-import { checkIsPossiblyUnavailable, formatDate } from '@/shared/utils/dates';
+import { formatDate } from '@/shared/utils/dates';
 import { formatPrice } from '@/shared/utils/prices';
 
 type Props = Readonly<
@@ -26,12 +28,6 @@ export default function MyListItem({
   created_at,
   handleDeleteProductMyList,
 }: Props) {
-  const lastScrapedAtDate = new Date(product_last_scraped_at);
-  const isPossiblyUnavailable = checkIsPossiblyUnavailable(lastScrapedAtDate);
-  const lastScrapedAt = formatDate(product_last_scraped_at);
-
-  const scrapedDateClasses = isPossiblyUnavailable ? 'text-warning' : 'text-text-muted';
-
   const deleteButton = (
     <Tooltip text="Отстрани од листата">
       <IconButton
@@ -84,14 +80,13 @@ export default function MyListItem({
               <BrainIcon className="text-info h-5 w-5 shrink-0" />
             </Tooltip>
           )}
-          <a
+          <ExternalLink
             href={product_url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-text focus-visible:outline-primary rounded break-words hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 md:truncate"
+            className="text-text focus-visible:outline-primary rounded hover:underline focus-visible:outline-2 focus-visible:outline-offset-2"
+            textClassName="break-words md:truncate"
           >
             {product_name}
-          </a>
+          </ExternalLink>
         </h3>
 
         <p className="text-text-muted mt-1 w-full truncate text-sm">
@@ -107,14 +102,18 @@ export default function MyListItem({
           {deleteButton}
         </div>
 
-        <p className={`mt-2 text-right text-xs ${scrapedDateClasses}`}>
-          Цената е последно ажурирана на: {lastScrapedAt}
-        </p>
+        <LastUpdated
+          isoDate={product_last_scraped_at}
+          label="Цената е последно ажурирана на"
+          className="mt-2 text-right text-xs"
+        />
       </div>
 
-      <p className={`text-left text-xs md:hidden ${scrapedDateClasses}`}>
-        Цената е последно ажурирана на: {lastScrapedAt}
-      </p>
+      <LastUpdated
+        isoDate={product_last_scraped_at}
+        label="Цената е последно ажурирана на"
+        className="text-left text-xs md:hidden"
+      />
     </li>
   );
 }

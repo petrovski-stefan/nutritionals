@@ -10,6 +10,7 @@ import { useAuthContext } from '@/context/AuthContext';
 import AddProductToMyListModal from '@/features/my-lists/components/AddProductToMyListModal';
 import type { ProductToMyList } from '@/features/my-lists/types';
 import type { BackendProductGroup } from '@/features/products/types/productgroups';
+import type { AuthRedirectState } from '@/shared/types/navigation';
 
 import ProductGroupCard from './ProductGroupCard';
 import ProductGroupCardSkeleton from './ProductGroupCardSkeleton';
@@ -49,7 +50,8 @@ export default function SmartSearchResultsModal({
     pharmacyName: string
   ) => {
     if (!isLoggedIn) {
-      void navigate('/login', { state: { from: location } });
+      const state: AuthRedirectState = { from: location, reason: 'add-to-list' };
+      void navigate('/login', { state });
       return;
     }
     setProductToMyList({ productId, productName, pharmacyName });
@@ -59,9 +61,9 @@ export default function SmartSearchResultsModal({
     if (isPending) return 'Паметниот асистент бара суплементи ...';
     if (isError) return 'Паметно пребарување';
     if (hasGroups) {
-      return `Паметниот асистент пронајде ${String(groupsLength)} производи за вашето барање: "${query}".`;
+      return `Паметниот асистент пронајде ${String(groupsLength)} ${groupsLength === 1 ? 'суплемент' : 'суплементи'} за „${query}“`;
     }
-    return `Не се пронајдени производи за „${query}“`;
+    return `Не се пронајдени суплементи за „${query}“`;
   };
 
   if (productToMyList !== null) {
@@ -125,6 +127,14 @@ export default function SmartSearchResultsModal({
             />
           ))}
         </div>
+      )}
+
+      {/* The page's disclaimer is hidden behind this modal, so the results repeat it */}
+      {!isPending && !isError && hasGroups && (
+        <p className="text-text-muted mt-4 text-xs">
+          Предлозите се само информативни и не се медицински совет. Пред да започнете со суплемент,
+          консултирајте се со здравствен работник.
+        </p>
       )}
     </Modal>
   );

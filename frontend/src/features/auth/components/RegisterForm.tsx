@@ -70,7 +70,7 @@ export default function RegisterForm() {
         isPending={isPending}
         className="w-full"
       >
-        Регистрирајте се
+        Регистрирај се
       </Button>
     </form>
   );

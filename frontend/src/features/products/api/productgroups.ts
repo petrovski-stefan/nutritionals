@@ -1,3 +1,4 @@
+import type { GroupOrdering } from '@/features/products/schemas';
 import type {
   BackendDiscountedGroups,
   BackendProductGroup,
@@ -7,15 +8,29 @@ import type { APIPaginatedData, APIResponseSuccessV2 } from '@/shared/types/api'
 
 const PRODUCT_GROUPS_PATH = 'api/v1/product-groups/';
 
+type GroupListOptions = {
+  pageSize?: number;
+  ordering?: GroupOrdering | null;
+};
+
 export const getProductGroups = async (
   searchQuery: string,
   categoryIds: number[],
   brandIds: number[],
-  page = 1
+  page = 1,
+  { pageSize, ordering }: GroupListOptions = {}
 ) => {
   const params = new URLSearchParams();
 
   params.append('page', String(page));
+
+  if (pageSize !== undefined) {
+    params.append('page_size', String(pageSize));
+  }
+
+  if (ordering) {
+    params.append('ordering', ordering);
+  }
 
   if (searchQuery) {
     params.append('q', searchQuery);

@@ -1,6 +1,7 @@
 import Badge from '@/components/ui/Badge';
+import ExternalLink from '@/components/ui/ExternalLink';
+import LastUpdated from '@/components/ui/LastUpdated';
 import type { BackendProduct } from '@/features/products/types/products';
-import { checkIsPossiblyUnavailable, formatDate } from '@/shared/utils/dates';
 import { formatPrice } from '@/shared/utils/prices';
 
 export default function DropdownGroupOffer({
@@ -10,25 +11,25 @@ export default function DropdownGroupOffer({
   pharmacy_name,
   url,
   last_scraped_at,
-}: Readonly<BackendProduct>) {
-  const lastScrapedAtDate = new Date(last_scraped_at);
-  const isPossiblyUnavailable = checkIsPossiblyUnavailable(lastScrapedAtDate);
-  const lastScrapedAt = formatDate(last_scraped_at);
-
+  isCheapest,
+}: Readonly<BackendProduct & { isCheapest: boolean }>) {
   return (
     <div className="border-border flex items-center justify-between gap-3 border-b py-2 last:border-0">
       <div className="flex min-w-0 flex-col">
-        <a
-          href={url}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-primary focus-visible:outline-primary truncate rounded py-1 text-sm font-medium hover:underline focus-visible:outline-2 focus-visible:outline-offset-2"
-        >
-          {pharmacy_name}
-        </a>
-        <p className={`text-xs ${isPossiblyUnavailable ? 'text-warning' : 'text-text-muted'}`}>
-          {`Ажурирано: ${lastScrapedAt}`}
-        </p>
+        <div className="flex flex-wrap items-center gap-x-2">
+          <ExternalLink
+            href={url}
+            className="text-primary focus-visible:outline-primary rounded py-1 text-sm font-medium hover:underline focus-visible:outline-2 focus-visible:outline-offset-2"
+            textClassName="truncate"
+          >
+            {pharmacy_name}
+          </ExternalLink>
+          {isCheapest && <Badge variant="success">Најевтино</Badge>}
+        </div>
+        <LastUpdated
+          isoDate={last_scraped_at}
+          className="text-xs"
+        />
       </div>
 
       <div className="flex shrink-0 items-center gap-2">

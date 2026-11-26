@@ -1,14 +1,17 @@
 import { StarIcon } from 'lucide-react';
 
 import Badge from '@/components/ui/Badge';
+import ExternalLink from '@/components/ui/ExternalLink';
 import IconButton from '@/components/ui/IconButton';
+import LastUpdated from '@/components/ui/LastUpdated';
 import Tooltip from '@/components/ui/Tooltip';
 import type { BackendProduct } from '@/features/products/types/products';
-import { checkIsPossiblyUnavailable, formatDate } from '@/shared/utils/dates';
 import { formatPrice } from '@/shared/utils/prices';
 
 type Props = Readonly<
   BackendProduct & {
+    // Marked "Најевтино" (there can be ties); the parent compares the group's offers
+    isCheapest: boolean;
     handleClickAddProductToMyList: (
       productId: number,
       productName: string,
@@ -26,26 +29,25 @@ export default function ProductInGroup({
   last_scraped_at,
   price,
   url,
+  isCheapest,
   handleClickAddProductToMyList,
 }: Props) {
-  const lastScrapedAtDate = new Date(last_scraped_at);
-  const isPossiblyUnavailable = checkIsPossiblyUnavailable(lastScrapedAtDate);
-  const lastScrapedAt = formatDate(last_scraped_at);
-
   return (
     <div className="border-border hover:bg-surface-sunken flex items-center justify-between gap-3 border-b py-3 transition-colors last:border-0">
       <div className="flex min-w-0 flex-col">
-        <a
-          href={url}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-primary focus-visible:outline-primary rounded font-medium hover:underline focus-visible:outline-2 focus-visible:outline-offset-2"
-        >
-          {pharmacy_name}
-        </a>
-        <p className={`text-sm ${isPossiblyUnavailable ? 'text-warning' : 'text-text-muted'}`}>
-          {`Ажурирано: ${lastScrapedAt}`}
-        </p>
+        <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+          <ExternalLink
+            href={url}
+            className="text-primary focus-visible:outline-primary rounded font-medium hover:underline focus-visible:outline-2 focus-visible:outline-offset-2"
+          >
+            {pharmacy_name}
+          </ExternalLink>
+          {isCheapest && <Badge variant="success">Најевтино</Badge>}
+        </div>
+        <LastUpdated
+          isoDate={last_scraped_at}
+          className="text-sm"
+        />
       </div>
 
       <div className="flex shrink-0 items-center gap-3">

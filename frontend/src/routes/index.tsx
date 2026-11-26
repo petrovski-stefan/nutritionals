@@ -38,11 +38,13 @@ const routes: Route[] = [
       <AuthGuard
         mode="private"
         redirectTo="/login"
+        reason="smart-search"
       >
         <SmartSearch />
       </AuthGuard>
     ),
-    showInHeaderMode: 'show',
+    // Logged-out users reach it through the link under the Home search, which explains sign-in
+    showInHeaderMode: 'showIfAuthOnly',
   },
   {
     linkText: 'За нас',
@@ -68,10 +70,10 @@ const routes: Route[] = [
         <Login />
       </AuthGuard>
     ),
-    showInHeaderMode: 'hide',
+    showInHeaderMode: 'showIfNotAuthOnly',
   },
   {
-    linkText: 'Приклучи се',
+    linkText: 'Регистрирај се',
     path: '/register',
     element: (
       <AuthGuard
@@ -89,7 +91,8 @@ const routes: Route[] = [
     element: (
       <AuthGuard
         mode="private"
-        redirectTo="/register"
+        redirectTo="/login"
+        reason="my-lists"
       >
         <MyLists />
       </AuthGuard>

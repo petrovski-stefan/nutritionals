@@ -22,7 +22,14 @@ export default function Layout({ children }: Props) {
   return (
     <div className="bg-surface text-text flex min-h-dvh w-full flex-col">
       <Header />
-      <main className="flex-1">{children}</main>
+      {/* tabIndex -1: the skip link in the header moves focus here */}
+      <main
+        id="main-content"
+        tabIndex={-1}
+        className="flex-1 outline-none"
+      >
+        {children}
+      </main>
       <Footer />
     </div>
   );

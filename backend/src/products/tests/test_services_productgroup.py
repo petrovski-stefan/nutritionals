@@ -74,6 +74,45 @@ class TestListProductgroups:
         with pytest.raises(exceptions.ProductSearchQueryShortAPIError):
             productgroup_service.list_productgroups(q="a")
 
+    def test_orders_by_lowest_current_price_groups_without_offers_last(self) -> None:
+        dear = ProductGroupFactory()
+        ProductFactory(group=dear, price=900.0)
+        cheap_on_discount = ProductGroupFactory()
+        ProductFactory(group=cheap_on_discount, price=1000.0, discount_price=300.0)
+        middle = ProductGroupFactory()
+        ProductFactory(group=middle, price=500.0)
+        ProductFactory(group=middle, price=450.0, is_reviewed=False)
+        empty = ProductGroupFactory()
+
+        result = list(productgroup_service.list_productgroups(ordering="price"))
+
+        assert result == [cheap_on_discount, middle, dear, empty]
+
+    def test_orders_by_price_over_every_offer_when_searching(self) -> None:
+        # The matching offer is dear, but the group's cheapest offer decides its place
+        cheap_elsewhere = ProductGroupFactory()
+        ProductFactory(group=cheap_elsewhere, normalized_name="zinc picolinate", price=900.0)
+        ProductFactory(group=cheap_elsewhere, normalized_name="omega 3", price=100.0)
+        middle = ProductGroupFactory()
+        ProductFactory(group=middle, normalized_name="zinc citrate", price=400.0)
+
+        result = list(productgroup_service.list_productgroups(q="zinc", ordering="price"))
+
+        assert result == [cheap_elsewhere, middle]
+
+    def test_orders_by_best_discount_groups_without_discount_last(self) -> None:
+        small = ProductGroupFactory()
+        ProductFactory(group=small, price=1000.0, discount_price=900.0)
+        big = ProductGroupFactory()
+        ProductFactory(group=big, price=1000.0, discount_price=500.0)
+        ProductFactory(group=big, price=1000.0, discount_price=800.0)
+        none = ProductGroupFactory()
+        ProductFactory(group=none, price=1000.0)
+
+        result = list(productgroup_service.list_productgroups(ordering="discount"))
+
+        assert result == [big, small, none]
+
 
 class TestListDiscountedGroups:
     def test_annotates_the_best_deal(self) -> None:

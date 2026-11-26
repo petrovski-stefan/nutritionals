@@ -1,4 +1,5 @@
 import Card from '@/components/ui/Card';
+import ExternalLink from '@/components/ui/ExternalLink';
 import { formatDate } from '@/shared/utils/dates';
 
 type Props = Readonly<{
@@ -19,14 +20,12 @@ export default function SupportedPharmacyCard({
   return (
     <Card className="flex aspect-square w-full flex-col items-center justify-center gap-3 p-4 sm:size-48">
       <p className="line-clamp-2 text-center text-lg font-semibold">
-        <a
+        <ExternalLink
           href={homepage}
-          target="_blank"
-          rel="noopener noreferrer"
           className="text-primary focus-visible:outline-primary rounded transition-colors hover:underline focus-visible:outline-2 focus-visible:outline-offset-2"
         >
           {name}
-        </a>
+        </ExternalLink>
       </p>
 
       <p className="text-text text-center text-lg">

@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 
 import IconButton from '@/components/ui/IconButton';
+import SkipLink from '@/components/ui/SkipLink';
 import ThemeToggle from '@/components/ui/ThemeToggle';
 import Tooltip from '@/components/ui/Tooltip';
 import { useAuthContext } from '@/context/AuthContext';
@@ -38,6 +39,13 @@ export default function Header() {
 
   return (
     <header className="bg-header sticky top-0 z-50 shadow-md">
+      <SkipLink
+        targetId="main-content"
+        className="focus:absolute focus:top-3 focus:left-3 focus:z-10"
+      >
+        Прескокни до содржината
+      </SkipLink>
+
       <div className="mx-auto flex h-16 w-full max-w-7xl items-center justify-between gap-4 px-4 sm:px-6">
         <Link
           to="/"
@@ -46,7 +54,7 @@ export default function Header() {
           Nutriceni
         </Link>
 
-        <nav className="hidden items-center gap-1 md:flex">{menuItemsLinks}</nav>
+        <nav className="hidden items-center gap-1 lg:flex">{menuItemsLinks}</nav>
 
         <div className="flex items-center gap-2">
           {isLoggedIn && (
@@ -76,7 +84,7 @@ export default function Header() {
           <IconButton
             label="Мени"
             variant="onPrimary"
-            className="md:hidden"
+            className="lg:hidden"
             aria-expanded={mobileMenuOpen}
             aria-controls="mobile-nav"
             onClick={() => {
@@ -91,7 +99,7 @@ export default function Header() {
       {mobileMenuOpen && (
         <nav
           id="mobile-nav"
-          className="border-t border-white/20 px-4 py-3 transition duration-200 ease-out motion-reduce:transition-none md:hidden starting:-translate-y-1 starting:opacity-0"
+          className="border-t border-white/20 px-4 py-3 transition duration-200 ease-out motion-reduce:transition-none lg:hidden starting:-translate-y-1 starting:opacity-0"
         >
           {/* Below sm the header has no room for the username, so the menu shows it */}
           {isLoggedIn && (

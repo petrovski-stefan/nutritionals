@@ -184,7 +184,7 @@ export default function AddProductToMyListModal({
               }}
             >
               <FolderPlusIcon className="h-4 w-4" />
-              Креирајте нова листа
+              Креирај нова листа
             </Button>
           )}
         </>

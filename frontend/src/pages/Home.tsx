@@ -1,4 +1,4 @@
-import { ChevronDownIcon, XIcon } from 'lucide-react';
+import { ChevronDownIcon } from 'lucide-react';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 
@@ -6,13 +6,9 @@ import PriceTransparencySection from '@/components/home/PriceTransparencySection
 import SectionCtaLink from '@/components/home/SectionCtaLink';
 import Section from '@/components/layout/Section';
 import Button from '@/components/ui/Button';
-import Card from '@/components/ui/Card';
-import IconButton from '@/components/ui/IconButton';
-import Input from '@/components/ui/Input';
 import LoadingStatus from '@/components/ui/LoadingStatus';
 import RetryButton from '@/components/ui/RetryButton';
 import StateMessage from '@/components/ui/StateMessage';
-import Tooltip from '@/components/ui/Tooltip';
 import SupportedPharmacyCard from '@/features/pharmacies/components/SupportedPharmacyCard';
 import SupportedPharmacyCardSkeleton from '@/features/pharmacies/components/SupportedPharmacyCardSkeleton';
 import usePharmacies from '@/features/pharmacies/hooks/usePharmacies';
@@ -20,15 +16,12 @@ import BestDealGroupCard from '@/features/products/components/BestDealGroupCard'
 import BestDealGroupCardSkeleton from '@/features/products/components/BestDealGroupCardSkeleton';
 import CategoryChips from '@/features/products/components/CategoryChips';
 import CategoryChipsSkeleton from '@/features/products/components/CategoryChipsSkeleton';
-import DropdownProductGroup from '@/features/products/components/DropdownProductGroup';
-import DropdownProductGroupSkeleton from '@/features/products/components/DropdownProductGroupSkeleton';
 import GroupOffersModal from '@/features/products/components/GroupOffersModal';
+import HomeSearch from '@/features/products/components/HomeSearch';
 import useDiscountedProductGroups from '@/features/products/hooks/useDiscountedProductGroups';
-import useProductGroupsSearch from '@/features/products/hooks/useProductGroupsSearch';
 import type { BackendDiscountedProductGroup } from '@/features/products/types/productgroups';
 
 // Skeleton counts approximate a typical first load of each section
-const SKELETON_SEARCH_ROWS = 3;
 const SKELETON_DEAL_CARDS = 6;
 const SKELETON_PHARMACY_CARDS = 4;
 
@@ -36,7 +29,6 @@ const SKELETON_PHARMACY_CARDS = 4;
 const MOBILE_VISIBLE_DEALS = 6;
 
 export default function Home() {
-  const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(null);
   const [openedGroup, setOpenedGroup] = useState<BackendDiscountedProductGroup | null>(null);
   const [showAllDeals, setShowAllDeals] = useState(false);
@@ -64,17 +56,6 @@ export default function Home() {
     refetch: refetchDiscountedGroups,
   } = useDiscountedProductGroups(selectedCategoryId);
 
-  const shouldSearch = searchQuery.length > 2;
-
-  const {
-    data: searchedGroups,
-    isSuccess: groupsSearchIsSuccess,
-    isPending: groupsSearchIsPending,
-    isError: groupsSearchIsError,
-    isFetching: groupsSearchIsFetching,
-    refetch: refetchGroupsSearch,
-  } = useProductGroupsSearch(searchQuery, shouldSearch);
-
   return (
     <div>
       <title>Nutriceni | Агрегатор за цени на суплементи</title>
@@ -89,77 +70,7 @@ export default function Home() {
       </Section>
 
       <Section center={true}>
-        <div className="relative w-full max-w-3xl">
-          <Card className="relative flex items-center p-2">
-            <Input
-              type="text"
-              aria-label="Пребарај суплементи"
-              placeholder="Пребарај суплементи..."
-              value={searchQuery}
-              className="border-0 pr-12 pointer-coarse:pr-16"
-              onChange={(e) => {
-                setSearchQuery(e.target.value);
-              }}
-            />
-            {searchQuery && (
-              <div className="absolute top-1/2 right-3 -translate-y-1/2">
-                <Tooltip
-                  text="Исчисти пребарување"
-                  placement="top"
-                >
-                  <IconButton
-                    label="Исчисти пребарување"
-                    onClick={() => {
-                      setSearchQuery('');
-                    }}
-                  >
-                    <XIcon className="h-5 w-5" />
-                  </IconButton>
-                </Tooltip>
-              </div>
-            )}
-          </Card>
-
-          {shouldSearch && (
-            <div className="border-border bg-surface-raised absolute top-full left-0 z-40 mt-2 max-h-96 w-full overflow-y-auto rounded-xl border p-2 shadow-md transition duration-200 ease-out motion-reduce:transition-none starting:-translate-y-1 starting:opacity-0">
-              {groupsSearchIsSuccess &&
-                searchedGroups.results.length > 0 &&
-                searchedGroups.results.map((group) => (
-                  <DropdownProductGroup
-                    key={group.id}
-                    productGroup={group}
-                  />
-                ))}
-
-              {groupsSearchIsSuccess && searchedGroups.results.length === 0 && (
-                <StateMessage
-                  variant="empty"
-                  message={`Нема производи за „${searchQuery}“. Пробајте со друг збор или со паметното пребарување.`}
-                />
-              )}
-
-              {groupsSearchIsPending && (
-                <>
-                  <LoadingStatus />
-                  {Array.from({ length: SKELETON_SEARCH_ROWS }, (_, index) => (
-                    <DropdownProductGroupSkeleton key={index} />
-                  ))}
-                </>
-              )}
-
-              {groupsSearchIsError && (
-                <StateMessage variant="error">
-                  <RetryButton
-                    onRetry={() => {
-                      void refetchGroupsSearch();
-                    }}
-                    isRetrying={groupsSearchIsFetching}
-                  />
-                </StateMessage>
-              )}
-            </div>
-          )}
-        </div>
+        <HomeSearch />
 
         <div className="mt-3 text-center">
           <Link

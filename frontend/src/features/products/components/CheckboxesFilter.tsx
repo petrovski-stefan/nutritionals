@@ -24,7 +24,8 @@ export default function CheckboxesFilter({
   const toggleLabel = isDisplayed ? 'Затвори' : 'Отвори';
 
   return (
-    <div className="border-border max-h-96 overflow-x-hidden overflow-y-auto border-t pt-4">
+    // Only the list scrolls, so the title and its toggle stay in place
+    <div className="border-border border-t pt-4">
       <div className="mb-2 flex items-center justify-between">
         <span className="text-text font-semibold">{filterTitle}</span>
 
@@ -50,7 +51,8 @@ export default function CheckboxesFilter({
       </div>
 
       {isDisplayed && (
-        <div className="mt-1 flex flex-col pl-1 transition-opacity duration-200 ease-out motion-reduce:transition-none starting:opacity-0">
+        // py-1 and pl-1 leave room for the checkboxes' focus ring inside the scroll area
+        <div className="mt-1 flex max-h-80 flex-col overflow-x-hidden overflow-y-auto py-1 pl-1 transition-opacity duration-200 ease-out motion-reduce:transition-none starting:opacity-0">
           {checkboxes}
         </div>
       )}

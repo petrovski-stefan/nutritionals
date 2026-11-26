@@ -4,8 +4,11 @@ type AuthContextValue = {
   username: string;
   accessToken: string;
   isLoggedIn: boolean;
+  // True after expireSession() until the next sign-in or sign-out, so guards can say why
+  hasSessionExpired: boolean;
   login: (username: string, accessToken: string) => void;
   logout: () => void;
+  expireSession: () => void;
 };
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
@@ -30,18 +33,20 @@ const removeLocalStorage = (key: LocalStorageKey) => {
 export function AuthProvider({ children }: AuthProviderProps) {
   const [username, setUsername] = useState(() => getInitialValue(USERNAME_LOCALSTORAGE_KEY));
   const [accessToken, setAccessToken] = useState(getInitialValue(ACCESS_TOKEN_LOCALSTORAGE_KEY));
+  const [hasSessionExpired, setHasSessionExpired] = useState(false);
 
   const isLoggedIn = username !== '' && accessToken !== '';
 
   const login = (username: string, accessToken: string) => {
     setAccessToken(accessToken);
     setUsername(username);
+    setHasSessionExpired(false);
 
     setLocalStorage(USERNAME_LOCALSTORAGE_KEY, username);
     setLocalStorage(ACCESS_TOKEN_LOCALSTORAGE_KEY, accessToken);
   };
 
-  const logout = () => {
+  const clearSession = () => {
     setAccessToken('');
     setUsername('');
 
@@ -49,7 +54,26 @@ export function AuthProvider({ children }: AuthProviderProps) {
     removeLocalStorage(ACCESS_TOKEN_LOCALSTORAGE_KEY);
   };
 
-  const value = { username, accessToken, isLoggedIn, login, logout };
+  const logout = () => {
+    clearSession();
+    setHasSessionExpired(false);
+  };
+
+  // The server rejected the token: sign out, and remember why for the sign-in page
+  const expireSession = () => {
+    clearSession();
+    setHasSessionExpired(true);
+  };
+
+  const value = {
+    username,
+    accessToken,
+    isLoggedIn,
+    hasSessionExpired,
+    login,
+    logout,
+    expireSession,
+  };
 
   return <AuthContext value={value}>{children}</AuthContext>;
 }

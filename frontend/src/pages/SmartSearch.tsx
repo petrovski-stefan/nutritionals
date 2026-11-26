@@ -5,12 +5,21 @@ import { useForm } from 'react-hook-form';
 
 import Section from '@/components/layout/Section';
 import Card from '@/components/ui/Card';
+import Chip from '@/components/ui/Chip';
 import IconButton from '@/components/ui/IconButton';
 import Input from '@/components/ui/Input';
 import Tooltip from '@/components/ui/Tooltip';
 import SmartSearchResultsModal from '@/features/products/components/SmartSearchResultsModal';
 import useSmartSearchProductGroups from '@/features/products/hooks/useSmartSearchProductGroups';
 import { type SmartSearchFormFields, SmartSearchSchema } from '@/features/products/schemas';
+
+// Goals, not conditions: the assistant suggests supplements, it doesn't treat anything
+const EXAMPLE_GOALS = [
+  'подобар сон',
+  'повеќе енергија',
+  'закрепнување по тренинг',
+  'здрави зглобови',
+];
 
 export default function SmartSearch() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -22,6 +31,8 @@ export default function SmartSearch() {
     handleSubmit,
     watch,
     reset,
+    setValue,
+    setFocus,
     formState: { errors },
   } = useForm<SmartSearchFormFields>({
     resolver: zodResolver(SmartSearchSchema),
@@ -98,6 +109,22 @@ export default function SmartSearch() {
             )}
           </form>
         </Card>
+
+        {/* Fill the input rather than search: each search is an AI call, and the user may want to edit it */}
+        <div className="mx-auto mt-4 flex w-full max-w-3xl flex-wrap items-center justify-center gap-2">
+          <span className="text-text-muted text-sm">Пробајте:</span>
+          {EXAMPLE_GOALS.map((goal) => (
+            <Chip
+              key={goal}
+              onClick={() => {
+                setValue('query', goal, { shouldValidate: true });
+                setFocus('query');
+              }}
+            >
+              {goal}
+            </Chip>
+          ))}
+        </div>
       </Section>
 
       <Section>
