@@ -41,33 +41,28 @@ export default function RegisterForm() {
 
       <Field
         label="Корисничко име"
+        hint="Најмалку 5 карактери."
         error={errors.username?.message}
       >
         <Input
           type="text"
-          placeholder="Внесете корисничко име со мин. 5 карактери"
           {...register('username')}
         />
       </Field>
 
       <Field
         label="Лозинка"
+        hint="Најмалку 8 карактери, од кои една голема буква и една цифра."
         error={errors.password?.message}
       >
-        <PasswordInput
-          placeholder="Внесете лозинка со мин. 8 карактери"
-          {...register('password')}
-        />
+        <PasswordInput {...register('password')} />
       </Field>
 
       <Field
         label="Повторете ја лозинката"
         error={errors.confirmPassword?.message}
       >
-        <PasswordInput
-          placeholder="Повторете ја лозинката"
-          {...register('confirmPassword')}
-        />
+        <PasswordInput {...register('confirmPassword')} />
       </Field>
 
       <Button

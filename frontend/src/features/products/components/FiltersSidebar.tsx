@@ -159,7 +159,7 @@ export default function FiltersSidebar({
           type="text"
           name="query"
           aria-label="Пребарај суплементи"
-          placeholder="Пример. Vitamin C"
+          placeholder="пр. Vitamin C"
           value={inputSearchQuery || ''}
           className="pr-20 pointer-coarse:pr-24"
           onChange={(e) => {

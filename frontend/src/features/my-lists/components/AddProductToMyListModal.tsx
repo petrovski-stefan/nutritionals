@@ -74,20 +74,17 @@ export default function AddProductToMyListModal({
 
   const isMutationPending = addProductToMyList.isPending || createMyList.isPending;
 
-  const title = (
-    <>
-      Додај го
-      <span>({productToMyList.pharmacyName}) </span>
-      <span className="text-primary">{productToMyList.productName}</span> во листа
-    </>
-  );
-
   return (
     <Modal
-      title={title}
+      title="Додај во листа"
       onClose={onClose}
       size="md"
     >
+      <div className="mb-4">
+        <p className="text-text font-medium">{productToMyList.productName}</p>
+        <p className="text-text-muted text-sm">{productToMyList.pharmacyName}</p>
+      </div>
+
       {myListsQuery.isError && (
         <StateMessage
           variant="error"
@@ -143,7 +140,7 @@ export default function AddProductToMyListModal({
           ))}
 
         {myListsQuery.isSuccess && myLists.length === 0 && (
-          <p className="text-text-muted text-sm italic">Немате креирано листи</p>
+          <p className="text-text-muted text-sm">Немате креирано листи</p>
         )}
       </div>
 

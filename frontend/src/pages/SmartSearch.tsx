@@ -57,7 +57,7 @@ export default function SmartSearch() {
                 <Input
                   type="text"
                   aria-label="Опишете ја вашата цел"
-                  placeholder="Опишете ја вашата цел ... (пр., посилен имунитет)"
+                  placeholder="пр. посилен имунитет"
                   maxLength={100}
                   className="pr-11 pointer-coarse:pr-12"
                   {...register('query')}

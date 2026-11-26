@@ -162,7 +162,7 @@ export default function Home() {
         <div className="mt-3 text-center">
           <Link
             to="/smart-search"
-            className="text-text-muted hover:text-primary focus-visible:outline-primary rounded text-sm italic transition-colors hover:underline focus-visible:outline-2 focus-visible:outline-offset-2"
+            className="text-text-muted hover:text-primary focus-visible:outline-primary rounded text-sm transition-colors hover:underline focus-visible:outline-2 focus-visible:outline-offset-2"
           >
             Не најдовте тоа што ви треба? Обидете се со паметното пребарување!
           </Link>

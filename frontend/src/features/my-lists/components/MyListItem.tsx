@@ -110,12 +110,12 @@ export default function MyListItem({
           {deleteButton}
         </div>
 
-        <p className={`mt-2 text-right text-xs italic ${scrapedDateClasses}`}>
+        <p className={`mt-2 text-right text-xs ${scrapedDateClasses}`}>
           Цената е последно ажурирана на: {lastScrapedAt}
         </p>
       </div>
 
-      <p className={`text-left text-xs italic md:hidden ${scrapedDateClasses}`}>
+      <p className={`text-left text-xs md:hidden ${scrapedDateClasses}`}>
         Цената е последно ажурирана на: {lastScrapedAt}
       </p>
     </li>

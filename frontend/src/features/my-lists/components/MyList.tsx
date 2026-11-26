@@ -45,7 +45,7 @@ export default function MyList({
           {items_count === 1 && '1 суплемент'}
           {items_count > 1 && `${String(items_count)} суплементи`}
         </p>
-        <p className="text-text-muted mt-1 text-xs italic">
+        <p className="text-text-muted mt-1 text-xs">
           Последно ажурирана на: {formatDate(updated_at)}
         </p>
       </div>
