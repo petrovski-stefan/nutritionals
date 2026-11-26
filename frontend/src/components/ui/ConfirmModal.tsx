@@ -1,16 +1,26 @@
-import Button from '@/components/ui/Button';
-import Modal from '@/components/ui/Modal';
+import type { ReactNode } from 'react';
+
+import Button from './Button';
+import Modal from './Modal';
 
 type Props = Readonly<{
-  myListName: string;
+  title: string;
+  message: ReactNode;
+  confirmText: string;
+  // Shown inside the modal when the action fails, so the user can retry without reopening it
+  errorMessage: string;
   isPending: boolean;
   isError: boolean;
   onConfirm: () => void;
   onClose: () => void;
 }>;
 
-export default function DeleteMyListModal({
-  myListName,
+// Confirmation for destructive actions: the confirm button is always the danger variant
+export default function ConfirmModal({
+  title,
+  message,
+  confirmText,
+  errorMessage,
   isPending,
   isError,
   onConfirm,
@@ -18,20 +28,18 @@ export default function DeleteMyListModal({
 }: Props) {
   return (
     <Modal
-      title="Избриши ја листата"
+      title={title}
       onClose={onClose}
       size="md"
     >
-      <p className="text-text mb-4">
-        Листата „{myListName}“ ќе биде трајно избришана, заедно со суплементите зачувани во неа.
-      </p>
+      <p className="text-text mb-4">{message}</p>
 
       {isError && (
         <p
           role="alert"
           className="text-danger mb-4 text-sm"
         >
-          Листата не беше избришана. Проверете ја врската и обидете се повторно.
+          {errorMessage}
         </p>
       )}
 
@@ -47,7 +55,7 @@ export default function DeleteMyListModal({
           isPending={isPending}
           onClick={onConfirm}
         >
-          Избриши
+          {confirmText}
         </Button>
       </div>
     </Modal>

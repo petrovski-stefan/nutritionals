@@ -4,12 +4,12 @@ import { useMemo, useState } from 'react';
 import SectionCtaLink from '@/components/home/SectionCtaLink';
 import Button from '@/components/ui/Button';
 import Card from '@/components/ui/Card';
+import ConfirmModal from '@/components/ui/ConfirmModal';
 import LoadingStatus from '@/components/ui/LoadingStatus';
 import RetryButton from '@/components/ui/RetryButton';
 import StateMessage from '@/components/ui/StateMessage';
 import { useAuthContext } from '@/context/AuthContext';
 import CreateUpdateMyListModal from '@/features/my-lists/components/CreateUpdateMyListModal';
-import DeleteMyListModal from '@/features/my-lists/components/DeleteMyListModal';
 import MyList from '@/features/my-lists/components/MyList';
 import MyListItem from '@/features/my-lists/components/MyListItem';
 import MyListItemSkeleton from '@/features/my-lists/components/MyListItemSkeleton';
@@ -22,6 +22,8 @@ import type { BackendMyListWithItems } from '@/features/my-lists/types';
 
 type SelectedMyList = Pick<BackendMyListWithItems, 'id' | 'name'>;
 
+type ItemToRemove = { productId: number; productName: string };
+
 const SKELETON_ROWS = 3;
 
 export default function MyLists() {
@@ -29,6 +31,7 @@ export default function MyLists() {
   const [isCreateUpdateMyListModalOpen, setIsCreateUpdateMyListModalOpen] = useState(false);
   const [myListToEdit, setMyListToEdit] = useState<SelectedMyList | null>(null);
   const [myListToDelete, setMyListToDelete] = useState<SelectedMyList | null>(null);
+  const [itemToRemove, setItemToRemove] = useState<ItemToRemove | null>(null);
 
   const { accessToken } = useAuthContext();
 
@@ -46,13 +49,10 @@ export default function MyLists() {
   );
 
   const handleViewMyList = (myListId: number) => {
-    // A failed removal belongs to the list it happened in
-    removeProductFromMyList.reset();
     setMyListIdToView(myListId);
   };
 
   const handleBackToMyLists = () => {
-    removeProductFromMyList.reset();
     setMyListIdToView(null);
   };
 
@@ -99,10 +99,27 @@ export default function MyLists() {
     );
   };
 
-  const handleRemoveProductFromMyList = (myListId: number | null, productId: number) => {
-    if (myListId === null) return;
+  const handleRemoveProductFromMyList = (productId: number, productName: string) => {
+    removeProductFromMyList.reset();
+    setItemToRemove({ productId, productName });
+  };
 
-    removeProductFromMyList.mutate({ myListId, productId });
+  const handleCloseRemoveProduct = () => {
+    removeProductFromMyList.reset();
+    setItemToRemove(null);
+  };
+
+  const handleConfirmRemoveProduct = () => {
+    if (itemToRemove === null || myListIdToView === null) return;
+
+    removeProductFromMyList.mutate(
+      { myListId: myListIdToView, productId: itemToRemove.productId },
+      {
+        onSuccess() {
+          setItemToRemove(null);
+        },
+      }
+    );
   };
 
   const isThereSelectedMyList = myListIdToView !== null;
@@ -130,12 +147,28 @@ export default function MyLists() {
       )}
 
       {myListToDelete !== null && (
-        <DeleteMyListModal
-          myListName={myListToDelete.name}
+        <ConfirmModal
+          title="Избриши ја листата"
+          message={`Листата „${myListToDelete.name}“ ќе биде трајно избришана, заедно со суплементите зачувани во неа.`}
+          confirmText="Избриши"
+          errorMessage="Листата не беше избришана. Проверете ја врската и обидете се повторно."
           isPending={deleteMyList.isPending}
           isError={deleteMyList.isError}
           onConfirm={handleConfirmDeleteMyList}
           onClose={handleCloseDeleteMyList}
+        />
+      )}
+
+      {itemToRemove !== null && (
+        <ConfirmModal
+          title="Отстрани од листата"
+          message={`„${itemToRemove.productName}“ ќе биде отстранет од листата „${selectedMyList?.name ?? ''}“.`}
+          confirmText="Отстрани"
+          errorMessage="Суплементот не беше отстранет. Проверете ја врската и обидете се повторно."
+          isPending={removeProductFromMyList.isPending}
+          isError={removeProductFromMyList.isError}
+          onConfirm={handleConfirmRemoveProduct}
+          onClose={handleCloseRemoveProduct}
         />
       )}
 
@@ -271,28 +304,13 @@ export default function MyLists() {
               </li>
             )}
 
-            {isThereSelectedMyList && removeProductFromMyList.isError && (
-              <li>
-                <p
-                  role="alert"
-                  className="text-danger p-4 text-center text-sm"
-                >
-                  Суплементот не беше отстранет од листата. Обидете се повторно.
-                </p>
-              </li>
-            )}
-
             {isThereSelectedMyList &&
               selectedMyListItemsLength > 0 &&
               myListItems.map((item) => (
                 <MyListItem
                   key={item.id}
-                  isRemoving={
-                    removeProductFromMyList.isPending &&
-                    removeProductFromMyList.variables.productId === item.product_id
-                  }
                   handleDeleteProductMyList={() => {
-                    handleRemoveProductFromMyList(myListIdToView, item.product_id);
+                    handleRemoveProductFromMyList(item.product_id, item.product_name);
                   }}
                   {...item}
                 />
