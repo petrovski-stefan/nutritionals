@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 
 import IconButton from '@/components/ui/IconButton';
+import SkipLink from '@/components/ui/SkipLink';
 import ThemeToggle from '@/components/ui/ThemeToggle';
 import Tooltip from '@/components/ui/Tooltip';
 import { useAuthContext } from '@/context/AuthContext';
@@ -38,6 +39,13 @@ export default function Header() {
 
   return (
     <header className="bg-header sticky top-0 z-50 shadow-md">
+      <SkipLink
+        targetId="main-content"
+        className="focus:absolute focus:top-3 focus:left-3 focus:z-10"
+      >
+        Прескокни до содржината
+      </SkipLink>
+
       <div className="mx-auto flex h-16 w-full max-w-7xl items-center justify-between gap-4 px-4 sm:px-6">
         <Link
           to="/"

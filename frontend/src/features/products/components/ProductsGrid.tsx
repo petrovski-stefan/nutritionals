@@ -67,7 +67,12 @@ export default function ProductsGrid({
   };
 
   return (
-    <div className="flex w-full flex-col gap-6">
+    // Target of the "skip to results" link on Compare, hence the id and tabIndex
+    <div
+      id="compare-results"
+      tabIndex={-1}
+      className="flex w-full flex-col gap-6 outline-none"
+    >
       {/* status: filter and search changes are announced with the new count */}
       {!isPending && !isError && totalCount > 0 && (
         <p

@@ -1,6 +1,7 @@
 import { StarIcon } from 'lucide-react';
 
 import Badge from '@/components/ui/Badge';
+import ExternalLink from '@/components/ui/ExternalLink';
 import IconButton from '@/components/ui/IconButton';
 import LastUpdated from '@/components/ui/LastUpdated';
 import Tooltip from '@/components/ui/Tooltip';
@@ -31,14 +32,12 @@ export default function ProductInGroup({
   return (
     <div className="border-border hover:bg-surface-sunken flex items-center justify-between gap-3 border-b py-3 transition-colors last:border-0">
       <div className="flex min-w-0 flex-col">
-        <a
+        <ExternalLink
           href={url}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-primary focus-visible:outline-primary rounded font-medium hover:underline focus-visible:outline-2 focus-visible:outline-offset-2"
+          className="text-primary focus-visible:outline-primary self-start rounded font-medium hover:underline focus-visible:outline-2 focus-visible:outline-offset-2"
         >
           {pharmacy_name}
-        </a>
+        </ExternalLink>
         <LastUpdated
           isoDate={last_scraped_at}
           className="text-sm"

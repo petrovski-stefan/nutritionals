@@ -1,6 +1,7 @@
 import { BrainIcon, XIcon } from 'lucide-react';
 
 import Badge from '@/components/ui/Badge';
+import ExternalLink from '@/components/ui/ExternalLink';
 import IconButton from '@/components/ui/IconButton';
 import LastUpdated from '@/components/ui/LastUpdated';
 import Tooltip from '@/components/ui/Tooltip';
@@ -79,14 +80,13 @@ export default function MyListItem({
               <BrainIcon className="text-info h-5 w-5 shrink-0" />
             </Tooltip>
           )}
-          <a
+          <ExternalLink
             href={product_url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-text focus-visible:outline-primary rounded break-words hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 md:truncate"
+            className="text-text focus-visible:outline-primary rounded hover:underline focus-visible:outline-2 focus-visible:outline-offset-2"
+            textClassName="break-words md:truncate"
           >
             {product_name}
-          </a>
+          </ExternalLink>
         </h3>
 
         <p className="text-text-muted mt-1 w-full truncate text-sm">

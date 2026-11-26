@@ -1,4 +1,5 @@
 import Badge from '@/components/ui/Badge';
+import ExternalLink from '@/components/ui/ExternalLink';
 import LastUpdated from '@/components/ui/LastUpdated';
 import type { BackendProduct } from '@/features/products/types/products';
 import { formatPrice } from '@/shared/utils/prices';
@@ -14,14 +15,13 @@ export default function DropdownGroupOffer({
   return (
     <div className="border-border flex items-center justify-between gap-3 border-b py-2 last:border-0">
       <div className="flex min-w-0 flex-col">
-        <a
+        <ExternalLink
           href={url}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-primary focus-visible:outline-primary truncate rounded py-1 text-sm font-medium hover:underline focus-visible:outline-2 focus-visible:outline-offset-2"
+          className="text-primary focus-visible:outline-primary self-start rounded py-1 text-sm font-medium hover:underline focus-visible:outline-2 focus-visible:outline-offset-2"
+          textClassName="truncate"
         >
           {pharmacy_name}
-        </a>
+        </ExternalLink>
         <LastUpdated
           isoDate={last_scraped_at}
           className="text-xs"

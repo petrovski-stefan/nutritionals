@@ -1,5 +1,6 @@
 import { type FormEvent, useState } from 'react';
 
+import SkipLink from '@/components/ui/SkipLink';
 import FiltersSidebar from '@/features/products/components/FiltersSidebar';
 import ProductsGrid from '@/features/products/components/ProductsGrid';
 import useCompareSearchParams from '@/features/products/hooks/useCompareSearchParams';
@@ -91,10 +92,18 @@ export default function ComparePrices() {
   };
 
   return (
-    <div className="mx-auto grid w-full max-w-[96rem] items-start gap-6 px-4 py-8 sm:px-6 md:grid-cols-[280px_1fr]">
+    <div className="relative mx-auto grid w-full max-w-[96rem] items-start gap-6 px-4 py-8 sm:px-6 md:grid-cols-[280px_1fr]">
       <title>Спореди цени | Nutriceni</title>
 
       <h1 className="text-text text-2xl font-bold sm:text-3xl md:col-span-2">Спореди цени</h1>
+
+      {/* Keyboard users would otherwise tab through every filter before reaching a result */}
+      <SkipLink
+        targetId="compare-results"
+        className="focus:absolute focus:top-2 focus:left-4 focus:z-10"
+      >
+        Прескокни до резултатите
+      </SkipLink>
 
       <FiltersSidebar
         handleSearchFormSubmit={handleSearchFormSubmit}

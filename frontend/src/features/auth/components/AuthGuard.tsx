@@ -14,7 +14,7 @@ type Props = Readonly<
 >;
 
 export default function AuthGuard({ children, mode, redirectTo, reason }: Props) {
-  const { isLoggedIn } = useAuthContext();
+  const { isLoggedIn, hasSessionExpired } = useAuthContext();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -27,7 +27,11 @@ export default function AuthGuard({ children, mode, redirectTo, reason }: Props)
 
     if (isPrivateRoute) {
       // Login and register send the user back to `from` once they are signed in
-      const state: AuthRedirectState = reason ? { from: location, reason } : { from: location };
+      // An expired session explains itself instead of the page's usual reason
+      const redirectReason = hasSessionExpired ? 'session-expired' : reason;
+      const state: AuthRedirectState = redirectReason
+        ? { from: location, reason: redirectReason }
+        : { from: location };
       void navigate(redirectTo, { state });
       return;
     }
@@ -35,7 +39,7 @@ export default function AuthGuard({ children, mode, redirectTo, reason }: Props)
     const state = location.state as AuthRedirectState | null;
     const from = state?.from;
     void navigate(from?.pathname ? from.pathname + (from.search ?? '') : redirectTo);
-  }, [location, navigate, shouldRedirect, isPrivateRoute, redirectTo, reason]);
+  }, [location, navigate, shouldRedirect, isPrivateRoute, redirectTo, reason, hasSessionExpired]);
 
   return shouldRedirect ? null : children;
 }

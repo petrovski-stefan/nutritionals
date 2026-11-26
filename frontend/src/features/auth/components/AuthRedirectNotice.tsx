@@ -8,6 +8,7 @@ const MESSAGES: Record<AuthRedirectReason, string> = {
   'smart-search': 'Паметното пребарување е достапно за најавени корисници.',
   'my-lists': 'Листите се достапни за најавени корисници.',
   'add-to-list': 'Зачувувањето суплементи во листа е достапно за најавени корисници.',
+  'session-expired': 'Вашата сесија истече. Најавете се повторно за да продолжите.',
 };
 
 // Tells a user who was redirected here why they need an account
