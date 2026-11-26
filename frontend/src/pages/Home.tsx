@@ -172,7 +172,7 @@ export default function Home() {
         )}
 
         {discountedGroupsIsSuccess && discountedGroups.results.length > 0 && (
-          <div className="flex flex-wrap justify-center gap-5">
+          <div className="grid grid-cols-2 gap-3 sm:flex sm:flex-wrap sm:justify-center sm:gap-5">
             {discountedGroups.results.map((group) => (
               <BestDealGroupCard
                 key={group.id}
@@ -196,7 +196,7 @@ export default function Home() {
           <>
             <LoadingStatus />
             <CategoryChipsSkeleton />
-            <div className="flex flex-wrap justify-center gap-5">
+            <div className="grid grid-cols-2 gap-3 sm:flex sm:flex-wrap sm:justify-center sm:gap-5">
               {Array.from({ length: SKELETON_DEAL_CARDS }, (_, index) => (
                 <BestDealGroupCardSkeleton key={index} />
               ))}
@@ -232,7 +232,7 @@ export default function Home() {
         title="Поддржани аптеки од системот"
       >
         {pharmaciesIsSuccess && (
-          <div className="flex flex-wrap justify-center gap-5">
+          <div className="grid grid-cols-2 gap-3 sm:flex sm:flex-wrap sm:justify-center sm:gap-5">
             {pharmacies.map((pharmacy) => (
               <SupportedPharmacyCard
                 key={pharmacy.id}
@@ -250,7 +250,7 @@ export default function Home() {
         )}
 
         {pharmaciesIsPending && (
-          <div className="flex flex-wrap justify-center gap-5">
+          <div className="grid grid-cols-2 gap-3 sm:flex sm:flex-wrap sm:justify-center sm:gap-5">
             <LoadingStatus />
             {Array.from({ length: SKELETON_PHARMACY_CARDS }, (_, index) => (
               <SupportedPharmacyCardSkeleton key={index} />

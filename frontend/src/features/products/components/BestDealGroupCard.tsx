@@ -16,7 +16,7 @@ export default function BestDealGroupCard({ group, onOpenOffers }: Props) {
   return (
     <Card
       hover
-      className="flex w-44 flex-col items-center p-4 sm:w-48"
+      className="flex w-full flex-col items-center p-4 sm:w-48"
     >
       <div className="mb-2 flex w-full justify-center">
         <Badge variant="accent">-{best_discount_percent}%</Badge>
@@ -35,13 +35,15 @@ export default function BestDealGroupCard({ group, onOpenOffers }: Props) {
 
       <button
         type="button"
-        className="bg-primary/10 text-primary hover:bg-primary/15 focus-visible:outline-primary flex w-full items-center justify-center gap-1 rounded-lg px-3 py-2 text-xs font-medium transition duration-150 ease-out focus-visible:outline-2 focus-visible:outline-offset-2 active:scale-[0.98] motion-reduce:transition-none"
+        className="bg-primary/10 text-primary hover:bg-primary/15 focus-visible:outline-primary mt-auto flex w-full items-center justify-center gap-1 rounded-lg px-3 py-2 text-xs font-medium transition duration-150 ease-out focus-visible:outline-2 focus-visible:outline-offset-2 active:scale-[0.98] motion-reduce:transition-none"
         onClick={() => {
           onOpenOffers(group);
         }}
       >
         <TagIcon className="h-4 w-4 shrink-0" />
-        <span className="truncate">Спореди {offer_count} понуди</span>
+        <span className="text-center leading-tight">
+          {offer_count === 1 ? 'Види ја понудата' : `Спореди ${String(offer_count)} понуди`}
+        </span>
       </button>
     </Card>
   );

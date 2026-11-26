@@ -19,7 +19,7 @@ export default function SupportedPharmacyCard({
   return (
     <Card
       hover
-      className="flex size-44 flex-col items-center justify-center gap-3 p-4 sm:size-48"
+      className="flex aspect-square w-full flex-col items-center justify-center gap-3 p-4 sm:size-48"
     >
       <p className="line-clamp-2 text-center text-lg font-semibold">
         <a

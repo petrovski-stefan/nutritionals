@@ -33,16 +33,7 @@ export default function ProductInGroup({
   const lastScrapedAt = formatDate(last_scraped_at);
 
   return (
-    <div className="border-border hover:bg-surface-sunken relative flex items-center justify-between gap-3 border-b py-3 transition-colors last:border-0">
-      {!!discount_percent && (
-        <Badge
-          variant="accent"
-          className="absolute top-1 right-0"
-        >
-          -{discount_percent}%
-        </Badge>
-      )}
-
+    <div className="border-border hover:bg-surface-sunken flex items-center justify-between gap-3 border-b py-3 transition-colors last:border-0">
       <div className="flex min-w-0 flex-col">
         <a
           href={url}
@@ -60,9 +51,12 @@ export default function ProductInGroup({
       <div className="flex shrink-0 items-center gap-3">
         {discount_price ? (
           <div className="flex flex-col items-end">
-            <p className="text-text-muted text-sm tabular-nums line-through">
-              {formatPrice(price)}
-            </p>
+            <div className="flex items-center gap-1.5">
+              {!!discount_percent && <Badge variant="accent">-{discount_percent}%</Badge>}
+              <p className="text-text-muted text-sm tabular-nums line-through">
+                {formatPrice(price)}
+              </p>
+            </div>
             <p className="text-accent text-lg font-semibold tabular-nums">
               {formatPrice(discount_price)}
             </p>
