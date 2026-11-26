@@ -33,7 +33,8 @@ export default function AuthGuard({ children, mode, redirectTo, reason }: Props)
     }
 
     const state = location.state as AuthRedirectState | null;
-    void navigate(state?.from?.pathname ?? redirectTo);
+    const from = state?.from;
+    void navigate(from?.pathname ? from.pathname + (from.search ?? '') : redirectTo);
   }, [location, navigate, shouldRedirect, isPrivateRoute, redirectTo, reason]);
 
   return shouldRedirect ? null : children;

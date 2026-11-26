@@ -13,6 +13,7 @@ import StateMessage from '@/components/ui/StateMessage';
 import Tooltip from '@/components/ui/Tooltip';
 import useBrands from '@/features/products/hooks/useBrands';
 import useCategories from '@/features/products/hooks/useCategories';
+import { MIN_SEARCH_QUERY_LENGTH } from '@/features/products/schemas';
 import type { GroupFilterDisplay, GroupFilterValue } from '@/features/products/types/productgroups';
 
 import CheckboxesFilter from './CheckboxesFilter';
@@ -20,6 +21,7 @@ import CheckboxesFilter from './CheckboxesFilter';
 type Props = Readonly<{
   inputSearchQuery: string;
   setInputSearchQuery: (value: string) => void;
+  showLengthHint: boolean;
   handleSearchFormSubmit: (e: FormEvent) => void;
 
   handleFilterValueChange: (key: keyof GroupFilterValue, value: number, isChecked: boolean) => void;
@@ -84,6 +86,7 @@ const getFilterContent = ({
 export default function FiltersSidebar({
   inputSearchQuery,
   setInputSearchQuery,
+  showLengthHint,
   handleSearchFormSubmit,
   handleFilterValueChange,
   handleClearInputSearchQuery,
@@ -191,6 +194,15 @@ export default function FiltersSidebar({
           </Tooltip>
         </div>
       </form>
+
+      {showLengthHint && (
+        <p
+          role="status"
+          className="text-text-muted -mt-3 text-sm"
+        >
+          Внесете најмалку {MIN_SEARCH_QUERY_LENGTH} карактери.
+        </p>
+      )}
 
       {/* Below md the filters stay closed, so the results start on the first screen */}
       <Button

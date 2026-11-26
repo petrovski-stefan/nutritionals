@@ -2,7 +2,9 @@ import { type FormEvent, useState } from 'react';
 
 import FiltersSidebar from '@/features/products/components/FiltersSidebar';
 import ProductsGrid from '@/features/products/components/ProductsGrid';
+import useCompareSearchParams from '@/features/products/hooks/useCompareSearchParams';
 import useProductGroups from '@/features/products/hooks/useProductGroups';
+import { MIN_SEARCH_QUERY_LENGTH } from '@/features/products/schemas';
 import type { GroupFilterValue } from '@/features/products/types/productgroups';
 
 const filtersDefault: GroupFilterValue = {
@@ -13,92 +15,77 @@ const filtersDefault: GroupFilterValue = {
 const PAGE_SIZE = 6;
 
 export default function ComparePrices() {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [submittedQuery, setSubmittedQuery] = useState('');
-  const [filters, setFilters] = useState<GroupFilterValue>(filtersDefault);
-  const [currentPage, setCurrentPage] = useState(1);
+  const {
+    query: submittedQuery,
+    filters,
+    page: currentPage,
+    updateSearchParams,
+  } = useCompareSearchParams();
+
+  // The input is a draft; the URL holds the submitted search
+  const [searchQuery, setSearchQuery] = useState(submittedQuery);
+  const [syncedQuery, setSyncedQuery] = useState(submittedQuery);
+  const [showLengthHint, setShowLengthHint] = useState(false);
+
+  // Keep the input in step when the URL changes underneath it (Back/Forward, "show all" from Home)
+  if (syncedQuery !== submittedQuery) {
+    setSyncedQuery(submittedQuery);
+    setSearchQuery(submittedQuery);
+  }
 
   const productGroupsQuery = useProductGroups(submittedQuery, filters, currentPage);
 
   const groups = productGroupsQuery.data?.results ?? [];
-  const totalPages = Math.ceil((productGroupsQuery.data?.count ?? 0) / PAGE_SIZE);
+  const totalCount = productGroupsQuery.data?.count ?? 0;
+  const totalPages = Math.ceil(totalCount / PAGE_SIZE);
 
   const handleFilterChange = (key: keyof GroupFilterValue, value: number, isChecked: boolean) => {
-    if (isChecked) {
-      setFilters((prev) => ({
-        ...prev,
-        [key]: [...prev[key], value],
-      }));
-    } else {
-      setFilters((prev) => ({
-        ...prev,
-        [key]: prev[key].filter((v) => v !== value),
-      }));
-    }
-
-    setCurrentPage(1);
+    const ids = isChecked ? [...filters[key], value] : filters[key].filter((v) => v !== value);
+    updateSearchParams({ filters: { ...filters, [key]: ids }, page: 1 });
   };
 
   const handleSearchFormSubmit = (e: FormEvent) => {
     e.preventDefault();
 
-    if (searchQuery.length < 2) {
+    const query = searchQuery.trim();
+    if (query.length < MIN_SEARCH_QUERY_LENGTH) {
+      setShowLengthHint(true);
       return;
     }
+    setShowLengthHint(false);
 
-    if (searchQuery === submittedQuery) {
-      // Same key — react-query won't refetch on its own, but submit should always re-search
-      setCurrentPage(1);
-      if (currentPage === 1) {
-        void productGroupsQuery.refetch();
-      }
+    if (query === submittedQuery && currentPage === 1) {
+      // Same URL, so react-query won't refetch on its own, but submit should always re-search
+      void productGroupsQuery.refetch();
       return;
     }
-
-    setCurrentPage(1);
-    setSubmittedQuery(searchQuery);
+    updateSearchParams({ query, page: 1 });
   };
 
   const handleClearInputSearchQuery = () => {
-    if (searchQuery === '' && submittedQuery === '') {
-      return;
-    }
-
     setSearchQuery('');
-    setSubmittedQuery('');
-    setCurrentPage(1);
+    setShowLengthHint(false);
+    if (submittedQuery !== '') updateSearchParams({ query: '', page: 1 });
   };
 
   // Back to page 1: the old page number may not exist once the filters change
   const handleClearFilters = () => {
-    setFilters(filtersDefault);
-    setCurrentPage(1);
+    updateSearchParams({ filters: filtersDefault, page: 1 });
   };
 
   const handleResetSearch = () => {
     setSearchQuery('');
-    setSubmittedQuery('');
-    setFilters(filtersDefault);
-    setCurrentPage(1);
+    updateSearchParams({ query: '', filters: filtersDefault, page: 1 });
   };
 
   const hasActiveSearch =
     submittedQuery !== '' || filters.brandIds.length > 0 || filters.categoryIds.length > 0;
 
   const handleClickPagination = (back: boolean) => {
-    if (back) {
-      if (currentPage === 1) {
-        return;
-      }
+    const nextPage = back ? currentPage - 1 : currentPage + 1;
+    if (nextPage < 1 || nextPage > totalPages) return;
 
-      setCurrentPage((prev) => prev - 1);
-    } else {
-      if (currentPage === totalPages) {
-        return;
-      }
-      setCurrentPage((prev) => prev + 1);
-    }
-
+    updateSearchParams({ page: nextPage });
     // Otherwise the next page opens where the old one was scrolled to: at its bottom
     window.scrollTo(0, 0);
   };
@@ -107,10 +94,16 @@ export default function ComparePrices() {
     <div className="mx-auto grid w-full max-w-[96rem] items-start gap-6 px-4 py-8 sm:px-6 md:grid-cols-[280px_1fr]">
       <title>Спореди цени | Nutriceni</title>
 
+      <h1 className="text-text text-2xl font-bold sm:text-3xl md:col-span-2">Спореди цени</h1>
+
       <FiltersSidebar
         handleSearchFormSubmit={handleSearchFormSubmit}
         inputSearchQuery={searchQuery}
-        setInputSearchQuery={setSearchQuery}
+        setInputSearchQuery={(value) => {
+          setSearchQuery(value);
+          setShowLengthHint(false);
+        }}
+        showLengthHint={showLengthHint}
         handleFilterValueChange={handleFilterChange}
         handleClearInputSearchQuery={handleClearInputSearchQuery}
         filters={filters}
@@ -119,6 +112,8 @@ export default function ComparePrices() {
 
       <ProductsGrid
         groups={groups}
+        totalCount={totalCount}
+        query={submittedQuery}
         totalPages={totalPages}
         currentPage={currentPage}
         handlePaginationClick={handleClickPagination}

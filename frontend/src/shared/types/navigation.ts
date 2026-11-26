@@ -3,6 +3,6 @@
 export type AuthRedirectReason = 'smart-search' | 'my-lists' | 'add-to-list';
 
 export type AuthRedirectState = {
-  from?: { pathname?: string };
+  from?: { pathname?: string; search?: string };
   reason?: AuthRedirectReason;
 };

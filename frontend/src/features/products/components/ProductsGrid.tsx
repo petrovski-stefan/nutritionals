@@ -19,6 +19,8 @@ const SKELETON_CARDS = 6;
 
 type Props = Readonly<{
   groups: BackendProductGroup[];
+  totalCount: number;
+  query: string;
   totalPages: number;
   currentPage: number;
   handlePaginationClick: (back: boolean) => void;
@@ -32,6 +34,8 @@ type Props = Readonly<{
 
 export default function ProductsGrid({
   groups,
+  totalCount,
+  query,
   totalPages,
   currentPage,
   handlePaginationClick,
@@ -64,6 +68,18 @@ export default function ProductsGrid({
 
   return (
     <div className="flex w-full flex-col gap-6">
+      {/* status: filter and search changes are announced with the new count */}
+      {!isPending && !isError && totalCount > 0 && (
+        <p
+          role="status"
+          className="text-text-muted -mb-2 text-sm"
+        >
+          <span className="text-text font-semibold tabular-nums">{totalCount}</span>{' '}
+          {totalCount === 1 ? 'суплемент' : 'суплементи'}
+          {query && ` за „${query}“`}
+        </p>
+      )}
+
       {productToMyList && (
         <AddProductToMyListModal
           productToMyList={productToMyList}
