@@ -72,7 +72,7 @@ const routes: Route[] = [
     showInHeaderMode: 'showIfNotAuthOnly',
   },
   {
-    linkText: 'Приклучи се',
+    linkText: 'Регистрирај се',
     path: '/register',
     element: (
       <AuthGuard

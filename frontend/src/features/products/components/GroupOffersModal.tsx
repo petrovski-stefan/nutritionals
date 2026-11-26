@@ -11,6 +11,7 @@ type Props = Readonly<{
 
 export default function GroupOffersModal({ group, onClose }: Props) {
   const offers = [...group.products].sort((a, b) => getEffectivePrice(a) - getEffectivePrice(b));
+  const cheapestPrice = offers[0] ? getEffectivePrice(offers[0]) : null;
 
   return (
     <Modal
@@ -28,6 +29,7 @@ export default function GroupOffersModal({ group, onClose }: Props) {
           <DropdownGroupOffer
             key={product.id}
             {...product}
+            isCheapest={offers.length > 1 && getEffectivePrice(product) === cheapestPrice}
           />
         ))}
       </div>

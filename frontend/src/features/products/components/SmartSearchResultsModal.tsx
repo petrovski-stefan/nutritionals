@@ -61,9 +61,9 @@ export default function SmartSearchResultsModal({
     if (isPending) return 'Паметниот асистент бара суплементи ...';
     if (isError) return 'Паметно пребарување';
     if (hasGroups) {
-      return `Паметниот асистент пронајде ${String(groupsLength)} производи за вашето барање: "${query}".`;
+      return `Паметниот асистент пронајде ${String(groupsLength)} ${groupsLength === 1 ? 'суплемент' : 'суплементи'} за „${query}“`;
     }
-    return `Не се пронајдени производи за „${query}“`;
+    return `Не се пронајдени суплементи за „${query}“`;
   };
 
   if (productToMyList !== null) {
@@ -127,6 +127,14 @@ export default function SmartSearchResultsModal({
             />
           ))}
         </div>
+      )}
+
+      {/* The page's disclaimer is hidden behind this modal, so the results repeat it */}
+      {!isPending && !isError && hasGroups && (
+        <p className="text-text-muted mt-4 text-xs">
+          Предлозите се само информативни и не се медицински совет. Пред да започнете со суплемент,
+          консултирајте се со здравствен работник.
+        </p>
       )}
     </Modal>
   );

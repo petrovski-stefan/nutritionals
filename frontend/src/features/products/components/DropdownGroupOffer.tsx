@@ -11,17 +11,21 @@ export default function DropdownGroupOffer({
   pharmacy_name,
   url,
   last_scraped_at,
-}: Readonly<BackendProduct>) {
+  isCheapest,
+}: Readonly<BackendProduct & { isCheapest: boolean }>) {
   return (
     <div className="border-border flex items-center justify-between gap-3 border-b py-2 last:border-0">
       <div className="flex min-w-0 flex-col">
-        <ExternalLink
-          href={url}
-          className="text-primary focus-visible:outline-primary self-start rounded py-1 text-sm font-medium hover:underline focus-visible:outline-2 focus-visible:outline-offset-2"
-          textClassName="truncate"
-        >
-          {pharmacy_name}
-        </ExternalLink>
+        <div className="flex flex-wrap items-center gap-x-2">
+          <ExternalLink
+            href={url}
+            className="text-primary focus-visible:outline-primary rounded py-1 text-sm font-medium hover:underline focus-visible:outline-2 focus-visible:outline-offset-2"
+            textClassName="truncate"
+          >
+            {pharmacy_name}
+          </ExternalLink>
+          {isCheapest && <Badge variant="success">Најевтино</Badge>}
+        </div>
         <LastUpdated
           isoDate={last_scraped_at}
           className="text-xs"

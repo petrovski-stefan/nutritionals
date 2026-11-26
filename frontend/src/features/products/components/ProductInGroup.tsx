@@ -10,6 +10,8 @@ import { formatPrice } from '@/shared/utils/prices';
 
 type Props = Readonly<
   BackendProduct & {
+    // Marked "Најевтино" (there can be ties); the parent compares the group's offers
+    isCheapest: boolean;
     handleClickAddProductToMyList: (
       productId: number,
       productName: string,
@@ -27,17 +29,21 @@ export default function ProductInGroup({
   last_scraped_at,
   price,
   url,
+  isCheapest,
   handleClickAddProductToMyList,
 }: Props) {
   return (
     <div className="border-border hover:bg-surface-sunken flex items-center justify-between gap-3 border-b py-3 transition-colors last:border-0">
       <div className="flex min-w-0 flex-col">
-        <ExternalLink
-          href={url}
-          className="text-primary focus-visible:outline-primary self-start rounded font-medium hover:underline focus-visible:outline-2 focus-visible:outline-offset-2"
-        >
-          {pharmacy_name}
-        </ExternalLink>
+        <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+          <ExternalLink
+            href={url}
+            className="text-primary focus-visible:outline-primary rounded font-medium hover:underline focus-visible:outline-2 focus-visible:outline-offset-2"
+          >
+            {pharmacy_name}
+          </ExternalLink>
+          {isCheapest && <Badge variant="success">Најевтино</Badge>}
+        </div>
         <LastUpdated
           isoDate={last_scraped_at}
           className="text-sm"

@@ -61,7 +61,7 @@ export default function LoginForm() {
         isPending={isPending}
         className="w-full"
       >
-        Најавете се
+        Најави се
       </Button>
     </form>
   );

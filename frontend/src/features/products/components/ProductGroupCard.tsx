@@ -29,6 +29,8 @@ export default function ProductGroupCard({ productGroup, handleClickAddProductTo
   const offers = [...productGroup.products].sort(
     (a, b) => getEffectivePrice(a) - getEffectivePrice(b)
   );
+  // Only worth marking when there is something to compare against
+  const cheapestPrice = offers.length > 1 && offers[0] ? getEffectivePrice(offers[0]) : null;
   const hiddenOffersCount = offers.length - VISIBLE_OFFERS;
   const visibleOffers = showAllOffers ? offers : offers.slice(0, VISIBLE_OFFERS);
   const offersId = `group-card-offers-${String(productGroup.id)}`;
@@ -54,6 +56,7 @@ export default function ProductGroupCard({ productGroup, handleClickAddProductTo
           <ProductInGroup
             key={product.id}
             {...product}
+            isCheapest={getEffectivePrice(product) === cheapestPrice}
             handleClickAddProductToMyList={handleClickAddProductToMyList}
           />
         ))}

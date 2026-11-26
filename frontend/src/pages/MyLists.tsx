@@ -20,6 +20,7 @@ import useMyList from '@/features/my-lists/hooks/useMyList';
 import useMyLists from '@/features/my-lists/hooks/useMyLists';
 import useRemoveProductFromMyList from '@/features/my-lists/hooks/useRemoveProductFromMyList';
 import type { BackendMyListWithItems, MyListsLocationState } from '@/features/my-lists/types';
+import useMediaQuery from '@/shared/hooks/useMediaQuery';
 
 type SelectedMyList = Pick<BackendMyListWithItems, 'id' | 'name'>;
 
@@ -41,11 +42,16 @@ export default function MyLists() {
   const { accessToken } = useAuthContext();
 
   const myListsQuery = useMyLists(accessToken);
-  const myListQuery = useMyList(myListIdToView);
   const deleteMyList = useDeleteMyList();
   const removeProductFromMyList = useRemoveProductFromMyList();
 
   const myLists = myListsQuery.data ?? [];
+
+  // From md up both panels show, so an empty detail panel would only ask for a click.
+  // Below md the lists come first, so nothing opens on its own there
+  const isDesktop = useMediaQuery('(min-width: 48rem)');
+  const selectedMyListId = myListIdToView ?? (isDesktop ? (myLists[0]?.id ?? null) : null);
+  const myListQuery = useMyList(selectedMyListId);
   const myListItems = myListQuery.data?.items ?? [];
 
   const existingNames = useMemo(
@@ -95,7 +101,7 @@ export default function MyLists() {
       { myListId },
       {
         onSuccess() {
-          if (myListIdToView === myListId) {
+          if (selectedMyListId === myListId) {
             setMyListIdToView(null);
           }
           setMyListToDelete(null);
@@ -115,10 +121,10 @@ export default function MyLists() {
   };
 
   const handleConfirmRemoveProduct = () => {
-    if (itemToRemove === null || myListIdToView === null) return;
+    if (itemToRemove === null || selectedMyListId === null) return;
 
     removeProductFromMyList.mutate(
-      { myListId: myListIdToView, productId: itemToRemove.productId },
+      { myListId: selectedMyListId, productId: itemToRemove.productId },
       {
         onSuccess() {
           setItemToRemove(null);
@@ -127,8 +133,8 @@ export default function MyLists() {
     );
   };
 
-  const isThereSelectedMyList = myListIdToView !== null;
-  const selectedMyList = myLists.find(({ id }) => id === myListIdToView);
+  const isThereSelectedMyList = selectedMyListId !== null;
+  const selectedMyList = myLists.find(({ id }) => id === selectedMyListId);
   const selectedMyListItemsLength = isThereSelectedMyList ? myListItems.length : 0;
 
   return (
@@ -191,7 +197,7 @@ export default function MyLists() {
               myLists.map((myList) => (
                 <MyList
                   key={myList.id}
-                  isMyListCurrentlyViewed={myListIdToView === myList.id}
+                  isMyListCurrentlyViewed={selectedMyListId === myList.id}
                   handleMyListToView={handleViewMyList}
                   handleDeleteMyList={handleDeleteMyList}
                   handleClickMyListToEdit={handleClickUpdateMyList}

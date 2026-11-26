@@ -63,6 +63,7 @@ export default function DropdownProductGroup({ productGroup }: Props) {
             <DropdownGroupOffer
               key={product.id}
               {...product}
+              isCheapest={offers.length > 1 && getEffectivePrice(product) === minPrice}
             />
           ))}
         </div>
