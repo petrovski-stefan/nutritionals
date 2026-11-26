@@ -3,6 +3,7 @@ import { Edit2Icon, EyeIcon, TrashIcon } from 'lucide-react';
 import IconButton from '@/components/ui/IconButton';
 import Tooltip from '@/components/ui/Tooltip';
 import type { BackendMyListWithItemsCount } from '@/features/my-lists/types';
+import { formatDate } from '@/shared/utils/dates';
 
 type Props = Readonly<
   BackendMyListWithItemsCount & {
@@ -45,7 +46,7 @@ export default function MyList({
           {items_count > 1 && `${String(items_count)} суплементи`}
         </p>
         <p className="text-text-muted mt-1 text-xs italic">
-          Последно ажурирана на: {new Date(updated_at).toLocaleDateString('en-GB')}
+          Последно ажурирана на: {formatDate(updated_at)}
         </p>
       </div>
 

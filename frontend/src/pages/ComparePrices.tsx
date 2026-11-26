@@ -69,6 +69,12 @@ export default function ComparePrices() {
     setCurrentPage(1);
   };
 
+  // Back to page 1: the old page number may not exist once the filters change
+  const handleClearFilters = () => {
+    setFilters(filtersDefault);
+    setCurrentPage(1);
+  };
+
   const handleResetSearch = () => {
     setSearchQuery('');
     setSubmittedQuery('');
@@ -104,7 +110,7 @@ export default function ComparePrices() {
         handleFilterValueChange={handleFilterChange}
         handleClearInputSearchQuery={handleClearInputSearchQuery}
         filters={filters}
-        setFilters={setFilters}
+        handleClearFilters={handleClearFilters}
       />
 
       <ProductsGrid

@@ -4,7 +4,7 @@ import Badge from '@/components/ui/Badge';
 import IconButton from '@/components/ui/IconButton';
 import Tooltip from '@/components/ui/Tooltip';
 import type { BackendMyListItem } from '@/features/my-lists/types';
-import { checkIsPossiblyUnavailable } from '@/shared/utils/dates';
+import { checkIsPossiblyUnavailable, formatDate } from '@/shared/utils/dates';
 import { formatPrice } from '@/shared/utils/prices';
 
 type Props = Readonly<
@@ -30,7 +30,7 @@ export default function MyListItem({
 }: Props) {
   const lastScrapedAtDate = new Date(product_last_scraped_at);
   const isPossiblyUnavailable = checkIsPossiblyUnavailable(lastScrapedAtDate);
-  const lastScrapedAt = new Date(product_last_scraped_at).toLocaleDateString('en-GB');
+  const lastScrapedAt = formatDate(product_last_scraped_at);
 
   const scrapedDateClasses = isPossiblyUnavailable ? 'text-warning' : 'text-text-muted';
 
@@ -50,14 +50,18 @@ export default function MyListItem({
 
   const priceBlock = product_discount_price ? (
     <div className="flex flex-col items-end">
-      <p className="text-text-muted truncate text-sm line-through">{formatPrice(product_price)}</p>
-      <p className="flex items-center gap-2 truncate text-xl font-bold">
+      <p className="text-text-muted truncate text-sm tabular-nums line-through">
+        {formatPrice(product_price)}
+      </p>
+      <p className="flex items-center gap-2 truncate text-lg font-bold tabular-nums">
         <span className="text-accent">{formatPrice(product_discount_price)}</span>
         <Badge variant="accent">-{product_discount_percent}%</Badge>
       </p>
     </div>
   ) : (
-    <p className="text-text truncate text-xl font-bold">{formatPrice(product_price)}</p>
+    <p className="text-text truncate text-lg font-bold tabular-nums">
+      {formatPrice(product_price)}
+    </p>
   );
 
   return (
@@ -96,7 +100,7 @@ export default function MyListItem({
         <p className="text-text-muted mt-1 w-full truncate text-sm">
           <span>{product_brand_name}</span>
           <span> / </span>
-          <span>Додадено во листата на: {new Date(created_at).toLocaleDateString('en-GB')}</span>
+          <span>Додадено во листата на: {formatDate(created_at)}</span>
         </p>
       </div>
 

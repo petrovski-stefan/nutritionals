@@ -28,7 +28,7 @@ export default function BestDealGroupCard({ group, onOpenOffers }: Props) {
 
       <div className="mb-3 flex min-h-10 w-full flex-col items-center gap-1">
         {brand_name && <p className="text-text-muted truncate text-xs">{brand_name}</p>}
-        <p className="text-accent truncate text-center text-lg font-bold">
+        <p className="text-accent truncate text-center text-lg font-bold tabular-nums">
           од {formatPrice(lowest_price)}
         </p>
       </div>

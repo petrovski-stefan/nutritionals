@@ -23,7 +23,7 @@ type Props = Readonly<{
   handleFilterValueChange: (key: keyof GroupFilterValue, value: number, isChecked: boolean) => void;
   handleClearInputSearchQuery: () => void;
   filters: GroupFilterValue;
-  setFilters: (value: GroupFilterValue) => void;
+  handleClearFilters: () => void;
 }>;
 
 const filterDisplayedInitialValue = {
@@ -86,7 +86,7 @@ export default function FiltersSidebar({
   handleFilterValueChange,
   handleClearInputSearchQuery,
   filters,
-  setFilters,
+  handleClearFilters,
 }: Props) {
   const [isFilterDisplayed, setIsFilterDisplayed] = useState(filterDisplayedInitialValue);
 
@@ -143,12 +143,7 @@ export default function FiltersSidebar({
     setIsFilterDisplayed((prev) => ({ ...prev, [key]: !prev[key] }));
   };
 
-  const handleClearFilters = () => {
-    if (filters.brandIds.length === 0 && filters.categoryIds.length === 0) {
-      return;
-    }
-    setFilters({ brandIds: [], categoryIds: [] });
-  };
+  const hasActiveFilters = filters.brandIds.length > 0 || filters.categoryIds.length > 0;
 
   return (
     <Card className="flex h-fit flex-col gap-5 p-5 md:sticky md:top-20">
@@ -194,11 +189,14 @@ export default function FiltersSidebar({
       </form>
 
       <div className="text-center">
+        {/* Disabled rather than hidden, so the filter lists do not jump when the first one is set */}
         <button
+          type="button"
+          disabled={!hasActiveFilters}
           onClick={handleClearFilters}
-          className="text-info focus-visible:outline-primary cursor-pointer rounded text-sm font-medium transition duration-150 ease-out hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 active:scale-95 motion-reduce:transition-none"
+          className="text-info focus-visible:outline-primary cursor-pointer rounded text-sm font-medium transition duration-150 ease-out focus-visible:outline-2 focus-visible:outline-offset-2 enabled:hover:underline enabled:active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 motion-reduce:transition-none"
         >
-          [Избриши ги сите филтери]
+          Исчисти ги филтрите
         </button>
       </div>
 

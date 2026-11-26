@@ -41,7 +41,9 @@ export default function DropdownProductGroup({ productGroup }: Props) {
 
         <div className="flex shrink-0 items-center gap-2">
           {minPrice !== null && (
-            <span className="text-primary text-sm font-semibold">од {formatPrice(minPrice)}</span>
+            <span className="text-primary text-sm font-semibold tabular-nums">
+              од {formatPrice(minPrice)}
+            </span>
           )}
           <ChevronDownIcon
             aria-hidden="true"

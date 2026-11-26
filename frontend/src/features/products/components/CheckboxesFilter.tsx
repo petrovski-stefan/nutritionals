@@ -24,7 +24,7 @@ export default function CheckboxesFilter({
   const toggleLabel = isDisplayed ? 'Затвори' : 'Отвори';
 
   return (
-    <div className="border-border bg-surface-raised max-h-96 overflow-x-hidden overflow-y-auto rounded-xl border p-3">
+    <div className="border-border max-h-96 overflow-x-hidden overflow-y-auto border-t pt-4">
       <div className="mb-2 flex items-center justify-between">
         <span className="text-text font-semibold">{filterTitle}</span>
 

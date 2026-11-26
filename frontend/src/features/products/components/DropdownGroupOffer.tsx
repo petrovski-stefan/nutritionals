@@ -1,6 +1,6 @@
 import Badge from '@/components/ui/Badge';
 import type { BackendProduct } from '@/features/products/types/products';
-import { checkIsPossiblyUnavailable } from '@/shared/utils/dates';
+import { checkIsPossiblyUnavailable, formatDate } from '@/shared/utils/dates';
 import { formatPrice } from '@/shared/utils/prices';
 
 export default function DropdownGroupOffer({
@@ -13,7 +13,7 @@ export default function DropdownGroupOffer({
 }: Readonly<BackendProduct>) {
   const lastScrapedAtDate = new Date(last_scraped_at);
   const isPossiblyUnavailable = checkIsPossiblyUnavailable(lastScrapedAtDate);
-  const lastScrapedAt = lastScrapedAtDate.toLocaleDateString('en-GB');
+  const lastScrapedAt = formatDate(last_scraped_at);
 
   return (
     <div className="border-border flex items-center justify-between gap-3 border-b py-2 last:border-0">
@@ -36,11 +36,15 @@ export default function DropdownGroupOffer({
 
         {discount_price !== null ? (
           <div className="flex flex-col items-end">
-            <p className="text-text-muted text-xs line-through">{formatPrice(price)}</p>
-            <p className="text-accent text-sm font-semibold">{formatPrice(discount_price)}</p>
+            <p className="text-text-muted text-xs tabular-nums line-through">
+              {formatPrice(price)}
+            </p>
+            <p className="text-accent text-sm font-semibold tabular-nums">
+              {formatPrice(discount_price)}
+            </p>
           </div>
         ) : (
-          <p className="text-primary text-sm font-semibold">{formatPrice(price)}</p>
+          <p className="text-primary text-sm font-semibold tabular-nums">{formatPrice(price)}</p>
         )}
       </div>
     </div>

@@ -3,7 +3,8 @@
 /*
   Design rules (enforced across the app):
   - Radius: cards/modals/dropdown panels `rounded-xl`; inputs/buttons `rounded-lg`;
-    badges/pills/icon-buttons `rounded-full`. Nothing else.
+    badges/pills/icon-buttons `rounded-full`; inline text links (their focus ring), tooltips
+    and checkboxes `rounded`. Nothing else.
   - Shadow: resting cards `shadow-sm`; hover/dropdowns/sticky header `shadow-md`;
     modal panel `shadow-lg`. In dark mode depth comes from `border-border` +
     `bg-surface-raised`, so cards/modals always keep a 1px border.

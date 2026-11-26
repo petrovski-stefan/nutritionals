@@ -135,7 +135,7 @@ export default function ProductsGrid({
             Претходна
           </Button>
 
-          <span className="text-text-muted text-sm">
+          <span className="text-text-muted text-sm tabular-nums">
             {currentPage}/{totalPages}
           </span>
 
