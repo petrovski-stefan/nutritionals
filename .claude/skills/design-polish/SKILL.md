@@ -33,7 +33,7 @@ Every view that shows data from a query handles four states: loading, empty, err
 
 ## Interaction and motion
 
-- **Press feedback:** buttons, icon buttons, chips and clickable cards get `active:scale-[0.98]`, or `active:translate-y-px` for small controls.
+- **Press feedback:** buttons, rows and clickable cards get `active:scale-[0.98]`; icon buttons and chips get `active:scale-95`. Use `enabled:active:` on anything that can be disabled. Don't press with `translate`: positioned controls (like the button inside `PasswordInput`) already use `-translate-y-1/2`, and the two would clash.
 - **Animate only `transform` and `opacity`.** Never animate `top`, `left`, `width` or `height`. List the properties (`transition-[opacity,transform]`, `transition-colors`), never `transition-all`.
 - **Durations:** `duration-150` for hover and press, `duration-200` for enter and exit, with `ease-out`. No spring or bounce effects.
 - **Enter animations without JavaScript:** use Tailwind v4's `starting:` variant (`@starting-style`), for example `transition-[opacity,transform] duration-200 starting:opacity-0 starting:scale-95`. Use it on modals, dropdowns and tooltips.

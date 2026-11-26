@@ -91,7 +91,7 @@ export default function Header() {
       {mobileMenuOpen && (
         <nav
           id="mobile-nav"
-          className="border-t border-white/20 px-4 py-3 md:hidden"
+          className="border-t border-white/20 px-4 py-3 transition duration-200 ease-out motion-reduce:transition-none md:hidden starting:-translate-y-1 starting:opacity-0"
         >
           <div className="flex flex-col gap-1">{menuItemsLinks}</div>
         </nav>

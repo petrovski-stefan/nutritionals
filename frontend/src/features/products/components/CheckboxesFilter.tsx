@@ -49,7 +49,11 @@ export default function CheckboxesFilter({
         </Tooltip>
       </div>
 
-      {isDisplayed && <div className="mt-2 flex flex-col gap-2 pl-1">{checkboxes}</div>}
+      {isDisplayed && (
+        <div className="mt-2 flex flex-col gap-2 pl-1 transition-opacity duration-200 ease-out motion-reduce:transition-none starting:opacity-0">
+          {checkboxes}
+        </div>
+      )}
     </div>
   );
 }

@@ -41,7 +41,7 @@ export default function Button({
     <button
       type={type}
       disabled={disabled || isPending}
-      className={`inline-flex cursor-pointer items-center justify-center gap-2 rounded-lg font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ${VARIANT_CLASSES[variant]} ${SIZE_CLASSES[size]} ${className}`}
+      className={`inline-flex cursor-pointer items-center justify-center gap-2 rounded-lg font-semibold transition duration-150 ease-out focus-visible:outline-2 focus-visible:outline-offset-2 enabled:active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 motion-reduce:transition-none ${VARIANT_CLASSES[variant]} ${SIZE_CLASSES[size]} ${className}`}
       {...rest}
     >
       {isPending && <Spinner size="sm" />}

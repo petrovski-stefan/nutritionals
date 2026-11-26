@@ -29,7 +29,7 @@ export default function DropdownProductGroup({ productGroup }: Props) {
         onClick={() => {
           setIsExpanded((prev) => !prev);
         }}
-        className="hover:bg-surface-sunken focus-visible:outline-primary flex w-full items-center justify-between gap-3 rounded px-3 py-2.5 text-left transition-colors focus-visible:outline-2 focus-visible:-outline-offset-2"
+        className="hover:bg-surface-sunken focus-visible:outline-primary flex w-full items-center justify-between gap-3 rounded px-3 py-2.5 text-left transition duration-150 ease-out focus-visible:outline-2 focus-visible:-outline-offset-2 active:scale-[0.98] motion-reduce:transition-none"
       >
         <div className="min-w-0">
           <p className="text-text truncate text-sm font-medium">{productGroup.name}</p>
@@ -45,7 +45,7 @@ export default function DropdownProductGroup({ productGroup }: Props) {
           )}
           <ChevronDownIcon
             aria-hidden="true"
-            className={`text-text-muted h-4 w-4 transition-transform ${isExpanded ? 'rotate-180' : ''}`}
+            className={`text-text-muted h-4 w-4 transition-transform duration-200 ease-out motion-reduce:transition-none ${isExpanded ? 'rotate-180' : ''}`}
           />
         </div>
       </button>
@@ -53,7 +53,7 @@ export default function DropdownProductGroup({ productGroup }: Props) {
       {isExpanded && (
         <div
           id={offersId}
-          className="px-3 pb-2"
+          className="px-3 pb-2 transition-opacity duration-200 ease-out motion-reduce:transition-none starting:opacity-0"
         >
           {productGroup.products.map((product) => (
             <DropdownGroupOffer

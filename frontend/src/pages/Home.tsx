@@ -109,7 +109,7 @@ export default function Home() {
           </Card>
 
           {shouldSearch && (
-            <div className="border-border bg-surface-raised absolute top-full left-0 z-40 mt-2 max-h-96 w-full overflow-y-auto rounded-xl border p-2 shadow-md">
+            <div className="border-border bg-surface-raised absolute top-full left-0 z-40 mt-2 max-h-96 w-full overflow-y-auto rounded-xl border p-2 shadow-md transition duration-200 ease-out motion-reduce:transition-none starting:-translate-y-1 starting:opacity-0">
               {groupsSearchIsSuccess &&
                 searchedGroups.results.length > 0 &&
                 searchedGroups.results.map((group) => (

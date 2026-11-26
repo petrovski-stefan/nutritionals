@@ -15,7 +15,7 @@ export default function SectionCtaLink({ to, children }: Props) {
       {children}
       <ArrowRightIcon
         aria-hidden="true"
-        className="h-4 w-4 transition-transform group-hover:translate-x-1"
+        className="h-4 w-4 transition-transform duration-150 ease-out group-hover:translate-x-1 motion-reduce:transition-none"
       />
     </Link>
   );

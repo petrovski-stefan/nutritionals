@@ -46,7 +46,7 @@ export default function Tooltip({ children, text, placement = 'top' }: Props) {
       {visible && (
         <span
           role="tooltip"
-          className={`bg-text text-surface pointer-events-none absolute z-10 rounded px-2 py-1 text-center text-xs whitespace-nowrap shadow-md ${PLACEMENT_CLASSES[placement]}`}
+          className={`bg-text text-surface pointer-events-none absolute z-10 rounded px-2 py-1 text-center text-xs whitespace-nowrap shadow-md transition-opacity duration-150 ease-out motion-reduce:transition-none starting:opacity-0 ${PLACEMENT_CLASSES[placement]}`}
         >
           {text}
         </span>
