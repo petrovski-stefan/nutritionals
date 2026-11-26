@@ -1,135 +1,94 @@
-# Nutriceni 💊
+# Nutriceni
 
-**A full-stack price aggregator for dietary supplements across Macedonian pharmacies** — scrapes live prices, groups identical products from different stores, and helps users find the best deal, with an AI assistant that recommends supplements from a plain-language health goal.
+Nutriceni compares supplement prices across pharmacies in North Macedonia. It scrapes four pharmacy chains, groups listings of the same product from different stores, and shows them side by side so you can see which store is cheapest.
 
-![React](https://img.shields.io/badge/React_19-087EA4?logo=react&logoColor=white)
-![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?logo=typescript&logoColor=white)
-![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS_v4-06B6D4?logo=tailwindcss&logoColor=white)
-![Django](https://img.shields.io/badge/Django_5.2-092E20?logo=django&logoColor=white)
-![Python](https://img.shields.io/badge/Python_3.13-3776AB?logo=python&logoColor=white)
-![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169E1?logo=postgresql&logoColor=white)
-![Celery](https://img.shields.io/badge/Celery-37814A?logo=celery&logoColor=white)
-![Redis](https://img.shields.io/badge/Redis-DC382D?logo=redis&logoColor=white)
-![Docker](https://img.shields.io/badge/Docker_Compose-2496ED?logo=docker&logoColor=white)
+Live at [nutritionals-ceni.com](https://nutritionals-ceni.com). The interface is in Macedonian.
 
 <!-- Add 2–3 screenshots here: home (light), compare prices (dark), smart search results -->
 <!-- ![Home](docs/screenshots/home.png) -->
 
-## What it does
+## Features
 
-Supplement prices in North Macedonia vary significantly between pharmacies, and no single place lets you compare them. Nutriceni solves that:
+- **Search and compare.** Results show up as you type. The Compare page filters by brand and category, sorts by price or discount, and marks prices that haven't been refreshed recently.
+- **Smart search.** Describe a goal such as "better sleep" and get matching supplements from the catalog. The OpenAI API turns the goal into supplement names, which are then fuzzy-matched against the products. Signed-in users only.
+- **Lists.** Signed-in users can save products to lists and see each one's latest price.
 
-- 🔍 **Instant search** — type a product name, get matching products grouped across pharmacies right in the dropdown, each expandable to its live per-pharmacy offers starting from the lowest price
-- ⚖️ **Price comparison** — identical products from different pharmacies are grouped side by side, filterable by brand and category, with discount badges and stale-price warnings
-- 🤖 **Smart search (AI)** — describe a health goal in plain language (*"stronger immunity"*) and get supplement recommendations powered by the OpenAI API, grouped and ready for price comparison
-- 📋 **My Lists** — registered users build and manage shopping lists showing each product's latest scraped price, discount and last-updated date, highlighted when the date suggests it may no longer be available
-- 🌙 **Dark mode**, fully responsive UI (360 px → ultrawide), localized in Macedonian
+## Stack
 
-Price data is collected by **scheduled scrapers for 4 pharmacy chains** (Zegin, Apteka24, Vitamini, Annifarm), run as Celery tasks on a beat schedule, so listed prices stay fresh without manual intervention.
+- **Backend:** Python 3.13, Django 5.2, Django REST Framework, SimpleJWT, Celery, BeautifulSoup, Pydantic, PostgreSQL, Redis
+- **Frontend:** React 19, TypeScript, Vite, Tailwind CSS v4, TanStack Query, React Hook Form with zod, React Router
+- **Deployment:** Docker Compose, nginx, gunicorn
 
-## Architecture
+Both sides are strictly typed and linted. The frontend runs ESLint `strictTypeChecked`, Knip and a strict `tsc` build. The backend runs ruff, mypy, deptry, complexipy, pyscn and pytest. GitHub Actions runs all of it on every pull request.
 
-```
-                    ┌─────────────────────────── backend (Django 5.2 + DRF) ───┐
- pharmacy sites ──▶ │ scrapers (per-vendor packages, BeautifulSoup)            │
-                    │   └─ Celery workers + beat schedule ── Redis (broker)    │
-                    │ products / mylists / users apps                          │
-                    │   └─ thin views → service modules                        │
-                    │ PostgreSQL                                               │
-                    └───────────────▲──────────────────────────────────────────┘
-                                    │ REST (standardized JSON envelope, JWT auth)
-                    ┌───────────────┴──────────────────────────────────────────┐
-                    │ frontend (React 19 + TypeScript + Vite)                  │
-                    │ feature-sliced: auth / products / my-lists / pharmacies  │
-                    │ TanStack Query · React Hook Form + zod · Tailwind v4     │
-                    └──────────────────────────────────────────────────────────┘
-                     nginx + gunicorn in production, everything in Docker Compose
-```
+## How it works
 
-### Engineering highlights
+Celery Beat starts a scrape of every pharmacy catalog on a schedule. Each pharmacy is its own package under `backend/src/scrapers/` and implements the same small interface, so adding a store doesn't touch the others. When a scrape finds a product it hasn't seen before, an OpenAI call assigns it categories.
 
-**Frontend**
-- **Feature-sliced architecture with a one-way dependency rule** — features may depend on each other in one documented direction only, no cycles; cross-feature code lives in `shared/`, `components/` and `context/`
-- **Design system built on semantic CSS tokens** (Tailwind v4 CSS-first config) — one source of truth for color, radius, shadow, and type scale; dark mode is a token flip, not per-component overrides
-- **Strict type safety end to end**: `exactOptionalPropertyTypes`, `noUncheckedIndexedAccess`, ESLint `strictTypeChecked` + SonarJS — stricter than typical React codebases
-- **Disciplined server state**: TanStack Query with per-feature query-key factories, `queryOptions`, and targeted cache invalidation
-- Forms with React Hook Form + zod resolvers, including mapping backend validation error codes onto the right form fields
+A grouping task then puts each new product into an existing group or starts a new one. Candidate groups share its brand and a category, and the best one is chosen by trigram similarity of the normalized names (Postgres `pg_trgm`) plus matching dosage, form and count (e.g. "60 capsules").
 
-**Backend**
-- **Thin views over services as function modules** — views validate input and delegate; reads, writes and orchestration live in services, with separate input and output serializers where the shapes differ
-- **Every API response wrapped in a standardized envelope** (`{"success": true, "data": ...}`) with machine-readable error codes (`drf-standardized-errors`) the frontend maps to localized messages
-- **Pluggable scraper design** — each pharmacy is an isolated vendor package behind a common interface, so adding a chain doesn't touch existing ones
-- JWT auth (SimpleJWT) via reusable view mixins (`JWTAuthMixin`, `NoAuthMixin`), category inference and smart search via the OpenAI API behind a single `integrations/` client
-
-**Infrastructure**
-- Docker Compose for dev and prod (web, PostgreSQL, Redis, Celery worker + beat, Flower), nginx + gunicorn + WhiteNoise in production
-- Python tooling with **uv**, linted with ruff + mypy, plus deptry, complexipy and pyscn; frontend gated by ESLint + `tsc` strict builds
-
-## Tech stack
-
-| Layer | Technologies |
-|---|---|
-| Frontend | React 19, TypeScript, Vite, Tailwind CSS v4, TanStack Query v5, React Hook Form, zod v4, React Router 7, Axios |
-| Backend | Python 3.13, Django 5.2, Django REST Framework, SimpleJWT, Celery 5, BeautifulSoup4, OpenAI API, Pydantic |
-| Data & infra | PostgreSQL, Redis, Docker Compose, nginx, gunicorn, Flower (task monitoring) |
-| Quality | ESLint (strictTypeChecked, SonarJS), Prettier, ruff, mypy, deptry, complexipy, pyscn, uv |
+The Django REST API wraps every response in one envelope, `{"success": true, "data": ...}`. Errors carry machine-readable codes, which the React frontend maps to Macedonian messages.
 
 ## Running locally
 
-Requires Docker and Node 20+.
+You need Docker and Node 22. The backend runs only in Docker Compose. The frontend runs on the host.
 
 ```sh
-# backend — everything runs in containers
-cp backend/.env.template backend/.env        # fill in values (incl. OPENAI_API_KEY)
-docker compose -f compose.dev.yaml up        # web, postgres, redis, celery worker + beat, flower
-                                             # Flower: http://localhost:5555
-
+cp backend/.env.template backend/.env        # needs an OPENAI_API_KEY
+docker compose -f compose.dev.yaml up        # web, postgres, redis, celery worker and beat, flower
 docker compose -f compose.dev.yaml exec web uv run manage.py migrate
 
-# frontend — runs on the host
 cd frontend
 cp .env.example .env
 npm install
-npm run dev                                  # http://localhost:5173
+npm run dev
 ```
 
-**Quality checks**
+| Service | URL |
+|---|---|
+| Frontend | http://localhost:5173 |
+| API (base path) | http://localhost:8000/api/v1/ |
+| Django admin | http://localhost:8000/admin/ |
+| Silk (request profiler) | http://localhost:8000/silk/ |
+| Flower (Celery monitoring) | http://localhost:5555 |
+
+Postgres and Redis are reachable only from inside the Compose network.
+
+## Checks
 
 ```sh
-# frontend
-npm run lint && npm run build                # eslint + tsc strict build
+# frontend/
+npm run lint && npm run knip && npm run build
 
-# backend
-uv run ruff check
-uv run ruff format --check
+# backend/
+uv run ruff check && uv run ruff format --check
 uv run mypy src --config-file=setup.cfg
-uv run deptry src
-uv run complexipy
+uv run deptry src && uv run complexipy
 uv run pyscn check --select complexity,deadcode,deps src
 ```
 
-## Project structure
+The tests need Postgres, so they run inside the `web` container. With the stack up, from the repo root:
 
-```
-├── backend/src/
-│   ├── core/            # settings, celery app
-│   ├── common/          # renderers (response envelope), auth mixins
-│   ├── integrations/    # OpenAI client
-│   ├── users/           # JWT auth, registration
-│   ├── products/        # products, groups, brands, categories, smart search
-│   ├── mylists/         # user shopping lists
-│   └── scrapers/        # per-pharmacy vendor packages + Celery tasks
-├── frontend/src/
-│   ├── components/      # design-system primitives (Button, Modal, Field, ...)
-│   ├── context/         # auth and theme providers
-│   ├── features/        # auth / products / my-lists / pharmacies slices
-│   ├── shared/          # cross-feature hooks, utils, axios instance
-│   └── pages/           # route-level composition
-├── nginx/               # production reverse proxy
-├── compose.dev.yaml
-└── compose.prod.yaml
+```sh
+docker compose -f compose.dev.yaml exec web uv run pytest
 ```
 
----
+## Layout
 
-Built by **Stefan Petrovski** · [GitHub](https://github.com/petrovski-stefan)
+```
+backend/src/
+  core/          settings, URLs, Celery app
+  common/        response renderer, auth mixins, base model
+  integrations/  OpenAI client
+  products/      products, groups, brands, categories, search, smart search
+  mylists/       user lists
+  users/         registration and JWT login
+  scrapers/      one package per pharmacy, plus the scrape tasks
+frontend/src/
+  features/      auth, products, my-lists, pharmacies
+  components/    shared UI
+  context/       auth and theme
+  shared/        hooks, utils, types, axios instance
+  pages/         one component per route
+nginx/           production reverse proxy
+```
