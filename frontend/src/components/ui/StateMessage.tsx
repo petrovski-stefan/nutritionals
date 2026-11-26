@@ -1,6 +1,5 @@
 import type { ReactNode } from 'react';
 
-// Loading states use skeletons (Skeleton + LoadingStatus), not this component
 type Variant = 'empty' | 'error';
 
 const DEFAULT_MESSAGES: Record<Variant, string> = {
@@ -17,7 +16,6 @@ type Props = Readonly<{
   variant: Variant;
   message?: string;
   className?: string;
-  // The next step: a RetryButton for errors, a link or button for empty states
   children?: ReactNode;
 }>;
 

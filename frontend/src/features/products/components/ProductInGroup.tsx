@@ -10,7 +10,6 @@ import { formatPrice } from '@/shared/utils/prices';
 
 type Props = Readonly<
   BackendProduct & {
-    // Marked "Најевтино" (there can be ties); the parent compares the group's offers
     isCheapest: boolean;
     handleClickAddProductToMyList: (
       productId: number,

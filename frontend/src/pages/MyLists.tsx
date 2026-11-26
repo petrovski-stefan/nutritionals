@@ -30,7 +30,6 @@ const SKELETON_ROWS = 3;
 
 export default function MyLists() {
   const location = useLocation();
-  // Arriving from "Отвори ја листата" opens that list right away
   const [myListIdToView, setMyListIdToView] = useState<number | null>(
     () => (location.state as MyListsLocationState | null)?.openMyListId ?? null
   );
@@ -185,9 +184,7 @@ export default function MyLists() {
         />
       )}
 
-      {/* Below md one panel shows at a time: the lists, or the opened list with a way back.
-          The panels only scroll on their own from md up; on a phone the page scrolls.
-          min-w-0 stops long truncated names from widening the grid column */}
+      {/* min-w-0 stops long truncated names from widening the grid column */}
       <div className="grid min-h-96 items-start gap-4 md:grid-cols-[320px_1fr]">
         <Card
           className={`min-w-0 md:max-h-[70vh] md:overflow-y-auto ${isThereSelectedMyList ? 'max-md:hidden' : ''}`}

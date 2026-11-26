@@ -33,10 +33,7 @@ const benefits: Benefit[] = [
 export default function AuthBenefits() {
   return (
     <div className="w-full max-w-md p-4 sm:p-6">
-      {/* Transparent WebP (background removed), 2x the displayed size for sharp retina screens.
-          lazy: hidden below lg, and browsers skip hidden lazy images, so phones don't download it.
-          width/height + fixed h-72 reserve the space, so the list below doesn't jump when it loads.
-          Dark mode adds a light panel behind it (tokens in index.css); light mode has none */}
+      {/* lazy: hidden below lg, and browsers skip hidden lazy images, so phones never download it */}
       <img
         src={authIllustration}
         alt=""

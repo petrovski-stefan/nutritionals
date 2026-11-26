@@ -18,8 +18,6 @@ import DropdownProductGroupSkeleton from './DropdownProductGroupSkeleton';
 
 const SKELETON_SEARCH_ROWS = 3;
 
-// Home's search: results drop down as the user types, and Enter or "show all" opens Compare
-// with the same search
 export default function HomeSearch() {
   const [searchQuery, setSearchQuery] = useState('');
   const [isOpen, setIsOpen] = useState(false);
@@ -56,7 +54,6 @@ export default function HomeSearch() {
     } else if (e.key === 'ArrowDown') {
       e.preventDefault();
       if (isOpen) {
-        // Into the results; from there Tab moves on through them
         resultsRef.current?.querySelector('button')?.focus();
       } else {
         setIsOpen(true);
@@ -70,7 +67,7 @@ export default function HomeSearch() {
     <div
       className="relative w-full max-w-3xl"
       onBlur={(e) => {
-        // Close when focus leaves the search entirely (clicking outside), not when it moves into the results
+        // Close only when focus leaves the whole search, not when it moves into the results
         if (!(e.relatedTarget instanceof Node && e.currentTarget.contains(e.relatedTarget))) {
           setIsOpen(false);
         }

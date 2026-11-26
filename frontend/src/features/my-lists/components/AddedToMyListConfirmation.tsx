@@ -11,7 +11,6 @@ type Props = Readonly<{
   onClose: () => void;
 }>;
 
-// Shown in place of the list picker once the product is saved, so adding never happens silently
 export default function AddedToMyListConfirmation({
   productName,
   myListId,

@@ -1,4 +1,3 @@
-// Inline progress for actions (pending buttons); data views load with skeletons instead
 export default function Spinner() {
   return (
     <div

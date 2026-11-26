@@ -14,7 +14,6 @@ const useMyListsMutation = <TData, TVariables>(
 
     onSuccess(_data, variables) {
       onSuccessSideEffect?.(variables);
-      // Prefix key: invalidates the list and every detail query
       void queryClient.invalidateQueries({ queryKey: myListKeys.all });
     },
   });

@@ -12,8 +12,6 @@ type Props = Readonly<{
   className?: string;
 }>;
 
-// When a price was last scraped. A stale one adds a warning icon (tooltip on hover, the same
-// words for screen readers), so the warning doesn't depend on seeing the amber
 export default function LastUpdated({ isoDate, label = 'Ажурирано', className = '' }: Props) {
   const isStale = checkIsPossiblyUnavailable(new Date(isoDate));
 

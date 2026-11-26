@@ -14,7 +14,6 @@ const useDeleteMyList = () => {
     (variables: { myListId: number }) =>
       MyListService.deleteMyList(variables.myListId, accessToken),
     (variables) => {
-      // Drops the deleted list's detail query from the cache
       queryClient.removeQueries({ queryKey: myListKeys.detail(variables.myListId) });
     }
   );

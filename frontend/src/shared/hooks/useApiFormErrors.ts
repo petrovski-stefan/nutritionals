@@ -13,8 +13,7 @@ const GENERIC_ERROR_MESSAGES: Record<ErrorType, string> = {
   unknown: 'Настана непозната грешка. Обидете се повторно.',
 };
 
-// The hook below writes form-level messages to 'root' (API-derived) or 'form'
-// (generic/zod refine) — consumers must read both, so always display via this helper.
+// Form-level errors land in 'root' (from the API) or 'form' (zod refine), so read both here
 export const getFormErrorMessage = <T extends FieldValues>(
   errors: FieldErrors<T>
 ): string | undefined => errors.root?.message ?? errors.form?.message;

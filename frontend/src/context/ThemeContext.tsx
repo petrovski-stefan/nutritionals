@@ -35,14 +35,12 @@ type ThemeProviderProps = Readonly<{
 export function ThemeProvider({ children }: ThemeProviderProps) {
   const [theme, setTheme] = useState<Theme>(getInitialTheme);
 
-  // useLayoutEffect so the class is applied before the browser paints the render
   useLayoutEffect(() => {
     document.documentElement.classList.toggle('dark', theme === 'dark');
     // Marks the theme as applied, which turns off the first-paint fallback in index.css
     document.documentElement.setAttribute('data-theme', theme);
   }, [theme]);
 
-  // Follow OS preference changes only while the user hasn't made an explicit choice
   useEffect(() => {
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
 

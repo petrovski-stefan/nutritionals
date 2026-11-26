@@ -25,7 +25,6 @@ export default function ComparePrices() {
     updateSearchParams,
   } = useCompareSearchParams();
 
-  // The input is a draft; the URL holds the submitted search
   const [searchQuery, setSearchQuery] = useState(submittedQuery);
   const [syncedQuery, setSyncedQuery] = useState(submittedQuery);
   const [showLengthHint, setShowLengthHint] = useState(false);
@@ -75,7 +74,6 @@ export default function ComparePrices() {
     if (submittedQuery !== '') updateSearchParams({ query: '', page: 1 });
   };
 
-  // Back to page 1: the old page number may not exist once the filters change
   const handleClearFilters = () => {
     updateSearchParams({ filters: filtersDefault, page: 1 });
   };
@@ -97,10 +95,8 @@ export default function ComparePrices() {
     if (nextPage < 1 || nextPage > totalPages) return;
 
     updateSearchParams({ page: nextPage });
-    // Otherwise the next page opens where the old one was scrolled to: at its bottom
     window.scrollTo(0, 0);
-    // Focus follows the view: keyboard and screen-reader users continue from the new results,
-    // not from the pagination button now far below
+    // Keyboard and screen-reader users continue from the new results, not the pagination button
     document.getElementById('compare-results')?.focus({ preventScroll: true });
   };
 
@@ -110,7 +106,6 @@ export default function ComparePrices() {
 
       <h1 className="text-text text-2xl font-bold sm:text-3xl md:col-span-2">Спореди цени</h1>
 
-      {/* Keyboard users would otherwise tab through every filter before reaching a result */}
       <SkipLink
         targetId="compare-results"
         className="focus:absolute focus:top-2 focus:left-4 focus:z-10"

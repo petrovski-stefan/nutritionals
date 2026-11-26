@@ -7,7 +7,6 @@ type Props = Readonly<{
   title: string;
   message: ReactNode;
   confirmText: string;
-  // Shown inside the modal when the action fails, so the user can retry without reopening it
   errorMessage: string;
   isPending: boolean;
   isError: boolean;
@@ -15,7 +14,6 @@ type Props = Readonly<{
   onClose: () => void;
 }>;
 
-// Confirmation for destructive actions: the confirm button is always the danger variant
 export default function ConfirmModal({
   title,
   message,

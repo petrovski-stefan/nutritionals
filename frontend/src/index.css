@@ -25,7 +25,6 @@
     themes when changing a value.
 */
 
-/* Dark variant: class strategy on <html> (set by ThemeContext) */
 @custom-variant dark (&:where(.dark, .dark *));
 
 :root {
@@ -48,7 +47,6 @@
   --warning: #965900;
   --danger: #c22929;
 
-  /* The auth illustration is drawn for a light page: no panel needed here */
   --illustration-panel: transparent;
   --illustration-panel-padding: 0px;
 }
@@ -105,8 +103,7 @@
   --color-illustration-panel: var(--illustration-panel);
 }
 
-/* Tailwind v4 gives buttons the default cursor; restore the pointer for every clickable
-   button, including raw <button> elements. Disabled ones keep `disabled:cursor-not-allowed` */
+/* Tailwind v4 gives buttons the default cursor */
 @layer base {
   button:not(:disabled),
   [role="button"]:not(:disabled) {
