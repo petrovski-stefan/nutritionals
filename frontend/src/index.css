@@ -47,6 +47,10 @@
   --info: #1569b4;
   --warning: #965900;
   --danger: #c22929;
+
+  /* The auth illustration is drawn for a light page: no panel needed here */
+  --illustration-panel: transparent;
+  --illustration-panel-padding: 0px;
 }
 
 .dark {
@@ -68,6 +72,11 @@
   --info: #64b5f6;
   --warning: #ffb74d;
   --danger: #f47472;
+
+  /* Dark mode puts the illustration on the light surface it was drawn for: its black
+     outlines vanish on a dark page, and its cream floor tones only blend into light */
+  --illustration-panel: #f1f3f1;
+  --illustration-panel-padding: 1rem;
 }
 
 /* Until ThemeContext sets data-theme, the saved theme is unknown: let the browser canvas follow
@@ -93,6 +102,7 @@
   --color-info: var(--info);
   --color-warning: var(--warning);
   --color-danger: var(--danger);
+  --color-illustration-panel: var(--illustration-panel);
 }
 
 /* Tailwind v4 gives buttons the default cursor; restore the pointer for every clickable
