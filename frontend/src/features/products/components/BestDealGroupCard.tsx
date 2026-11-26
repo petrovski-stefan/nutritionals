@@ -8,15 +8,16 @@ import { formatPrice } from '@/shared/utils/prices';
 type Props = Readonly<{
   group: BackendDiscountedProductGroup;
   onOpenOffers: (group: BackendDiscountedProductGroup) => void;
+  className?: string;
 }>;
 
-export default function BestDealGroupCard({ group, onOpenOffers }: Props) {
+export default function BestDealGroupCard({ group, onOpenOffers, className = '' }: Props) {
   const { name, brand_name, best_discount_percent, lowest_price, offer_count } = group;
 
   return (
     <Card
       hover
-      className="flex w-full flex-col items-center p-4 sm:w-48"
+      className={`flex w-full flex-col items-center p-4 sm:w-48 ${className}`}
     >
       <div className="mb-2 flex w-full justify-center">
         <Badge variant="accent">-{best_discount_percent}%</Badge>

@@ -1,10 +1,11 @@
-import { XIcon } from 'lucide-react';
+import { ChevronDownIcon, XIcon } from 'lucide-react';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 
 import PriceTransparencySection from '@/components/home/PriceTransparencySection';
 import SectionCtaLink from '@/components/home/SectionCtaLink';
 import Section from '@/components/layout/Section';
+import Button from '@/components/ui/Button';
 import Card from '@/components/ui/Card';
 import IconButton from '@/components/ui/IconButton';
 import Input from '@/components/ui/Input';
@@ -31,10 +32,19 @@ const SKELETON_SEARCH_ROWS = 3;
 const SKELETON_DEAL_CARDS = 6;
 const SKELETON_PHARMACY_CARDS = 4;
 
+// Below sm the deals stack two per row; past this many they turn into a long scroll
+const MOBILE_VISIBLE_DEALS = 6;
+
 export default function Home() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(null);
   const [openedGroup, setOpenedGroup] = useState<BackendDiscountedProductGroup | null>(null);
+  const [showAllDeals, setShowAllDeals] = useState(false);
+
+  const handleSelectCategory = (categoryId: number | null) => {
+    setSelectedCategoryId(categoryId);
+    setShowAllDeals(false);
+  };
 
   const {
     data: pharmacies,
@@ -167,20 +177,39 @@ export default function Home() {
           <CategoryChips
             categories={discountedGroups.categories}
             selectedCategoryId={selectedCategoryId}
-            onSelect={setSelectedCategoryId}
+            onSelect={handleSelectCategory}
           />
         )}
 
         {discountedGroupsIsSuccess && discountedGroups.results.length > 0 && (
-          <div className="grid grid-cols-2 gap-3 sm:flex sm:flex-wrap sm:justify-center sm:gap-5">
-            {discountedGroups.results.map((group) => (
-              <BestDealGroupCard
-                key={group.id}
-                group={group}
-                onOpenOffers={setOpenedGroup}
-              />
-            ))}
-          </div>
+          <>
+            <div className="grid grid-cols-2 gap-3 sm:flex sm:flex-wrap sm:justify-center sm:gap-5">
+              {discountedGroups.results.map((group, index) => (
+                <BestDealGroupCard
+                  key={group.id}
+                  group={group}
+                  onOpenOffers={setOpenedGroup}
+                  className={!showAllDeals && index >= MOBILE_VISIBLE_DEALS ? 'max-sm:hidden' : ''}
+                />
+              ))}
+            </div>
+
+            {!showAllDeals && discountedGroups.results.length > MOBILE_VISIBLE_DEALS && (
+              <Button
+                variant="outline"
+                className="mt-4 w-full sm:hidden"
+                onClick={() => {
+                  setShowAllDeals(true);
+                }}
+              >
+                Прикажи ги сите {discountedGroups.results.length} попусти
+                <ChevronDownIcon
+                  aria-hidden="true"
+                  className="h-4 w-4"
+                />
+              </Button>
+            )}
+          </>
         )}
 
         {discountedGroupsIsSuccess && discountedGroups.results.length === 0 && (

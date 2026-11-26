@@ -1,4 +1,4 @@
-import { PlusIcon } from 'lucide-react';
+import { ArrowLeftIcon, PlusIcon } from 'lucide-react';
 import { useMemo, useState } from 'react';
 
 import SectionCtaLink from '@/components/home/SectionCtaLink';
@@ -51,6 +51,11 @@ export default function MyLists() {
     setMyListIdToView(myListId);
   };
 
+  const handleBackToMyLists = () => {
+    removeProductFromMyList.reset();
+    setMyListIdToView(null);
+  };
+
   const handleClickCreateNewMyList = () => {
     setMyListToEdit(null);
     setIsCreateUpdateMyListModalOpen(true);
@@ -101,6 +106,7 @@ export default function MyLists() {
   };
 
   const isThereSelectedMyList = myListIdToView !== null;
+  const selectedMyList = myLists.find(({ id }) => id === myListIdToView);
   const selectedMyListItemsLength = isThereSelectedMyList ? myListItems.length : 0;
 
   return (
@@ -133,8 +139,13 @@ export default function MyLists() {
         />
       )}
 
+      {/* Below md one panel shows at a time: the lists, or the opened list with a way back.
+          The panels only scroll on their own from md up; on a phone the page scrolls.
+          min-w-0 stops long truncated names from widening the grid column */}
       <div className="grid min-h-96 items-start gap-4 md:grid-cols-[320px_1fr]">
-        <Card className="max-h-[70vh] overflow-y-auto">
+        <Card
+          className={`min-w-0 md:max-h-[70vh] md:overflow-y-auto ${isThereSelectedMyList ? 'max-md:hidden' : ''}`}
+        >
           <ul>
             {myListsQuery.isSuccess &&
               myLists.map((myList) => (
@@ -191,7 +202,27 @@ export default function MyLists() {
           </ul>
         </Card>
 
-        <Card className="max-h-[70vh] overflow-y-auto">
+        <Card
+          className={`min-w-0 md:max-h-[70vh] md:overflow-y-auto ${isThereSelectedMyList ? '' : 'max-md:hidden'}`}
+        >
+          {selectedMyList && (
+            <div className="border-border flex items-center gap-2 border-b px-4 py-3">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="-ml-2 shrink-0 md:hidden"
+                onClick={handleBackToMyLists}
+              >
+                <ArrowLeftIcon
+                  aria-hidden="true"
+                  className="h-4 w-4"
+                />
+                Сите листи
+              </Button>
+              <h2 className="text-text truncate text-lg font-semibold">{selectedMyList.name}</h2>
+            </div>
+          )}
+
           <ul>
             {!isThereSelectedMyList && (
               <li>
