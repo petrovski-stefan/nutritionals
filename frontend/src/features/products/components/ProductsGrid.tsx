@@ -38,7 +38,6 @@ type Props = Readonly<{
   handleResetSearch: () => void;
 }>;
 
-// Dimmed and unclickable while updating, so nobody acts on a result that is about to change
 const updatingClasses = (isUpdating: boolean) =>
   `transition-opacity duration-150 motion-reduce:transition-none ${isUpdating ? 'pointer-events-none opacity-50' : ''}`;
 
@@ -80,16 +79,13 @@ export default function ProductsGrid({
   };
 
   return (
-    // Target of the "skip to results" link on Compare, hence the id and tabIndex
     <div
       id="compare-results"
       tabIndex={-1}
       aria-busy={isUpdating}
       className="flex w-full flex-col gap-6 outline-none"
     >
-      {/* status: filter and search changes are announced with the new count */}
       {!isPending && !isError && totalCount > 0 && (
-        // Count on the left, sorting on the right, where comparison sites put it
         <div className="-mb-2 flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-2">
             <p

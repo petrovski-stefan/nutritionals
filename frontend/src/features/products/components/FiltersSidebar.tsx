@@ -35,7 +35,6 @@ const filterDisplayedInitialValue = {
   brands: false,
 };
 
-// Varied widths so the placeholder reads as a list of filter labels
 const FILTER_SKELETON_WIDTHS = ['w-3/4', 'w-1/2', 'w-2/3', 'w-3/5', 'w-2/5'];
 
 type FilterContentArgs = {
@@ -204,7 +203,6 @@ export default function FiltersSidebar({
         </p>
       )}
 
-      {/* Below md the filters stay closed, so the results start on the first screen */}
       <Button
         variant="outline"
         className="w-full md:hidden"

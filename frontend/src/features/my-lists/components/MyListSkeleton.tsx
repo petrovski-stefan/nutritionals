@@ -2,7 +2,6 @@ import Skeleton from '@/components/ui/Skeleton';
 
 const ACTIONS = 3;
 
-// Same frame as a MyList row: name, item count, last update, three action buttons
 export default function MyListSkeleton() {
   return (
     <li className="border-border flex items-center justify-between gap-2 border-b px-4 py-4 last:border-0 md:gap-4">

@@ -18,8 +18,6 @@ type CompareParamsUpdate = {
   page?: number;
 };
 
-// Compare's search lives in the URL (?q=&categories=&brands=&sort=&page=), so reloading, Back,
-// sharing a link and returning from sign-in all keep it
 const useCompareSearchParams = () => {
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -35,7 +33,6 @@ const useCompareSearchParams = () => {
   const updateSearchParams = (next: CompareParamsUpdate) => {
     setSearchParams((prev) => {
       const params = new URLSearchParams(prev);
-      // Empty values leave the URL, so a plain /compare means "no search"
       const setOrDelete = (key: string, value: string) => {
         if (value) params.set(key, value);
         else params.delete(key);

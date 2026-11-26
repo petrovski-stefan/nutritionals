@@ -1,7 +1,6 @@
 import Card from '@/components/ui/Card';
 import Skeleton from '@/components/ui/Skeleton';
 
-// Same frame as BestDealGroupCard: badge, name, brand, price, offers button
 export default function BestDealGroupCardSkeleton() {
   return (
     <Card className="flex w-full flex-col items-center gap-2 p-4 sm:w-48">

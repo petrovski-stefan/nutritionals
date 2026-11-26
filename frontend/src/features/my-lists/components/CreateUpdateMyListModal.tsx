@@ -30,8 +30,7 @@ export default function CreateUpdateMyListModal({
   const isPending = createMyList.isPending || updateMyList.isPending;
   const apiError = createMyList.error ?? updateMyList.error;
 
-  // In update mode the input is pre-filled with the list's own name — it must
-  // not count as a duplicate, otherwise the list can never be re-saved.
+  // In update mode the list's own name is pre-filled and must not count as a duplicate
   const blockedNames = useMemo(
     () =>
       myListToUpdate ? existingNames.filter((name) => name !== myListToUpdate.name) : existingNames,

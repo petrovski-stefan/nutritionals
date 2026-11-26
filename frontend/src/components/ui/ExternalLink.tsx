@@ -9,8 +9,6 @@ type Props = Readonly<{
   textClassName?: string;
 }>;
 
-// A link that opens another site in a new tab, and says so: an icon for sighted users,
-// words for screen readers
 export default function ExternalLink({
   href,
   children,

@@ -1,6 +1,5 @@
 import Skeleton from '@/components/ui/Skeleton';
 
-// Same frame as a MyListItem row: pharmacy badge, product name and meta, price
 export default function MyListItemSkeleton() {
   return (
     <li className="border-border flex flex-col gap-4 border-b px-4 py-4 last:border-0 md:flex-row md:items-center">

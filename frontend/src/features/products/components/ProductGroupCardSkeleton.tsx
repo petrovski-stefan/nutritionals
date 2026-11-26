@@ -3,7 +3,6 @@ import Skeleton from '@/components/ui/Skeleton';
 
 const OFFER_ROWS = 3;
 
-// Same frame as ProductGroupCard: title, brand, offer count, then offer rows
 export default function ProductGroupCardSkeleton() {
   return (
     <Card className="flex w-full flex-col p-4">

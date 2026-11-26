@@ -23,6 +23,7 @@ npx prettier --write <file>   # there is no npm script for Prettier
 - **ESLint:** `strictTypeChecked` and `stylisticTypeChecked` (types use `type`, not `interface`), sonarjs, jsx-a11y `recommended`, simple-import-sort, TanStack Query `flat/recommended-strict`, `switch-exhaustiveness-check` and import-x (`no-cycle`, `no-restricted-paths`).
 - **Knip:** fails on unused files, exports and dependencies. Delete dead code rather than ignoring it.
 - **tsconfig:** `exactOptionalPropertyTypes`, `noUncheckedIndexedAccess`, `noPropertyAccessFromIndexSignature` and `noUncheckedSideEffectImports`. Expect stricter errors than in typical React projects.
+- **Comments:** the root `CLAUDE.md` rule applies, and JSX `{/* */}` comments meet the same bar. No comment above a component, skeleton, hook or prop that restates its name (`// A pill-shaped button`, `// Same frame as ProductGroupCard`).
 - **Imports:** use the `@/` alias for anything outside the current directory. Only sibling `./` imports stay relative. No `../` paths (`no-restricted-imports` fails on them).
 
 ## Structure

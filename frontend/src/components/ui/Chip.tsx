@@ -6,12 +6,10 @@ const BASE_CLASSES =
 type Props = Readonly<{
   children: ReactNode;
   onClick: () => void;
-  // Set for toggle chips (filters): styles the selected one and announces it via aria-pressed.
-  // Leave unset for action chips (suggestions)
+  // Leave undefined for action chips (suggestions), so they get no aria-pressed
   isSelected?: boolean;
 }>;
 
-// A pill-shaped button for filters and suggestions
 export default function Chip({ children, onClick, isSelected }: Props) {
   const stateClasses = isSelected
     ? 'border-primary bg-primary/10 text-primary'

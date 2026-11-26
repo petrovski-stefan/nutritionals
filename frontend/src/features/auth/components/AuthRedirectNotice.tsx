@@ -11,7 +11,6 @@ const MESSAGES: Record<AuthRedirectReason, string> = {
   'session-expired': 'Вашата сесија истече. Најавете се повторно за да продолжите.',
 };
 
-// Tells a user who was redirected here why they need an account
 export default function AuthRedirectNotice() {
   const location = useLocation();
   const reason = (location.state as AuthRedirectState | null)?.reason;

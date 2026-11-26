@@ -21,11 +21,9 @@ import HomeSearch from '@/features/products/components/HomeSearch';
 import useDiscountedProductGroups from '@/features/products/hooks/useDiscountedProductGroups';
 import type { BackendDiscountedProductGroup } from '@/features/products/types/productgroups';
 
-// Skeleton counts approximate a typical first load of each section
 const SKELETON_DEAL_CARDS = 6;
 const SKELETON_PHARMACY_CARDS = 4;
 
-// Below sm the deals stack two per row; past this many they turn into a long scroll
 const MOBILE_VISIBLE_DEALS = 6;
 
 export default function Home() {

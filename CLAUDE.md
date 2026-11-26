@@ -26,6 +26,15 @@ The frontend runs on the host: `npm run dev` in `frontend/`.
 
 GitHub Actions (`.github/workflows/ci.yaml`) runs the checks and the backend tests on every pull request. Before considering a change done, run the checks for each side you changed. The `/check` skill runs them, and the commands are in each side's `CLAUDE.md`.
 
+## Comments
+
+Applies to `.ts`, `.tsx`, `.py`, `.css` and config files.
+
+- Write a comment only when the code, names and types can't tell the reader something: a non-obvious reason, a browser or library quirk, a constraint set somewhere else. One line where possible.
+- Don't restate the next line, describe a component, prop or function its name already explains, or narrate design rationale. Rationale goes in the PR.
+- No commented-out code and no framework boilerplate comments.
+- Python docstrings are separate: keep writing them as `backend/` does.
+
 ## API contract
 
 These rules span both sides, so change them together:

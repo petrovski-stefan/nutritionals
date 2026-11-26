@@ -8,7 +8,6 @@ import { getEffectivePrice } from '@/shared/utils/prices';
 
 import ProductInGroup from './ProductInGroup';
 
-// Enough to compare at a glance; the rest open on request instead of scrolling inside the card
 const VISIBLE_OFFERS = 3;
 
 const offersLabel = (count: number) => (count === 1 ? 'понуда' : 'понуди');
@@ -25,7 +24,6 @@ type Props = Readonly<{
 export default function ProductGroupCard({ productGroup, handleClickAddProductToMyList }: Props) {
   const [showAllOffers, setShowAllOffers] = useState(false);
 
-  // Cheapest first, so the collapsed card always shows the best prices
   const offers = [...productGroup.products].sort(
     (a, b) => getEffectivePrice(a) - getEffectivePrice(b)
   );

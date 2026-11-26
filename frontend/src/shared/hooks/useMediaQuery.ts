@@ -1,6 +1,5 @@
 import { useCallback, useSyncExternalStore } from 'react';
 
-// Whether a CSS media query matches, kept in sync as the window resizes
 const useMediaQuery = (query: string) => {
   const subscribe = useCallback(
     (onChange: () => void) => {

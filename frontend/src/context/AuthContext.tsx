@@ -4,7 +4,6 @@ type AuthContextValue = {
   username: string;
   accessToken: string;
   isLoggedIn: boolean;
-  // True after expireSession() until the next sign-in or sign-out, so guards can say why
   hasSessionExpired: boolean;
   login: (username: string, accessToken: string) => void;
   logout: () => void;
@@ -59,7 +58,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
     setHasSessionExpired(false);
   };
 
-  // The server rejected the token: sign out, and remember why for the sign-in page
   const expireSession = () => {
     clearSession();
     setHasSessionExpired(true);

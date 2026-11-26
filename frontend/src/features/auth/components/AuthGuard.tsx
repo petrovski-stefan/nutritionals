@@ -8,7 +8,6 @@ type Props = Readonly<
   PropsWithChildren & {
     mode: 'guestOnly' | 'private';
     redirectTo: string;
-    // Shown on the sign-in page, so the redirect doesn't come without an explanation
     reason?: AuthRedirectReason;
   }
 >;
@@ -26,8 +25,6 @@ export default function AuthGuard({ children, mode, redirectTo, reason }: Props)
     if (!shouldRedirect) return;
 
     if (isPrivateRoute) {
-      // Login and register send the user back to `from` once they are signed in
-      // An expired session explains itself instead of the page's usual reason
       const redirectReason = hasSessionExpired ? 'session-expired' : reason;
       const state: AuthRedirectState = redirectReason
         ? { from: location, reason: redirectReason }

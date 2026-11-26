@@ -24,7 +24,6 @@ export default function CheckboxesFilter({
   const toggleLabel = isDisplayed ? 'Затвори' : 'Отвори';
 
   return (
-    // Only the list scrolls, so the title and its toggle stay in place
     <div className="border-border border-t pt-4">
       <div className="mb-2 flex items-center justify-between">
         <span className="text-text font-semibold">{filterTitle}</span>

@@ -13,14 +13,13 @@ type Props = Readonly<{
   children: ReactNode;
 }>;
 
-// React Query for the whole app, plus one place that handles an expired session: a 401 on any
-// request while signed in logs the user out and sends them to sign in, then back to this page
+// A 401 on any query or mutation while signed in expires the session and redirects to sign-in
 export default function QueryProvider({ children }: Props) {
   const { isLoggedIn, expireSession } = useAuthContext();
   const navigate = useNavigate();
   const location = useLocation();
 
-  // The client lives as long as the app; its error handler reads the current auth state and route
+  // The client is created once, so its error handler reads auth state and route through a ref
   const latestRef = useRef({ isLoggedIn, expireSession, navigate, location });
   useEffect(() => {
     latestRef.current = { isLoggedIn, expireSession, navigate, location };

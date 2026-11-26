@@ -5,7 +5,6 @@ type Props = Readonly<{
   className?: string;
 }>;
 
-// Lets keyboard users jump past repeated blocks (header, filters). Hidden until it gets focus
 export default function SkipLink({ targetId, children, className = '' }: Props) {
   return (
     <a
