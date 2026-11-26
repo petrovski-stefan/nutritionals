@@ -4,6 +4,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import Button from '@/components/ui/Button';
 import LoadingStatus from '@/components/ui/LoadingStatus';
 import RetryButton from '@/components/ui/RetryButton';
+import Spinner from '@/components/ui/Spinner';
 import StateMessage from '@/components/ui/StateMessage';
 import { useAuthContext } from '@/context/AuthContext';
 import AddProductToMyListModal from '@/features/my-lists/components/AddProductToMyListModal';
@@ -30,10 +31,16 @@ type Props = Readonly<{
   isPending: boolean;
   isError: boolean;
   isRefetching: boolean;
+  // The previous results are still on screen while new ones load (sort, page, filters)
+  isUpdating: boolean;
   handleRetry: () => void;
   hasActiveSearch: boolean;
   handleResetSearch: () => void;
 }>;
+
+// Dimmed and unclickable while updating, so nobody acts on a result that is about to change
+const updatingClasses = (isUpdating: boolean) =>
+  `transition-opacity duration-150 motion-reduce:transition-none ${isUpdating ? 'pointer-events-none opacity-50' : ''}`;
 
 export default function ProductsGrid({
   groups,
@@ -47,6 +54,7 @@ export default function ProductsGrid({
   isPending,
   isError,
   isRefetching,
+  isUpdating,
   handleRetry,
   hasActiveSearch,
   handleResetSearch,
@@ -76,20 +84,24 @@ export default function ProductsGrid({
     <div
       id="compare-results"
       tabIndex={-1}
+      aria-busy={isUpdating}
       className="flex w-full flex-col gap-6 outline-none"
     >
       {/* status: filter and search changes are announced with the new count */}
       {!isPending && !isError && totalCount > 0 && (
         // Count on the left, sorting on the right, where comparison sites put it
         <div className="-mb-2 flex flex-wrap items-center justify-between gap-3">
-          <p
-            role="status"
-            className="text-text-muted text-sm"
-          >
-            <span className="text-text font-semibold tabular-nums">{totalCount}</span>{' '}
-            {totalCount === 1 ? 'суплемент' : 'суплементи'}
-            {query && ` за „${query}“`}
-          </p>
+          <div className="flex items-center gap-2">
+            <p
+              role="status"
+              className="text-text-muted text-sm"
+            >
+              <span className="text-text font-semibold tabular-nums">{totalCount}</span>{' '}
+              {totalCount === 1 ? 'суплемент' : 'суплементи'}
+              {query && ` за „${query}“`}
+            </p>
+            {isUpdating && <Spinner />}
+          </div>
 
           <label className="text-text-muted flex items-center gap-2 text-sm">
             Подреди:
@@ -118,7 +130,9 @@ export default function ProductsGrid({
       )}
 
       {!isPending && !isError && groups.length > 0 && (
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3">
+        <div
+          className={`grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3 ${updatingClasses(isUpdating)}`}
+        >
           {groups.map((group) => (
             <ProductGroupCard
               key={group.id}
@@ -169,11 +183,11 @@ export default function ProductsGrid({
       )}
 
       {!isPending && !isError && groups.length > 0 && (
-        <div className="flex items-center justify-center gap-6">
+        <div className={`flex items-center justify-center gap-6 ${updatingClasses(isUpdating)}`}>
           <Button
             variant="outline"
             size="sm"
-            disabled={currentPage === 1}
+            disabled={currentPage === 1 || isUpdating}
             onClick={() => {
               handlePaginationClick(true);
             }}
@@ -188,7 +202,7 @@ export default function ProductsGrid({
           <Button
             variant="outline"
             size="sm"
-            disabled={currentPage === totalPages}
+            disabled={currentPage === totalPages || isUpdating}
             onClick={() => {
               handlePaginationClick(false);
             }}

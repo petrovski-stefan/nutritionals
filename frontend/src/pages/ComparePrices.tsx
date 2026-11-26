@@ -99,6 +99,9 @@ export default function ComparePrices() {
     updateSearchParams({ page: nextPage });
     // Otherwise the next page opens where the old one was scrolled to: at its bottom
     window.scrollTo(0, 0);
+    // Focus follows the view: keyboard and screen-reader users continue from the new results,
+    // not from the pagination button now far below
+    document.getElementById('compare-results')?.focus({ preventScroll: true });
   };
 
   return (
@@ -141,6 +144,7 @@ export default function ComparePrices() {
         isPending={productGroupsQuery.isPending}
         isError={productGroupsQuery.isError}
         isRefetching={productGroupsQuery.isFetching}
+        isUpdating={productGroupsQuery.isPlaceholderData}
         handleRetry={() => {
           void productGroupsQuery.refetch();
         }}
