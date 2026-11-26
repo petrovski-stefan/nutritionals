@@ -1,6 +1,6 @@
 import Modal from '@/components/ui/Modal';
 import type { BackendDiscountedProductGroup } from '@/features/products/types/productgroups';
-import type { BackendProduct } from '@/features/products/types/products';
+import { getEffectivePrice } from '@/shared/utils/prices';
 
 import DropdownGroupOffer from './DropdownGroupOffer';
 
@@ -8,8 +8,6 @@ type Props = Readonly<{
   group: BackendDiscountedProductGroup;
   onClose: () => void;
 }>;
-
-const getEffectivePrice = (product: BackendProduct) => product.discount_price ?? product.price;
 
 export default function GroupOffersModal({ group, onClose }: Props) {
   const offers = [...group.products].sort((a, b) => getEffectivePrice(a) - getEffectivePrice(b));

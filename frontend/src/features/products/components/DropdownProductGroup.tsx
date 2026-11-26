@@ -2,7 +2,7 @@ import { ChevronDownIcon } from 'lucide-react';
 import { useState } from 'react';
 
 import type { BackendProductGroup } from '@/features/products/types/productgroups';
-import { formatPrice } from '@/shared/utils/prices';
+import { formatPrice, getEffectivePrice } from '@/shared/utils/prices';
 
 import DropdownGroupOffer from './DropdownGroupOffer';
 
@@ -15,9 +15,7 @@ export default function DropdownProductGroup({ productGroup }: Props) {
   const offersId = `group-offers-${String(productGroup.id)}`;
 
   const offersCount = productGroup.products.length;
-  const offerPrices = productGroup.products.map(
-    (product) => product.discount_price ?? product.price
-  );
+  const offerPrices = productGroup.products.map(getEffectivePrice);
   const minPrice = offerPrices.length > 0 ? Math.min(...offerPrices) : null;
 
   return (

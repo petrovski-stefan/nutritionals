@@ -1,6 +1,8 @@
-import { SearchIcon, XIcon } from 'lucide-react';
+import { SearchIcon, SlidersHorizontalIcon, XIcon } from 'lucide-react';
 import { type FormEvent, type ReactNode, useState } from 'react';
 
+import Badge from '@/components/ui/Badge';
+import Button from '@/components/ui/Button';
 import Card from '@/components/ui/Card';
 import Checkbox from '@/components/ui/Checkbox';
 import IconButton from '@/components/ui/IconButton';
@@ -89,6 +91,7 @@ export default function FiltersSidebar({
   handleClearFilters,
 }: Props) {
   const [isFilterDisplayed, setIsFilterDisplayed] = useState(filterDisplayedInitialValue);
+  const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false);
 
   const brandsQuery = useBrands();
   const categoriesQuery = useCategories();
@@ -143,7 +146,8 @@ export default function FiltersSidebar({
     setIsFilterDisplayed((prev) => ({ ...prev, [key]: !prev[key] }));
   };
 
-  const hasActiveFilters = filters.brandIds.length > 0 || filters.categoryIds.length > 0;
+  const activeFiltersCount = filters.brandIds.length + filters.categoryIds.length;
+  const hasActiveFilters = activeFiltersCount > 0;
 
   return (
     <Card className="flex h-fit flex-col gap-5 p-5 md:sticky md:top-20">
@@ -188,34 +192,57 @@ export default function FiltersSidebar({
         </div>
       </form>
 
-      <div className="text-center">
-        {/* Disabled rather than hidden, so the filter lists do not jump when the first one is set */}
-        <button
-          type="button"
-          disabled={!hasActiveFilters}
-          onClick={handleClearFilters}
-          className="text-info focus-visible:outline-primary cursor-pointer rounded px-2 py-2 text-sm font-medium transition duration-150 ease-out focus-visible:outline-2 focus-visible:outline-offset-2 enabled:hover:underline enabled:active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 motion-reduce:transition-none"
-        >
-          Исчисти ги филтрите
-        </button>
-      </div>
-
-      <div className="flex flex-col gap-5">
-        <CheckboxesFilter
-          filterTitle="Филтрирај по категорија"
-          filterType="categories"
-          checkboxes={categoriesContent}
-          handleFilterDisplayToggle={handleFilterDisplayToggle}
-          isFilterDisplayed={isFilterDisplayed}
+      {/* Below md the filters stay closed, so the results start on the first screen */}
+      <Button
+        variant="outline"
+        className="w-full md:hidden"
+        aria-expanded={isMobileFiltersOpen}
+        aria-controls="compare-filters"
+        onClick={() => {
+          setIsMobileFiltersOpen((prev) => !prev);
+        }}
+      >
+        <SlidersHorizontalIcon
+          aria-hidden="true"
+          className="h-4 w-4"
         />
+        {isMobileFiltersOpen ? 'Сокриј ги филтрите' : 'Филтри'}
+        {hasActiveFilters && <Badge variant="success">{activeFiltersCount}</Badge>}
+      </Button>
 
-        <CheckboxesFilter
-          filterTitle="Филтрирај по бренд"
-          filterType="brands"
-          checkboxes={brandsContent}
-          handleFilterDisplayToggle={handleFilterDisplayToggle}
-          isFilterDisplayed={isFilterDisplayed}
-        />
+      <div
+        id="compare-filters"
+        className={`${isMobileFiltersOpen ? 'flex' : 'hidden'} flex-col gap-5 md:flex`}
+      >
+        <div className="text-center">
+          {/* Disabled rather than hidden, so the filter lists do not jump when the first one is set */}
+          <button
+            type="button"
+            disabled={!hasActiveFilters}
+            onClick={handleClearFilters}
+            className="text-info focus-visible:outline-primary cursor-pointer rounded px-2 py-2 text-sm font-medium transition duration-150 ease-out focus-visible:outline-2 focus-visible:outline-offset-2 enabled:hover:underline enabled:active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 motion-reduce:transition-none"
+          >
+            Исчисти ги филтрите
+          </button>
+        </div>
+
+        <div className="flex flex-col gap-5">
+          <CheckboxesFilter
+            filterTitle="Филтрирај по категорија"
+            filterType="categories"
+            checkboxes={categoriesContent}
+            handleFilterDisplayToggle={handleFilterDisplayToggle}
+            isFilterDisplayed={isFilterDisplayed}
+          />
+
+          <CheckboxesFilter
+            filterTitle="Филтрирај по бренд"
+            filterType="brands"
+            checkboxes={brandsContent}
+            handleFilterDisplayToggle={handleFilterDisplayToggle}
+            isFilterDisplayed={isFilterDisplayed}
+          />
+        </div>
       </div>
     </Card>
   );

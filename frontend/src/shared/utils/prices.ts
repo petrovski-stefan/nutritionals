@@ -1,3 +1,7 @@
+// What the customer pays: the discounted price when there is one
+export const getEffectivePrice = (offer: { price: number; discount_price: number | null }) =>
+  offer.discount_price ?? offer.price;
+
 export const formatPrice = (price: number | null) => {
   if (price === null) {
     return '';
