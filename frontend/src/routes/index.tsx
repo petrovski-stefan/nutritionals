@@ -43,7 +43,8 @@ const routes: Route[] = [
         <SmartSearch />
       </AuthGuard>
     ),
-    showInHeaderMode: 'show',
+    // Logged-out users reach it through the link under the Home search, which explains sign-in
+    showInHeaderMode: 'showIfAuthOnly',
   },
   {
     linkText: 'За нас',
