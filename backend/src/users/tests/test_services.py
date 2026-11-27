@@ -1,7 +1,10 @@
 import pytest
+from django.contrib.auth.models import User
 from rest_framework_simplejwt.tokens import AccessToken, RefreshToken
 
+from users.exceptions import UsernameTakenAPIError
 from users.services import user as user_service
+from users.tests.factories import UserFactory
 
 pytestmark = pytest.mark.django_db
 
@@ -19,3 +22,12 @@ def test_register_user_returns_tokens_for_the_user() -> None:
 
     assert AccessToken(access)["user_id"] == user.pk
     assert RefreshToken(refresh)["user_id"] == user.pk
+
+
+def test_register_user_rejects_a_taken_username_and_keeps_the_transaction_usable() -> None:
+    UserFactory(username="someone")
+
+    with pytest.raises(UsernameTakenAPIError):
+        user_service.register_user(username="someone", password="Pass-12-x")
+
+    assert User.objects.filter(username="someone").count() == 1
