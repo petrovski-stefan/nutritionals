@@ -20,6 +20,8 @@ docker compose -f compose.dev.yaml exec web uv run manage.py <command>   # migra
 
 Flower (Celery monitoring) is at http://localhost:5555. In production it binds to the server's localhost only, so open it through `ssh -L 5555:localhost:5555 <server>`.
 
+In production the `certbot` service runs `certbot renew` every 12 hours, and nginx reloads every 6 hours to serve the renewed certificate. Renewal uses the http-01 challenge, so Cloudflare must let `/.well-known/acme-challenge/` through to the server, or it fails with a 403. The service's entrypoint is the renewal loop, so a manual run overrides it: `docker compose -f compose.prod.yaml run --rm --entrypoint certbot certbot renew --dry-run`.
+
 The frontend runs on the host: `npm run dev` in `frontend/`.
 
 ## Checks
