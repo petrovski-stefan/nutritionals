@@ -51,7 +51,7 @@ docker compose -f compose.dev.yaml run --rm -w /app web uv run pytest      # onl
 - Tests live in `<app>/tests/` packages, one `test_<module>.py` per area. `.dockerignore` keeps them out of the prod image.
 - Build rows with the app's `tests/factories.py` (`ProductFactory(categories=[...])`, `MyListFactory(user=user)`). Test imports follow the app import direction: `mylists` tests may use `products` factories, not the reverse.
 - Shared fixtures are in `src/conftest.py`: `api_client`, `user`, `auth_client` (sends a real JWT for `user`). pytest-django adds `client`, `admin_client` and `db`.
-- `src/conftest.py` makes any real OpenAI or HTTP call fail. Mock the call site with `mocker.patch.object(...)`, e.g. `products.services.product.enrich_supplement` or `productgroup_service.smart_search_ai`.
+- `src/conftest.py` makes any real OpenAI or HTTP call fail. Mock the call site with `mocker.patch.object(...)`, e.g. `products.services.ingest.enrich_supplement` or `smart_search_service.smart_search_ai`.
 - Assert on response codes and `errors[].code`, since the frontend maps those codes. A known bug gets a `pytest.mark.xfail(strict=True, reason="Bug: ...")` test, which fails once the bug is fixed, so the marker gets removed.
 
 ## Apps
@@ -96,9 +96,9 @@ Most flows have one entry point and one service call, so extra layers would add 
 ## Scrapers and Celery
 
 - Each pharmacy is a package under `scrapers/`, loaded by name through `shared/imports.load_pharmacy_fns`. To add one, use the `/add-scraper` skill.
-- Scrape flow: `schedule_pharmacy_catalogs_scrape` → `schedule_catalog_page_scrape` → `scrape_pharmacy_page` → `create_or_update_scraped_product` (in `products/services/product.py`).
+- Scrape flow: `schedule_pharmacy_catalogs_scrape` → `schedule_catalog_page_scrape` → `scrape_pharmacy_page` → `create_or_update_scraped_product` (in `products/services/ingest.py`).
 - Creating a new product makes an OpenAI enrichment call.
-- `products/tasks.py: group_products` assigns products to groups.
+- `products/tasks.py: group_products` assigns products to groups through `products/services/grouping.py`.
 - `scrapers/tasks.py: check_scrape_freshness` logs an ERROR for each pharmacy with an active catalog that hasn't been scraped within `STALE_AFTER_HOURS`. It assumes the catalog scrape runs daily.
 - `Pharmacy` and `PharmacyCatalog` are in `products.models` and are managed through Django admin.
 - Flower monitors tasks (`flower` compose service, port 5555). It needs task events, which `core/settings/celery.py` turns on.

@@ -6,7 +6,7 @@ from celery import shared_task
 from django.utils import timezone
 from products.models import Pharmacy, PharmacyCatalog
 from products.services import pharmacy as pharmacy_service
-from products.services.product import create_or_update_scraped_product
+from products.services.ingest import create_or_update_scraped_product
 
 from .shared.client import get_random_useragent, make_request_and_get_html
 from .shared.exceptions import CardsNotFoundError

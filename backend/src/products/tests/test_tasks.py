@@ -37,7 +37,7 @@ def test_keeps_going_after_a_failure(
 ) -> None:
     ProductFactory.create_batch(2)
     mocker.patch(
-        "products.tasks.productgroup_service.assign_product_to_group",
+        "products.tasks.grouping_service.assign_product_to_group",
         side_effect=[RuntimeError("boom"), "joined"],
     )
 

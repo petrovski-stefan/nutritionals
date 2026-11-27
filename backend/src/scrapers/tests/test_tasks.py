@@ -132,7 +132,7 @@ def fetch_html(mocker: MockerFixture) -> MagicMock:
 @pytest.fixture
 def enrich(mocker: MockerFixture) -> MagicMock:
     return mocker.patch(
-        "products.services.product.enrich_supplement", return_value=("60 kapsuli", "", [])
+        "products.services.ingest.enrich_supplement", return_value=("60 kapsuli", "", [])
     )
 
 

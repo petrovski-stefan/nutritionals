@@ -92,8 +92,6 @@ ignore = [
 "src/products/ai/supplement_enrichment.py" = ["I001"]
 "src/products/models.py" = ["I001", "RUF100"]
 "src/products/services/brand.py" = ["I001"]
-"src/products/services/product.py" = ["I001"]
-"src/products/services/productgroup.py" = ["I001"]
 "src/products/validators.py" = ["B904"]
 "src/products/views.py" = ["I001"]
 "src/scrapers/annifarm/__init__.py" = ["RUF022"]
@@ -125,9 +123,7 @@ exclude = [
     "src/products/models.py",
     "src/products/serializers.py",
     "src/products/services/category.py",
-    "src/products/services/product.py",
     "src/products/services/productcategory.py",
-    "src/products/services/productgroup.py",
     "src/products/services/productgroupcategory.py",
     "src/products/views.py",
     "src/scrapers/annifarm/selectors.py",

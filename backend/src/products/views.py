@@ -22,6 +22,7 @@ from .services import brand as brand_service
 from .services import category as category_service
 from .services import pharmacy as pharmacy_service
 from .services import productgroup as productgroup_service
+from .services import smart_search as smart_search_service
 
 
 class DiscountedProductGroupListAPIView(NoAuthMixin, APIView):
@@ -49,7 +50,7 @@ class SmartSearchAPIView(JWTAuthMixin, APIView):
         input_serializer = ProductSmartSearchInputSerializer(data=request.data)
         input_serializer.is_valid(raise_exception=True)
 
-        group_qs = productgroup_service.get_smart_searched_productgroups(
+        group_qs = smart_search_service.get_smart_searched_productgroups(
             query=input_serializer.validated_data.get("query")
         )
 

@@ -3,7 +3,7 @@ from collections import Counter
 
 from celery import shared_task
 
-from products.services import productgroup as productgroup_service
+from products.services import grouping as grouping_service
 
 from .models import Product
 
@@ -16,7 +16,7 @@ def group_products() -> None:
 
     for p in Product.objects.public():
         try:
-            outcome = productgroup_service.assign_product_to_group(p)
+            outcome = grouping_service.assign_product_to_group(p)
         except Exception:
             # One bad product must not stop the rest from being grouped
             logger.exception(

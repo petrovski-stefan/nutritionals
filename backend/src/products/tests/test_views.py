@@ -5,7 +5,7 @@ import pytest
 from pytest_mock import MockerFixture
 from rest_framework.test import APIClient
 
-from products.services import productgroup as productgroup_service
+from products.services import smart_search as smart_search_service
 from products.tests.factories import (
     BrandFactory,
     CategoryFactory,
@@ -173,7 +173,7 @@ class TestDiscountedProductGroupList:
 class TestSmartSearch:
     @pytest.fixture
     def smart_search_ai(self, mocker: MockerFixture) -> MagicMock:
-        return mocker.patch.object(productgroup_service, "smart_search_ai")
+        return mocker.patch.object(smart_search_service, "smart_search_ai")
 
     def test_requires_authentication(
         self, api_client: APIClient, smart_search_ai: MagicMock
