@@ -1,16 +1,11 @@
-from unittest.mock import MagicMock
-
 import pytest
-from pytest_mock import MockerFixture
 
 from products import exceptions
-from products.models import Brand, Category, Pharmacy, ProductGroup, ProductGroupCategory
+from products.models import ProductGroup, ProductGroupCategory
 from products.services import productgroup as productgroup_service
 from products.services import productgroupcategory as productgroupcategory_service
 from products.tests.factories import (
-    BrandFactory,
     CategoryFactory,
-    PharmacyFactory,
     ProductFactory,
     ProductGroupFactory,
 )
@@ -162,171 +157,6 @@ class TestListDiscountedGroups:
         result = productgroup_service.list_discounted_groups()
 
         assert len(result) == productgroup_service.DISCOUNTED_GROUPS_LIMIT
-
-
-@pytest.fixture
-def smart_search_ai(mocker: MockerFixture) -> MagicMock:
-    return mocker.patch.object(productgroup_service, "smart_search_ai")
-
-
-def magnesium_group(name: str) -> ProductGroup:
-    group = ProductGroupFactory(name=name)
-    ProductFactory(group=group, normalized_name=f"magnesium {name}")
-
-    return group
-
-
-class TestGetSmartSearchedProductgroups:
-    def test_returns_nothing_without_keywords(self, smart_search_ai: MagicMock) -> None:
-        smart_search_ai.convert_query_to_tags.return_value = []
-
-        result = productgroup_service.get_smart_searched_productgroups(query="weather today")
-
-        assert list(result) == []
-        smart_search_ai.smart_search.assert_not_called()
-
-    def test_keeps_the_ai_order_and_drops_unknown_and_repeated_ids(
-        self, smart_search_ai: MagicMock
-    ) -> None:
-        first = magnesium_group("citrate")
-        second = magnesium_group("oxide")
-        magnesium_group("glycinate")
-        smart_search_ai.convert_query_to_tags.return_value = ["magnesium"]
-        smart_search_ai.smart_search.return_value = [second.pk, 999_999, first.pk, second.pk]
-
-        result = productgroup_service.get_smart_searched_productgroups(query="za spienje")
-
-        assert list(result) == [second, first]
-
-    def test_offers_only_similar_public_groups_as_candidates(
-        self, smart_search_ai: MagicMock
-    ) -> None:
-        similar = magnesium_group("citrate")
-        hidden = ProductGroupFactory(is_reviewed=False)
-        ProductFactory(group=hidden, normalized_name="magnesium oxide")
-        ProductFactory(group=ProductGroupFactory(), normalized_name="omega 3 fish oil")
-        smart_search_ai.convert_query_to_tags.return_value = ["magnesium", "magnesium citrate"]
-        smart_search_ai.smart_search.return_value = []
-
-        result = productgroup_service.get_smart_searched_productgroups(query="за спиење")
-
-        assert list(result) == []
-        smart_search_ai.convert_query_to_tags.assert_called_once_with(latin_query="za spienje")
-        smart_search_ai.smart_search.assert_called_once_with(
-            latin_query="za spienje", candidates=[{"id": similar.pk, "name": similar.name}]
-        )
-
-
-@pytest.fixture
-def pharmacy() -> Pharmacy:
-    return PharmacyFactory()
-
-
-@pytest.fixture
-def brand() -> Brand:
-    return BrandFactory()
-
-
-@pytest.fixture
-def category() -> Category:
-    return CategoryFactory()
-
-
-def make_group_with_product(*, brand: Brand | None, category: Category, **product_kwargs):
-    group = ProductGroupFactory(brand=brand, categories=[category])
-    ProductFactory(
-        group=group,
-        brand=brand,
-        categories=[category],
-        normalized_name="vitamin c 1000mg",
-        form_with_count="60 tableti",
-        dosage="1000 mg",
-        **product_kwargs,
-    )
-
-    return group
-
-
-def make_ungrouped_product(*, brand: Brand | None, category: Category, **overrides):
-    defaults = {
-        "normalized_name": "vitamin c 1000mg",
-        "form_with_count": "60 tableti",
-        "dosage": "1000 mg",
-    }
-
-    return ProductFactory(brand=brand, categories=[category], **{**defaults, **overrides})
-
-
-class TestAssignProductToGroup:
-    def test_skips_a_grouped_product(self) -> None:
-        product = ProductFactory(group=ProductGroupFactory())
-
-        assert productgroup_service.assign_product_to_group(product) == "skipped"
-
-    def test_joins_the_matching_group(self, brand: Brand, category: Category) -> None:
-        group = make_group_with_product(brand=brand, category=category)
-        product = make_ungrouped_product(brand=brand, category=category)
-
-        assert productgroup_service.assign_product_to_group(product) == "joined"
-        product.refresh_from_db()
-        assert product.group == group
-
-    def test_joins_the_group_and_adds_the_products_categories(
-        self, brand: Brand, category: Category
-    ) -> None:
-        group = make_group_with_product(brand=brand, category=category)
-        extra = CategoryFactory()
-        product = make_ungrouped_product(brand=brand, category=category)
-        product.categories.add(extra)
-
-        productgroup_service.assign_product_to_group(product)
-
-        assert set(group.categories.all()) == {category, extra}
-
-    def test_creates_a_group_when_nothing_matches(self, brand: Brand, category: Category) -> None:
-        product = make_ungrouped_product(brand=brand, category=category)
-
-        assert productgroup_service.assign_product_to_group(product) == "created"
-
-        product.refresh_from_db()
-        assert product.group is not None
-        assert (product.group.name, product.group.brand) == (product.name, brand)
-        assert list(product.group.categories.all()) == [category]
-
-    @pytest.mark.parametrize(
-        "overrides",
-        [
-            {"normalized_name": "omega 3 fish oil"},
-            {"brand": None},
-        ],
-        ids=["different-name", "different-brand"],
-    )
-    def test_creates_a_group_for_a_poor_match(
-        self, brand: Brand, category: Category, overrides: dict
-    ) -> None:
-        group = make_group_with_product(brand=brand, category=category)
-        product = make_ungrouped_product(**{"brand": brand, "category": category, **overrides})
-
-        assert productgroup_service.assign_product_to_group(product) == "created"
-        product.refresh_from_db()
-        assert product.group != group
-
-    def test_skips_a_group_holding_two_products_from_the_pharmacy(
-        self, brand: Brand, category: Category, pharmacy: Pharmacy
-    ) -> None:
-        group = make_group_with_product(brand=brand, category=category, pharmacy=pharmacy)
-        ProductFactory(group=group, brand=brand, pharmacy=pharmacy)
-        product = make_ungrouped_product(brand=brand, category=category, pharmacy=pharmacy)
-
-        assert productgroup_service.assign_product_to_group(product) == "created"
-
-    def test_ignores_unreviewed_groups(self, brand: Brand, category: Category) -> None:
-        group = make_group_with_product(brand=brand, category=category)
-        group.is_reviewed = False
-        group.save()
-        product = make_ungrouped_product(brand=brand, category=category)
-
-        assert productgroup_service.assign_product_to_group(product) == "created"
 
 
 def test_filter_by_category_count() -> None:

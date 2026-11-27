@@ -1,3 +1,5 @@
+from collections.abc import Mapping, Sequence
+
 from integrations.openai import get_response
 from pydantic import BaseModel
 
@@ -102,7 +104,7 @@ class RankedProductIds(BaseModel):
     product_ids: list[int]
 
 
-def smart_search(*, latin_query: str, candidates: list[dict]) -> list[int]:
+def smart_search(*, latin_query: str, candidates: Sequence[Mapping[str, object]]) -> list[int]:
     """
     Return the ids of the relevant candidates, best first. The candidates are product
     groups, which the prompt calls products
